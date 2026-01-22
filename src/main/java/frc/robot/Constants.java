@@ -25,6 +25,7 @@ public final class Constants {
 
   public static final double robotWidth = 0.7112; // 28in
   public static final double robotLength = 0.6858; // 27in
+
   public static enum Mode {
     /** Running on a real robot. */
     REAL,
@@ -59,4 +60,7 @@ public final class Constants {
   public static final int CAN_ID_BR_STEER = 54;
   public static final int CAN_ID_BR_ENCODER = 55;
 
+  // CAN IDs
+  public static final int intakeMotorID = 0;
+  public static final int intakeAngleMotorID = 0;
 }
