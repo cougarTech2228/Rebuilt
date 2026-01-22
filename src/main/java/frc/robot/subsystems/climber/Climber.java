@@ -1,5 +1,12 @@
 package frc.robot.subsystems.climber;
 
-public class Climber {
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
+public class Climber extends SubsystemBase {
     
+    private final ClimberIO climberIO;
+
+    public Climber(ClimberIO climberIO) {
+        this.climberIO = climberIO;
+    }
 }
