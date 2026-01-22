@@ -1,5 +1,5 @@
 package frc.robot.subsystems.intake;
 
-public class IntakeSim {
+public class IntakeIOSim {
     
 }
