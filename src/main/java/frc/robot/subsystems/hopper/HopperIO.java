@@ -1,4 +1,15 @@
 package frc.robot.subsystems.hopper;
-public class HopperIO {
-    
+
+import org.littletonrobotics.junction.AutoLog;
+
+public interface HopperIO {
+    @AutoLog
+    public static class HopperIOInputs {
+        public double hopperVelocity = 0.0;
+        public double hopperVoltage = 0.0;
+        public double hopperCurrent = 0.0;
+    }
+    public default void updateInputs(HopperIOInputs inputs) {}
+    public default void turnOn() {}
+    public default void turnOff() {}
 }
