@@ -1,6 +1,6 @@
 package frc.robot.subsystems.turret;
 
 
-public class TurretIOMotor {
+public class TurretIOTalonFX {
     
 }
