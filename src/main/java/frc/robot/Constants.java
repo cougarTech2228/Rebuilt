@@ -36,4 +36,7 @@ public final class Constants {
   // CAN IDs
   public static final int intakeMotorID = 0;
   public static final int intakeAngleMotorID = 0;
+
+  // DIOs
+  public static final int IntakeDeploySensorDIO = 0;
 }
