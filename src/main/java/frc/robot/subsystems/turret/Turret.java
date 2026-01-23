@@ -1,13 +1,20 @@
 package frc.robot.subsystems.turret;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.RobotContainer;
 import frc.robot.subsystems.drive.Drive;
 
 import static frc.robot.subsystems.vision.VisionConstants.aprilTagLayout;
+
+import org.littletonrobotics.junction.Logger;
 
 public class Turret extends SubsystemBase{
     public enum TurretAimTarget  {
@@ -17,6 +24,8 @@ public class Turret extends SubsystemBase{
     };
 
     private TurretIO turretIO;
+    private final TurretIOInputsAutoLogged turretInputs = new TurretIOInputsAutoLogged();
+
     private Drive driveSubsystem;
 
     public Turret(TurretIO turretIO, Drive driveSubsystem) {
@@ -24,10 +33,44 @@ public class Turret extends SubsystemBase{
         this.driveSubsystem = driveSubsystem;
     }
 
+    @Override
+    public void periodic() {
+        super.periodic();
+        turretIO.updateInputs(turretInputs);
+        Logger.processInputs("Turret", turretInputs);
+
+        RobotContainer.turretPose = new Pose3d(
+            RobotContainer.turretPose.getX(),
+            RobotContainer.turretPose.getY(),
+            RobotContainer.turretPose.getZ(),
+            new Rotation3d(turretInputs.turretAngle));
+    }
+
     public void setAimTarget(TurretAimTarget target) {
         Pose2d robotPose = driveSubsystem.getPose();
         Pose2d targetPose = getTargetPoint(target);
+        turretInputs.turretTargetPoint = targetPose;
     
+        // Get the Translation (X, Y) of both poses
+        Translation2d robotXY = robotPose.getTranslation();
+        Translation2d targetXY = targetPose.getTranslation();
+
+        // Calculate the difference vector (Vector from Robot -> Target)
+        Translation2d difference = targetXY.minus(robotXY);
+
+        // Get the angle of that vector relative to the field
+        Rotation2d angleToTargetFieldRelative = difference.getAngle();
+
+        // Subtract robot's rotation to make it relative to the robot front
+        // (Field Relative Angle - Robot Heading = Robot Relative Angle)
+        Rotation2d angleToTargetRobotRelative = angleToTargetFieldRelative.minus(robotPose.getRotation());
+
+        double degrees = angleToTargetRobotRelative.getDegrees();
+
+        // normalize 0-360
+        double turretAngle = MathUtil.inputModulus(degrees, 0, 360);
+
+        turretIO.setTurretAngle(turretAngle);
     }
 
     public void enableShooter(boolean enable) {
@@ -35,7 +78,7 @@ public class Turret extends SubsystemBase{
     }
 
     public boolean canShoot() {
-        
+        return false;
     }
 
     private Pose2d getTargetPoint(TurretAimTarget target) {
