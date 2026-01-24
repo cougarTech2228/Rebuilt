@@ -22,14 +22,14 @@ public class ShootCommand extends Command{
 
     @Override
     public void execute () {
-        if (turret.isAimed()) {
-            turret.enableshooter(true);
-        }
+        // if (turret.isAimed()) {
+        //     turret.enableShooter(true);
+        // }
     }
 
     @Override 
     public void end(boolean interrupted) {
-        turret.enableshooter(false);
+        turret.enableShooter(false);
     }
 
     @Override
