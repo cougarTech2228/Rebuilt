@@ -29,6 +29,10 @@ import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
+import frc.robot.subsystems.hopper.Hopper;
+import frc.robot.subsystems.hopper.HopperIO;
+import frc.robot.subsystems.hopper.HopperIOSim;
+import frc.robot.subsystems.hopper.HopperIOTalonFX;
 import frc.robot.subsystems.turret.Turret;
 import frc.robot.subsystems.turret.TurretIO;
 import frc.robot.subsystems.turret.TurretIOSim;
@@ -55,6 +59,7 @@ public class RobotContainer {
   private final Vision vision;
 
   private final Turret turret;
+  private final Hopper hopper;
 
   // Controller
   private final CommandXboxController controller = new CommandXboxController(0);
@@ -93,6 +98,7 @@ public class RobotContainer {
                 new VisionIOPhotonVision(camera1Name, robotToCamera1));
 
         turret = new Turret(new TurretIOTalonFX(), drive);
+        hopper = new Hopper(new HopperIOTalonFX());
 
         break;
 
@@ -112,6 +118,7 @@ public class RobotContainer {
                 new VisionIOPhotonVisionSim(camera1Name, robotToCamera1, drive::getPose));
 
         turret = new Turret(new TurretIOSim(), drive);
+        hopper = new Hopper(new HopperIOSim());
         break;
 
       default:
@@ -125,6 +132,12 @@ public class RobotContainer {
                 new ModuleIO() {});
         vision = new Vision(drive::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
         turret = new Turret(new TurretIO() {}, drive);
+        hopper = new Hopper(new HopperIO() {
+            @Override
+            public boolean safeToRetract() {
+                return false;
+            }
+        });
         break;
     }
 

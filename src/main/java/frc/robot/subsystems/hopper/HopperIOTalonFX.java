@@ -6,10 +6,12 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.DigitalInput;
 import frc.robot.Constants;
 
 public class HopperIOTalonFX implements HopperIO {
     protected final TalonFX motor = new TalonFX(Constants.hopperFalconCanID, "canivore");
+    private final DigitalInput sensor = new DigitalInput(Constants.hopperOccupationDIO);
 
     private final StatusSignal<Voltage> motorAppliedVoltage = motor.getMotorVoltage();
     private final StatusSignal<AngularVelocity> motorVelocity = motor.getVelocity();
@@ -23,6 +25,7 @@ public class HopperIOTalonFX implements HopperIO {
         inputs.hopperVelocity = this.motorVelocity.getValueAsDouble();
         inputs.hopperVoltage = this.motorAppliedVoltage.getValueAsDouble();
         inputs.hopperCurrent = this.motorCurrentAmps.getValueAsDouble();
+        inputs.hopperOccupied = this.sensor.get();
     }
 
     public void turnOn() {
@@ -31,5 +34,9 @@ public class HopperIOTalonFX implements HopperIO {
 
     public void turnOff() {
         this.motor.setVoltage(0.0);
+    }
+    
+    public boolean safeToRetract() {
+        return !sensor.get();
     }
 }

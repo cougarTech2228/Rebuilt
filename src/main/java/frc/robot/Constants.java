@@ -21,6 +21,9 @@ public final class Constants {
   // Put CAN IDs here
   public static int hopperFalconCanID = 0;
 
+  // Sensors
+  public static int hopperOccupationDIO = 1;
+
   public static final double robotWidth = 0.7112; // 28in
   public static final double robotLength = 0.6858; // 27in
   public static enum Mode {
