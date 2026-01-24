@@ -31,4 +31,10 @@ public final class Constants {
     /** Replaying from a log file. */
     REPLAY
   }
+
+  // CAN ID constants
+  public static final int CAN_ID_TURRET_MOTOR = 9;
+  public static final int CAN_ID_PIGEON = 10;
+  public static final int CAN_ID_TURRET_ENCODER_19T = 19;
+  public static final int CAN_ID_TURRET_ENCODER_T = 21;
 }
