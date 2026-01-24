@@ -8,6 +8,7 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.drive.Drive;
@@ -35,7 +36,6 @@ public class Turret extends SubsystemBase{
 
     @Override
     public void periodic() {
-        super.periodic();
         turretIO.updateInputs(turretInputs);
         Logger.processInputs("Turret", turretInputs);
 

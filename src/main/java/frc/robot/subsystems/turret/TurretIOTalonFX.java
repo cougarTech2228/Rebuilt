@@ -3,6 +3,7 @@ package frc.robot.subsystems.turret;
 import static edu.wpi.first.units.Units.Rotations;
 
 import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -10,10 +11,13 @@ import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
+import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Angle;
+
+import static frc.robot.Constants.*;
 
 public class TurretIOTalonFX implements TurretIO {
 
@@ -45,7 +49,7 @@ public class TurretIOTalonFX implements TurretIO {
     private final StatusSignal<Angle> turretMotorPositionSignal;
 
     public TurretIOTalonFX() {
-        turretMotor = new TalonFX(frc.robot.Constants.CAN_ID_TURRET_MOTOR);
+        turretMotor = new TalonFX(CAN_ID_TURRET_MOTOR, frc.robot.RobotContainer.kCanivore);
         turretControl = new MotionMagicVoltage(0);
 
         TalonFXConfiguration config = new TalonFXConfiguration();
@@ -62,6 +66,10 @@ public class TurretIOTalonFX implements TurretIO {
         config.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
         config.Feedback.SensorToMechanismRatio = 55.55555555555556;
         config.ClosedLoopGeneral.ContinuousWrap = false;
+
+        // Invert motor so positive voltage moves CCW (Standard Robot Frame)
+        config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+
         // Set limits to +/- 190 degrees to allow full 360 coverage with overlap
         config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 0.53;
         config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
@@ -71,8 +79,8 @@ public class TurretIOTalonFX implements TurretIO {
 
         turretMotor.getConfigurator().apply(config);
 
-        enc19 = new CANcoder(19);
-        enc21 = new CANcoder(21);
+        enc19 = new CANcoder(CAN_ID_TURRET_ENCODER_19T, frc.robot.RobotContainer.kCanivore);
+        enc21 = new CANcoder(CAN_ID_TURRET_ENCODER_21T, frc.robot.RobotContainer.kCanivore);
 
         CANcoderConfiguration config19 = new CANcoderConfiguration();
         config19.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.5;
@@ -124,10 +132,7 @@ public class TurretIOTalonFX implements TurretIO {
         double bestPosition = -1.0;
 
         for (int k = minTurns; k <= maxTurns; k++) {
-            // Hypothesis: k turns + partial reading
             double candidateTurretRotations = (k + p19) / RATIO_19;
-
-            // Prediction: What should 21T read?
             double expectedP21Total = candidateTurretRotations * RATIO_21;
             double expectedP21 = normalize(expectedP21Total);
 
@@ -144,7 +149,9 @@ public class TurretIOTalonFX implements TurretIO {
             double degrees = (bestPosition * 360.0) % 360.0;
             if (degrees < 0)
                 degrees += 360.0;
-            return degrees;
+
+            // Invert the result so that CCW is Positive (Standard Robot Frame)
+            return (360.0 - degrees) % 360.0;
         }
 
         System.err.println("Turret Sync Failed. Best Error: " + bestError);
