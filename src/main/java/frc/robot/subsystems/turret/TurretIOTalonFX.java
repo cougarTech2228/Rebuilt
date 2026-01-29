@@ -98,7 +98,6 @@ public class TurretIOTalonFX implements TurretIO {
         turretConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
 
         turretMotor.getConfigurator().apply(turretConfig);
-
         enc19 = new CANcoder(CAN_ID_TURRET_ENCODER_19T, frc.robot.RobotContainer.kCanivore);
         enc21 = new CANcoder(CAN_ID_TURRET_ENCODER_21T, frc.robot.RobotContainer.kCanivore);
 
@@ -291,5 +290,10 @@ public class TurretIOTalonFX implements TurretIO {
         inputs.hoodMotorCurrent = hoodMotorCurrentSignal.getValueAsDouble();
         inputs.hoodPIDActualAngle = hoodEncoderPositionSignal.getValueAsDouble();
         inputs.hoodPIDTargetAngle = hoodAngleTarget;
+    }
+
+    @Override
+    public void setFlywheelsActive(boolean active) {
+        flywheelMotor.setVoltage(TurretConstants.flywheelVoltage);
     }
 }

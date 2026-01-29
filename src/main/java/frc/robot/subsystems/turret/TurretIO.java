@@ -28,4 +28,5 @@ public interface TurretIO {
     public default void setTurretAngle(double turretAngle) {}
     public default void setHoodAngle(double hoodAngle) {}
     public default void setFlywheelVelocity(double velocity) {}
-}
+    public default void setFlywheelsActive(boolean active) {}
+};
