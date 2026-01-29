@@ -11,10 +11,16 @@ public class TurretIOSim implements TurretIO{
     public void setTurretAngle(double turretAngle) {
         turretAngleTarget = turretAngle;
     }
+
+    private double turretHoodTarget;
+    @Override
+    public void setHoodAngle(double hoodAngle) {
+        turretHoodTarget = hoodAngle;
+    }
     
     public void updateInputs(TurretIOInputs inputs) {
         inputs.turretPIDTargetAngle = turretAngleTarget;
+        inputs.hoodPIDTargetAngle = turretHoodTarget;
         inputs.turretAngle = Rotation2d.fromDegrees(turretAngleTarget);
     }
-
 }
