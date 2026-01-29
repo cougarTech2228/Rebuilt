@@ -22,12 +22,16 @@ import static frc.robot.Constants.*;
 public class TurretIOTalonFX implements TurretIO {
 
     private double turretAngleTarget;
+    private double hoodAngleTarget;
 
     private final CANcoder enc19; // The encoder on the 19T gear
     private final CANcoder enc21; // The encoder on the 21T gear
 
     private final TalonFX turretMotor;
     private final MotionMagicVoltage turretControl;
+    private final TalonFX hoodMotor;
+    private final MotionMagicVoltage hoodControl;
+    private final TalonFX flywheelMotor;
 
     // Gear Constants
     private static final double MAIN_TEETH = 200.0;
@@ -51,33 +55,59 @@ public class TurretIOTalonFX implements TurretIO {
     public TurretIOTalonFX() {
         turretMotor = new TalonFX(CAN_ID_TURRET_MOTOR, frc.robot.RobotContainer.kCanivore);
         turretControl = new MotionMagicVoltage(0);
+        hoodMotor = new TalonFX(frc.robot.Constants.CAN_ID_TURRET_MOTOR_HOOD);
+        hoodControl = new MotionMagicVoltage(0);
+        flywheelMotor = new TalonFX(frc.robot.Constants.CAN_ID_TURRET_MOTOR_FLYWHEEL);
 
-        TalonFXConfiguration config = new TalonFXConfiguration();
+        TalonFXConfiguration turretConfig = new TalonFXConfiguration();
 
-        config.Slot0.kP = 300.0;
-        config.Slot0.kI = 0.0;
-        config.Slot0.kD = 1.0;
+        turretConfig.Slot0.kP = 300.0;
+        turretConfig.Slot0.kI = 0.0;
+        turretConfig.Slot0.kD = 1.0;
 
-        config.MotionMagic.MotionMagicCruiseVelocity = 2.0; // turret roations/sec
-        config.MotionMagic.MotionMagicAcceleration = 10.0; // turret roations/sec^2
-        config.MotionMagic.MotionMagicJerk = 0.0;
+        turretConfig.MotionMagic.MotionMagicCruiseVelocity = 2.0; // turret rotations/sec
+        turretConfig.MotionMagic.MotionMagicAcceleration = 10.0; // turret rotations/sec^2
+        turretConfig.MotionMagic.MotionMagicJerk = 0.0;
 
         // Motor Revs per 1 Turret Rev = 5 * (200/18) = 55.555...
-        config.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
-        config.Feedback.SensorToMechanismRatio = 55.55555555555556;
-        config.ClosedLoopGeneral.ContinuousWrap = false;
+        turretConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
+        turretConfig.Feedback.SensorToMechanismRatio = 55.55555555555556;
+        turretConfig.ClosedLoopGeneral.ContinuousWrap = false;
 
         // Invert motor so positive voltage moves CCW (Standard Robot Frame)
-        config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        turretConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
         // Set limits to +/- 190 degrees to allow full 360 coverage with overlap
-        config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 0.53;
-        config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+        turretConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 0.53;
+        turretConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
 
-        config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = -0.53;
-        config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
+        turretConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = -0.53;
+        turretConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
 
-        turretMotor.getConfigurator().apply(config);
+        turretMotor.getConfigurator().apply(turretConfig);
+
+        TalonFXConfiguration hoodConfig = new TalonFXConfiguration();
+
+        hoodConfig.Slot0.kP = 300.0; // TODO tune this
+        hoodConfig.Slot0.kI = 0.0;
+        hoodConfig.Slot0.kD = 1.0;
+
+        hoodConfig.MotionMagic.MotionMagicCruiseVelocity = 2.0; // hood rotations/sec
+        hoodConfig.MotionMagic.MotionMagicAcceleration = 10.0; // hood rotations/sec^2
+        hoodConfig.MotionMagic.MotionMagicJerk = 0.0;
+
+        // Motor Revs per 1 Hood rev = ???
+        hoodConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
+        hoodConfig.Feedback.SensorToMechanismRatio = 50.0;
+        hoodConfig.ClosedLoopGeneral.ContinuousWrap = false;
+        // Set limits to +/- 190 degrees to allow full 360 coverage with overlap ???
+        hoodConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 0.53;
+        hoodConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+
+        hoodConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = -0.53;
+        hoodConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
+
+        hoodMotor.getConfigurator().apply(hoodConfig);
 
         enc19 = new CANcoder(CAN_ID_TURRET_ENCODER_19T, frc.robot.RobotContainer.kCanivore);
         enc21 = new CANcoder(CAN_ID_TURRET_ENCODER_21T, frc.robot.RobotContainer.kCanivore);
@@ -190,4 +220,17 @@ public class TurretIOTalonFX implements TurretIO {
         turretMotor.setControl(turretControl.withPosition(targetRotations));
     }
 
+    @Override
+    public void setHoodAngle(double hoodAngle) {
+        hoodAngleTarget = hoodAngle;
+
+        double targetRotations = hoodAngleTarget;
+
+        hoodMotor.setControl(hoodControl.withPosition(targetRotations));
+    }
+
+    @Override
+    public void setFlywheelsActive(boolean active) {
+        flywheelMotor.setVoltage(TurretConstants.flywheelVoltage);
+    }
 }
