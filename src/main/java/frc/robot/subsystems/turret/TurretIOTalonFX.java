@@ -85,13 +85,13 @@ public class TurretIOTalonFX implements TurretIO {
         CANcoderConfiguration config19 = new CANcoderConfiguration();
         config19.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.5;
         config19.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-        config19.MagnetSensor.MagnetOffset = 0.047607;// 0.318848; // Set 19T Zero Offset
+        config19.MagnetSensor.MagnetOffset = -0.070068; // Set 19T Zero Offset
         enc19.getConfigurator().apply(config19);
 
         CANcoderConfiguration config21 = new CANcoderConfiguration();
         config21.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.5;
         config21.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
-        config21.MagnetSensor.MagnetOffset = -0.249756; // -0.493896; // Set 21T Zero Offset
+        config21.MagnetSensor.MagnetOffset = -0.032715; // Set 21T Zero Offset
         enc21.getConfigurator().apply(config21);
 
         pos19Signal = enc19.getAbsolutePosition();
