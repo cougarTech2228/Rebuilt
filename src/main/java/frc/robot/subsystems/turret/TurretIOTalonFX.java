@@ -7,6 +7,7 @@ import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -16,22 +17,28 @@ import com.ctre.phoenix6.signals.SensorDirectionValue;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.Voltage;
 
 import static frc.robot.Constants.*;
 
 public class TurretIOTalonFX implements TurretIO {
 
     private double turretAngleTarget;
-    private double hoodAngleTarget;
+    private double hoodElevationTarget; //0 .. 100
+    private double hoodAngleTarget; //0 .. 0.9
 
     private final CANcoder enc19; // The encoder on the 19T gear
     private final CANcoder enc21; // The encoder on the 21T gear
+    private final CANcoder encHood;
 
     private final TalonFX turretMotor;
     private final MotionMagicVoltage turretControl;
     private final TalonFX hoodMotor;
     private final MotionMagicVoltage hoodControl;
     private final TalonFX flywheelMotor;
+    private final MotionMagicVelocityVoltage flywheelControl;
 
     // Gear Constants
     private static final double MAIN_TEETH = 200.0;
@@ -52,12 +59,18 @@ public class TurretIOTalonFX implements TurretIO {
     private final StatusSignal<Angle> pos21Signal;
     private final StatusSignal<Angle> turretMotorPositionSignal;
 
+    private final StatusSignal<AngularVelocity> hoodMotorVelocitySignal;
+    private final StatusSignal<Voltage> hoodMotorVoltageSignal;
+    private final StatusSignal<Current> hoodMotorCurrentSignal;
+    private final StatusSignal<Angle> hoodEncoderPositionSignal;
+
     public TurretIOTalonFX() {
         turretMotor = new TalonFX(CAN_ID_TURRET_MOTOR, frc.robot.RobotContainer.kCanivore);
         turretControl = new MotionMagicVoltage(0);
-        hoodMotor = new TalonFX(frc.robot.Constants.CAN_ID_TURRET_MOTOR_HOOD);
+        hoodMotor = new TalonFX(frc.robot.Constants.CAN_ID_TURRET_HOOD_MOTOR, frc.robot.RobotContainer.kCanivore);
         hoodControl = new MotionMagicVoltage(0);
-        flywheelMotor = new TalonFX(frc.robot.Constants.CAN_ID_TURRET_MOTOR_FLYWHEEL);
+        flywheelMotor = new TalonFX(frc.robot.Constants.CAN_ID_TURRET_MOTOR_FLYWHEEL, frc.robot.RobotContainer.kCanivore);
+        flywheelControl = new MotionMagicVelocityVoltage(0);
 
         TalonFXConfiguration turretConfig = new TalonFXConfiguration();
 
@@ -85,29 +98,6 @@ public class TurretIOTalonFX implements TurretIO {
         turretConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
 
         turretMotor.getConfigurator().apply(turretConfig);
-
-        TalonFXConfiguration hoodConfig = new TalonFXConfiguration();
-
-        hoodConfig.Slot0.kP = 300.0; // TODO tune this
-        hoodConfig.Slot0.kI = 0.0;
-        hoodConfig.Slot0.kD = 1.0;
-
-        hoodConfig.MotionMagic.MotionMagicCruiseVelocity = 2.0; // hood rotations/sec
-        hoodConfig.MotionMagic.MotionMagicAcceleration = 10.0; // hood rotations/sec^2
-        hoodConfig.MotionMagic.MotionMagicJerk = 0.0;
-
-        // Motor Revs per 1 Hood rev = ???
-        hoodConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
-        hoodConfig.Feedback.SensorToMechanismRatio = 50.0;
-        hoodConfig.ClosedLoopGeneral.ContinuousWrap = false;
-        // Set limits to +/- 190 degrees to allow full 360 coverage with overlap ???
-        hoodConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 0.53;
-        hoodConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-
-        hoodConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = -0.53;
-        hoodConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-
-        hoodMotor.getConfigurator().apply(hoodConfig);
 
         enc19 = new CANcoder(CAN_ID_TURRET_ENCODER_19T, frc.robot.RobotContainer.kCanivore);
         enc21 = new CANcoder(CAN_ID_TURRET_ENCODER_21T, frc.robot.RobotContainer.kCanivore);
@@ -137,16 +127,60 @@ public class TurretIOTalonFX implements TurretIO {
                 initialDegrees -= 360;
             turretMotor.setPosition(initialDegrees / 360.0);
         }
-    }
 
-    @Override
-    public void updateInputs(TurretIOInputs inputs) {
-        BaseStatusSignal.refreshAll(pos19Signal, pos21Signal, turretMotorPositionSignal);
+        encHood = new CANcoder(CAN_ID_TURRET_HOOD_ENCODER, frc.robot.RobotContainer.kCanivore);
 
-        double actualAngle = getTurretPositionDegrees();
-        inputs.turretAngle = Rotation2d.fromDegrees(actualAngle);
-        inputs.turretPIDTargetAngle = turretAngleTarget;
-        inputs.turretPIDActualAngle = actualAngle;
+        TalonFXConfiguration hoodConfig = new TalonFXConfiguration();
+
+        hoodConfig.Slot0.kP = 75.0;
+        hoodConfig.Slot0.kI = 0.0;
+        hoodConfig.Slot0.kD = 0.0;
+        hoodConfig.Slot0.kV = 0.1;
+
+        hoodConfig.MotionMagic.MotionMagicCruiseVelocity = 100.0; // hood rotations/sec
+        hoodConfig.MotionMagic.MotionMagicAcceleration = 500.0; // hood rotations/sec^2
+        hoodConfig.MotionMagic.MotionMagicJerk = 0.0;
+
+        // Motor Revs per 1 Hood rev = ???
+        hoodConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
+        hoodConfig.Feedback.FeedbackRemoteSensorID = CAN_ID_TURRET_HOOD_ENCODER;
+        hoodConfig.Feedback.RotorToSensorRatio = 50.0;
+        hoodConfig.ClosedLoopGeneral.ContinuousWrap = false;
+        // Set limits to safe values
+        hoodConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 0.9;
+        hoodConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+
+        hoodConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0;
+        hoodConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
+
+        hoodMotor.getConfigurator().apply(hoodConfig);
+
+        CANcoderConfiguration configHood = new CANcoderConfiguration();
+        configHood.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.5;
+        configHood.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
+        configHood.MagnetSensor.MagnetOffset = 0.082764;
+        encHood.getConfigurator().apply(configHood);
+
+        hoodMotorVelocitySignal = hoodMotor.getVelocity();
+        hoodMotorVoltageSignal = hoodMotor.getMotorVoltage();
+        hoodMotorCurrentSignal = hoodMotor.getStatorCurrent();
+        hoodEncoderPositionSignal = encHood.getPosition();
+
+        TalonFXConfiguration flywheelConfig = new TalonFXConfiguration();
+
+        flywheelConfig.Slot0.kP = 0.1;
+        flywheelConfig.Slot0.kI = 0.0;
+        flywheelConfig.Slot0.kD = 0.0;
+        flywheelConfig.Slot0.kV = 0.12;
+
+        flywheelConfig.MotionMagic.MotionMagicAcceleration = 100.0; //Accel to max speed in 1s
+        flywheelConfig.MotionMagic.MotionMagicJerk = 0.0;
+        flywheelControl.Acceleration = 100.0;
+
+        // Motor Revs per 1 Hood rev = ???
+        // flywheelConfig.ClosedLoopGeneral.ContinuousWrap = false;
+
+        flywheelMotor.getConfigurator().apply(flywheelConfig);
     }
 
     public double getTurretPositionDegrees() {
@@ -221,16 +255,41 @@ public class TurretIOTalonFX implements TurretIO {
     }
 
     @Override
-    public void setHoodAngle(double hoodAngle) {
-        hoodAngleTarget = hoodAngle;
+    //0-100 from minimum elevation to maximum elevation
+    public void setHoodAngle(double hoodElevation) {
+        hoodElevationTarget = hoodElevation; // Elevation 0 .. 100
+        hoodAngleTarget = hoodElevation / 100 * 0.9; // Angle 0 .. 0.9
 
-        double targetRotations = hoodAngleTarget;
-
-        hoodMotor.setControl(hoodControl.withPosition(targetRotations));
+        hoodMotor.setControl(hoodControl.withPosition(hoodAngleTarget));
     }
 
     @Override
-    public void setFlywheelsActive(boolean active) {
-        flywheelMotor.setVoltage(TurretConstants.flywheelVoltage);
+    public void setFlywheelVelocity(double velocity) {
+        flywheelMotor.setControl(flywheelControl.withVelocity(velocity));
+    }
+
+    @Override
+    public void updateInputs(TurretIOInputs inputs) {
+        BaseStatusSignal.refreshAll(
+            pos19Signal,
+            pos21Signal,
+            turretMotorPositionSignal,
+            hoodMotorCurrentSignal,
+            hoodMotorVelocitySignal,
+            hoodMotorVoltageSignal,
+            hoodEncoderPositionSignal
+        );
+
+        double actualAngle = getTurretPositionDegrees();
+        inputs.turretAngle = Rotation2d.fromDegrees(actualAngle);
+        inputs.turretPIDTargetAngle = turretAngleTarget;
+        inputs.turretPIDActualAngle = actualAngle;
+
+        inputs.hoodTargetElevationPercent = hoodElevationTarget;
+        inputs.hoodMotorVelocity = hoodMotorVelocitySignal.getValueAsDouble();
+        inputs.hoodMotorVoltage = hoodMotorVoltageSignal.getValueAsDouble();
+        inputs.hoodMotorCurrent = hoodMotorCurrentSignal.getValueAsDouble();
+        inputs.hoodPIDActualAngle = hoodEncoderPositionSignal.getValueAsDouble();
+        inputs.hoodPIDTargetAngle = hoodAngleTarget;
     }
 }

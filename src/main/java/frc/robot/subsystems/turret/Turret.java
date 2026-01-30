@@ -8,6 +8,7 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
@@ -32,6 +33,9 @@ public class Turret extends SubsystemBase{
     public Turret(TurretIO turretIO, Drive driveSubsystem) {
         this.turretIO = turretIO;
         this.driveSubsystem = driveSubsystem;
+
+        SmartDashboard.putNumber("TurretHoodElevation", 0.0);
+        SmartDashboard.putNumber("TurretFlywheelVelocity", 0.0);
     }
 
     @Override
@@ -71,6 +75,14 @@ public class Turret extends SubsystemBase{
         double turretAngle = MathUtil.inputModulus(degrees, 0, 360);
 
         turretIO.setTurretAngle(turretAngle);
+    }
+
+    public void setHoodElevation(double elevation) {
+        turretIO.setHoodAngle(elevation);
+    }
+
+    public void setFlywheelVelocity(double velocity) {
+        turretIO.setFlywheelVelocity(velocity);
     }
 
     public void enableShooter(boolean enable) {
