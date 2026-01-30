@@ -18,6 +18,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -152,6 +153,8 @@ public class RobotContainer {
 
     // Configure the button bindings
     configureButtonBindings();
+
+    SmartDashboard.putBoolean("TestMode", false);
   }
 
   /**
@@ -225,7 +228,11 @@ public void simulationPeriodic() {
 public void testPeriodic() {}
 
 public void teleopPeriodic() {
-    turret.setAimTarget(TurretAimTarget.Hub);
+    // turret.setAimTarget(TurretAimTarget.Hub);
+    if(SmartDashboard.getBoolean("TestMode", false)) {
+      turret.setHoodElevation(SmartDashboard.getNumber("TurretHoodElevation", 0.0));
+      turret.setFlywheelVelocity(SmartDashboard.getNumber("TurretFlywheelVelocity", 0.0));
+    }
 }
 
 public void autonomousPeriodic() {}

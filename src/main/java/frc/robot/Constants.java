@@ -59,7 +59,11 @@ public final class Constants {
   public static final int CAN_ID_BR_STEER = 54;
   public static final int CAN_ID_BR_ENCODER = 55;
 
-<<<<<<< HEAD
+
+  public static final int CAN_ID_TURRET_HOOD_ENCODER = 31;
+  public static final int CAN_ID_TURRET_MOTOR_FLYWHEEL = 22;
+  public static final int CAN_ID_TURRET_HOOD_MOTOR = 30;
+
   public static final int indexerMotorCanID = 0;
   public static final int kickerMotorCanID = 0;
   public static final int hopperExtensionMotorCanID = 0;
@@ -67,10 +71,4 @@ public final class Constants {
   // DIOs
   public static int homeSensorDIO = 1;
 
-=======
-  public static final int CAN_ID_TURRET_ENCODER_T = 21;
-  public static final int CAN_ID_TURRET_MOTOR_FLYWHEEL = 22;
-  public static final int CAN_ID_TURRET_MOTOR_HOOD = 23;
-  public static final int CAN_ID_TURRET_ENCODER_HOOD = 24;
->>>>>>> 3530544 (Add hood motor and flywheel motor)
 }
