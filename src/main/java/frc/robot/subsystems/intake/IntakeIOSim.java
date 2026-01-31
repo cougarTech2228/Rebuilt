@@ -1,7 +1,7 @@
 package frc.robot.subsystems.intake;
 
 import frc.robot.subsystems.intake.Intake.IntakeMode;
-import frc.robot.subsystems.intake.Intake.IntakePosition;
+import frc.robot.subsystems.intake.Intake.IntakeAngle;
 
 public class IntakeIOSim extends IntakeIOTalonFX {
     
@@ -9,11 +9,11 @@ public class IntakeIOSim extends IntakeIOTalonFX {
         // Constructor
     }
 
-    public void setIntakePosition(IntakePosition position) {};
+    public void setIntakeAngle(IntakeAngle angle) {};
 
     public void setIntakeMode(IntakeMode mode) {};
 
-    public void setIntakeVoltage(double voltage) {};
+    public void manualSetIntakeVoltage(double voltage) {};
 
-    public void setDeployVoltage(double voltage) {};
+    public void manualSetIntakeAngle(double angle) {};
 }
