@@ -7,6 +7,10 @@
 
 package frc.robot;
 
+import com.ctre.phoenix6.CANBus;
+
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.RobotBase;
 
 /**
@@ -32,6 +36,29 @@ public final class Constants {
     /** Replaying from a log file. */
     REPLAY
   }
+
+  // CAN ID constants
+  public static final int CAN_ID_PIGEON = 10;
+
+  public static final int CAN_ID_TURRET_MOTOR = 9;
+  public static final int CAN_ID_TURRET_ENCODER_19T = 19;
+  public static final int CAN_ID_TURRET_ENCODER_21T = 21;
+
+  public static final int CAN_ID_FL_DRIVE = 16;
+  public static final int CAN_ID_FL_STEER = 17;
+  public static final int CAN_ID_FL_ENCODER = 27;
+
+  public static final int CAN_ID_FR_DRIVE = 56;
+  public static final int CAN_ID_FR_STEER = 57;
+  public static final int CAN_ID_FR_ENCODER = 58;
+
+  public static final int CAN_ID_BL_DRIVE = 50;
+  public static final int CAN_ID_BL_STEER = 51;
+  public static final int CAN_ID_BL_ENCODER = 52;
+
+  public static final int CAN_ID_BR_DRIVE = 53;
+  public static final int CAN_ID_BR_STEER = 54;
+  public static final int CAN_ID_BR_ENCODER = 55;
 
   // CAN IDs
   public static final int intakeMotorID = 0;

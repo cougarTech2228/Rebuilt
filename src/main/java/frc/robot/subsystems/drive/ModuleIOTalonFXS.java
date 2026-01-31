@@ -81,9 +81,9 @@ public class ModuleIOTalonFXS implements ModuleIO {
   public ModuleIOTalonFXS(
       SwerveModuleConstants<TalonFXSConfiguration, TalonFXSConfiguration, CANdiConfiguration>
           constants) {
-    driveTalon = new TalonFXS(constants.DriveMotorId, TunerConstants.kCANBus);
-    turnTalon = new TalonFXS(constants.SteerMotorId, TunerConstants.kCANBus);
-    candi = new CANdi(constants.EncoderId, TunerConstants.kCANBus);
+    driveTalon = new TalonFXS(constants.DriveMotorId, frc.robot.RobotContainer.kCanivore);
+    turnTalon = new TalonFXS(constants.SteerMotorId, frc.robot.RobotContainer.kCanivore);
+    candi = new CANdi(constants.EncoderId, frc.robot.RobotContainer.kCanivore);
 
     // Configure drive motor
     var driveConfig = constants.DriveMotorInitialConfigs;
