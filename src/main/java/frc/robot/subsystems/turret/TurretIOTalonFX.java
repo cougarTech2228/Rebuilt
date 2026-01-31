@@ -167,14 +167,16 @@ public class TurretIOTalonFX implements TurretIO {
 
         TalonFXConfiguration flywheelConfig = new TalonFXConfiguration();
 
-        flywheelConfig.Slot0.kP = 0.1;
+        flywheelConfig.Slot0.kP = 0.3;
         flywheelConfig.Slot0.kI = 0.0;
         flywheelConfig.Slot0.kD = 0.0;
         flywheelConfig.Slot0.kV = 0.12;
+        flywheelConfig.Slot0.kA = 0.004;
 
-        flywheelConfig.MotionMagic.MotionMagicAcceleration = 100.0; //Accel to max speed in 1s
-        flywheelConfig.MotionMagic.MotionMagicJerk = 0.0;
-        flywheelControl.Acceleration = 100.0;
+        flywheelConfig.CurrentLimits.StatorCurrentLimit = 120.0; // Amps
+        flywheelConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+        flywheelControl.Acceleration = 120.0;
+
 
         // Motor Revs per 1 Hood rev = ???
         // flywheelConfig.ClosedLoopGeneral.ContinuousWrap = false;
