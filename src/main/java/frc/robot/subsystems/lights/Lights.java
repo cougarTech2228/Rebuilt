@@ -63,9 +63,11 @@ public class Lights extends SubsystemBase {
 
     @Override
     public void periodic() {
+        counter++;
         if (counter >= 50) {
             setColor(getRandomColor());
+            counter = 0;
+            return;
         }
-        counter++;
     }
 }
