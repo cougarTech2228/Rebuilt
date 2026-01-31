@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Lights extends SubsystemBase {
     
+    private boolean isOn;
     private int counter = 0;
 
     private final Color DEFAULT_COLOR;
@@ -23,10 +24,14 @@ public class Lights extends SubsystemBase {
     }
 
     public void setColor(Color color) {
+        final int red = (int) color.red * 255;
+        final int green = (int) color.green * 255;
+        final int blue = (int) color.blue * 255;
         for (int i = 0; i < mLedBuffer.getLength(); i++) {
-            mLedBuffer.setLED(i, color);
+            mLedBuffer.setRGB(i, red, green, blue);
         }
         mLed.setData(mLedBuffer);
+        System.out.println("Set Lights color to " + color + " length: " +  mLedBuffer.getLength());
     }
 
     public void reset() {
@@ -35,14 +40,20 @@ public class Lights extends SubsystemBase {
     }
 
     public void turnOn() {
+        if (isOn) return;
         counter = 0;
         mLed.setLength(BUFFER_LENGTH);
-        setColor(this.DEFAULT_COLOR);
+        mLed.setData(mLedBuffer);
         mLed.start();
+        isOn = true;
+        System.out.println("Turned on Lights");
     }
 
     public void turnOff() {
+        if (!isOn) return;
         mLed.stop();
+        isOn = false;
+        System.out.println("Turned off Lights");
     }
 
     public Color getRandomColor() {
@@ -63,6 +74,7 @@ public class Lights extends SubsystemBase {
 
     @Override
     public void periodic() {
+        if (!isOn) return;
         counter++;
         if (counter >= 50) {
             setColor(getRandomColor());
