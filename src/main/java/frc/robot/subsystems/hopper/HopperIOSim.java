@@ -5,15 +5,15 @@ import frc.robot.Constants;
 
 public class HopperIOSim implements HopperIO {
     private boolean isTurnedOn = false;
-    private final DigitalInput sensor = new DigitalInput(Constants.hopperOccupationDIO);
+    // private final DigitalInput sensor = new DigitalInput(Constants.hopperOccupationDIO);
 
     public HopperIOSim() {
         
     }
 
     public void updateInputs(HopperIOInputs inputs) {
-        inputs.hopperVoltage = isTurnedOn ? HopperConstants.SpinningVoltage : 0.0;
-        inputs.hopperOccupied = sensor.get();
+        // inputs.hopperVoltage = isTurnedOn ? HopperConstants.SpinningVoltage : 0.0;
+        // inputs.hopperOccupied = sensor.get();
     }
 
     public void turnOn() {
@@ -25,6 +25,6 @@ public class HopperIOSim implements HopperIO {
     }
 
     public boolean safeToRetract() {
-        return !sensor.get();
+        return true;
     }
 }

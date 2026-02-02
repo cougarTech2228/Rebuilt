@@ -18,11 +18,13 @@ public final class Constants {
   public static final Mode simMode = Mode.SIM;
   public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
 
-  // Put CAN IDs here
-  public static int hopperFalconCanID = 0;
+  // CAN IDs
+  public static final int indexerMotorCanID = 0;
+  public static final int pushTurretMotorCanID = 0;
+  public static final int hopperExtensionMotorCanID = 0;
 
-  // Sensors
-  public static int hopperOccupationDIO = 1;
+  // DIOs
+  public static int homeSensorDIO = 1;
 
   public static final double robotWidth = 0.7112; // 28in
   public static final double robotLength = 0.6858; // 27in
