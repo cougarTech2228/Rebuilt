@@ -20,7 +20,7 @@ public final class Constants {
 
   // CAN IDs
   public static final int indexerMotorCanID = 0;
-  public static final int pushTurretMotorCanID = 0;
+  public static final int kickerMotorCanID = 0;
   public static final int hopperExtensionMotorCanID = 0;
 
   // DIOs
