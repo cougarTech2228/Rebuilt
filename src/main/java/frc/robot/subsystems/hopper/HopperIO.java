@@ -9,9 +9,9 @@ public interface HopperIO {
         public double indexerVelocity = 0.0;
         public double indexerCurrent = 0.0;
 
-        public double pushTurretVoltage = 0.0;
-        public double pushTurretVelocity = 0.0;
-        public double pushTurretCurrent = 0.0;
+        public double kickVoltage = 0.0;
+        public double kickVelocity = 0.0;
+        public double kickCurrent = 0.0;
 
         public double extensionVoltage = 0.0;
         public double extensionVelocity = 0.0;

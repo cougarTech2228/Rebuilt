@@ -17,7 +17,7 @@ import frc.robot.Constants;
 public class HopperIOTalonFX implements HopperIO {
     
     protected final TalonFX indexerMotor;
-    protected final TalonFX pushTurretMotor;
+    protected final TalonFX kickerMotor;
     protected final TalonFX extensionMotor;
     protected final DigitalInput homeSensor;
 
@@ -25,9 +25,9 @@ public class HopperIOTalonFX implements HopperIO {
     private final StatusSignal<AngularVelocity> indexerMotorVelocity;
     private final StatusSignal<Current> indexerMotorCurrentAmps;
 
-    private final StatusSignal<Voltage> pushTurretMotorAppliedVoltage;
-    private final StatusSignal<AngularVelocity> pushTurretMotorVelocity;
-    private final StatusSignal<Current> pushTurretMotorCurrentAmps;
+    private final StatusSignal<Voltage> kickerMotorAppliedVoltage;
+    private final StatusSignal<AngularVelocity> kickerMotorVelocity;
+    private final StatusSignal<Current> kickerMotorCurrentAmps;
 
     // private final CANcoder enc19 TBD
     private final StatusSignal<Voltage> extensionMotorAppliedVoltage;
@@ -38,7 +38,7 @@ public class HopperIOTalonFX implements HopperIO {
     public HopperIOTalonFX() {
         // Construct Motors + Status Signals
         this.indexerMotor = new TalonFX(Constants.indexerMotorCanID, "canivore");
-        this.pushTurretMotor = new TalonFX(Constants.pushTurretMotorCanID, "canivore");
+        this.kickerMotor = new TalonFX(Constants.kickerMotorCanID, "canivore");
         this.extensionMotor = new TalonFX(Constants.hopperExtensionMotorCanID, "canivore");
         this.homeSensor  = new DigitalInput(Constants.homeSensorDIO);
         this.extensionControl = new MotionMagicVoltage(0);
@@ -47,9 +47,9 @@ public class HopperIOTalonFX implements HopperIO {
         this.indexerMotorVelocity = indexerMotor.getVelocity();
         this.indexerMotorCurrentAmps = indexerMotor.getSupplyCurrent();
 
-        this.pushTurretMotorAppliedVoltage = pushTurretMotor.getMotorVoltage();
-        this.pushTurretMotorVelocity = pushTurretMotor.getVelocity();
-        this.pushTurretMotorCurrentAmps = pushTurretMotor.getSupplyCurrent();
+        this.kickerMotorAppliedVoltage = kickerMotor.getMotorVoltage();
+        this.kickerMotorVelocity = kickerMotor.getVelocity();
+        this.kickerMotorCurrentAmps = kickerMotor.getSupplyCurrent();
 
         this.extensionMotorAppliedVoltage = extensionMotor.getMotorVoltage();
         this.extensionMotorVelocity = extensionMotor.getVelocity();
@@ -73,17 +73,17 @@ public class HopperIOTalonFX implements HopperIO {
     }
 
     public void updateInputs(HopperIOInputs inputs) {
-        // BaseStatusSignal.refreshAll(indexerVoltage, indexerVelocity, indexerCurrent, pushTurretVoltage, 
-        // pushTurretVelocity, pushTurretMotorCurrentAmps, extensionMotorAppliedVoltage, 
+        // BaseStatusSignal.refreshAll(indexerVoltage, indexerVelocity, indexerCurrent, kickVoltage, 
+        // kickVelocity, kickerMotorCurrentAmps, extensionMotorAppliedVoltage, 
         // extensionMotorVelocity, extensionMotorCurrentAmps, canHome);
-, 
+        
         inputs.indexerVoltage = indexerMotorAppliedVoltage.getValueAsDouble();
         inputs.indexerVelocity = indexerMotorVelocity.getValueAsDouble();
         inputs.indexerCurrent = indexerMotorCurrentAmps.getValueAsDouble();
 
-        inputs.pushTurretVoltage = pushTurretMotorAppliedVoltage.getValueAsDouble();
-        inputs.pushTurretVelocity = pushTurretMotorVelocity.getValueAsDouble();
-        inputs.pushTurretCurrent = pushTurretMotorCurrentAmps.getValueAsDouble();
+        inputs.kickVoltage = kickerMotorAppliedVoltage.getValueAsDouble();
+        inputs.kickVelocity = kickerMotorVelocity.getValueAsDouble();
+        inputs.kickCurrent = kickerMotorCurrentAmps.getValueAsDouble();
 
         inputs.extensionVoltage = extensionMotorAppliedVoltage.getValueAsDouble();
         inputs.extensionVelocity = extensionMotorVelocity.getValueAsDouble();
@@ -94,13 +94,13 @@ public class HopperIOTalonFX implements HopperIO {
 
     public void indexerOn() {
         indexerMotor.setVoltage(HopperConstants.indexerVoltage);
-        pushTurretMotor.setVoltage(HopperConstants.pushToTurretVoltage);
+        kickerMotor.setVoltage(HopperConstants.kickerVoltage);
 
     }
 
     public void indexerOff() {
         indexerMotor.setVoltage(0.0);
-        pushTurretMotor.setVoltage(0.0);
+        kickerMotor.setVoltage(0.0);
     }
 
     public void extendOut() {
