@@ -59,4 +59,11 @@ public final class Constants {
   public static final int CAN_ID_BR_STEER = 54;
   public static final int CAN_ID_BR_ENCODER = 55;
 
+  public static final int indexerMotorCanID = 0;
+  public static final int kickerMotorCanID = 0;
+  public static final int hopperExtensionMotorCanID = 0;
+
+  // DIOs
+  public static int homeSensorDIO = 1;
+
 }
