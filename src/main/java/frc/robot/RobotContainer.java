@@ -54,7 +54,7 @@ public class RobotContainer {
   // Subsystems
   private final Drive drive;
   @SuppressWarnings("unused")
-//   private final Vision vision;
+  private final Vision vision;
 
   private final Turret turret;
 
@@ -90,11 +90,11 @@ public class RobotContainer {
                 new ModuleIOTalonFX(TunerConstants.BackLeft),
                 new ModuleIOTalonFX(TunerConstants.BackRight));
 
-        // vision =
-        //     new Vision(
-        //         drive::addVisionMeasurement,
-        //         new VisionIOPhotonVision(camera0Name, robotToCamera0),
-        //         new VisionIOPhotonVision(camera1Name, robotToCamera1));
+        vision =
+            new Vision(
+                drive::addVisionMeasurement,
+                new VisionIOPhotonVision(camera1Name, robotToCamera1));
+                // new VisionIOPhotonVision(camera2Name, robotToCamera2));
 
         turret = new Turret(new TurretIOTalonFX(), drive);
 
@@ -109,11 +109,11 @@ public class RobotContainer {
                 new ModuleIOSim(TunerConstants.FrontRight),
                 new ModuleIOSim(TunerConstants.BackLeft),
                 new ModuleIOSim(TunerConstants.BackRight));
-        // vision =
-        //     new Vision(
-        //         drive::addVisionMeasurement,
-        //         new VisionIOPhotonVisionSim(camera0Name, robotToCamera0, drive::getPose),
-        //         new VisionIOPhotonVisionSim(camera1Name, robotToCamera1, drive::getPose));
+        vision =
+            new Vision(
+                drive::addVisionMeasurement,
+                new VisionIOPhotonVisionSim(camera1Name, robotToCamera1, drive::getPose));
+        //         new VisionIOPhotonVisionSim(camera2Name, robotToCamera2, drive::getPose));
 
         turret = new Turret(new TurretIOSim(), drive);
         break;
@@ -127,7 +127,7 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {},
                 new ModuleIO() {});
-        // vision = new Vision(drive::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
+        vision = new Vision(drive::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
         turret = new Turret(new TurretIO() {}, drive);
         break;
     }
