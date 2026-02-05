@@ -37,9 +37,9 @@ public class HopperIOTalonFX implements HopperIO {
     
     public HopperIOTalonFX() {
         // Construct Motors + Status Signals
-        this.indexerMotor = new TalonFX(Constants.indexerMotorCanID, "canivore");
-        this.kickerMotor = new TalonFX(Constants.kickerMotorCanID, "canivore");
-        this.extensionMotor = new TalonFX(Constants.hopperExtensionMotorCanID, "canivore");
+        this.indexerMotor = new TalonFX(Constants.CAN_ID_INDEXER_MOTOR, frc.robot.RobotContainer.kCanivore);
+        this.kickerMotor = new TalonFX(Constants.CAN_ID_INDEXER_MOTOR, frc.robot.RobotContainer.kCanivore);
+        this.extensionMotor = new TalonFX(Constants.hopperExtensionMotorCanID, frc.robot.RobotContainer.kCanivore);
         this.homeSensor  = new DigitalInput(Constants.homeSensorDIO);
         this.extensionControl = new MotionMagicVoltage(0);
 

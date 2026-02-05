@@ -64,8 +64,8 @@ public final class Constants {
   public static final int CAN_ID_TURRET_MOTOR_FLYWHEEL = 22;
   public static final int CAN_ID_TURRET_HOOD_MOTOR = 30;
 
-  public static final int indexerMotorCanID = 0;
-  public static final int kickerMotorCanID = 0;
+  public static final int CAN_ID_INDEXER_MOTOR = 10;
+  public static final int CAN_ID_KICKECAN_ID_INDEXER_MOTORR_MOTOR = 20;
   public static final int hopperExtensionMotorCanID = 0;
 
   // DIOs

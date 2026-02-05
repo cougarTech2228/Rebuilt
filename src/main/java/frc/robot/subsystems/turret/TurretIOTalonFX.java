@@ -103,14 +103,14 @@ public class TurretIOTalonFX implements TurretIO {
 
         CANcoderConfiguration config19 = new CANcoderConfiguration();
         config19.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.5;
-        config19.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-        config19.MagnetSensor.MagnetOffset = -0.070068; // Set 19T Zero Offset
+        config19.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
+        config19.MagnetSensor.MagnetOffset = -0.645020; // Set 19T Zero Offset
         enc19.getConfigurator().apply(config19);
 
         CANcoderConfiguration config21 = new CANcoderConfiguration();
         config21.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.5;
         config21.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
-        config21.MagnetSensor.MagnetOffset = -0.032715; // Set 21T Zero Offset
+        config21.MagnetSensor.MagnetOffset = -0.081543 ; // Set 21T Zero Offset
         enc21.getConfigurator().apply(config21);
 
         pos19Signal = enc19.getAbsolutePosition();
@@ -175,7 +175,7 @@ public class TurretIOTalonFX implements TurretIO {
 
         flywheelConfig.CurrentLimits.StatorCurrentLimit = 120.0; // Amps
         flywheelConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-        flywheelControl.Acceleration = 120.0;
+        flywheelControl.Acceleration = 180.0;
 
 
         // Motor Revs per 1 Hood rev = ???
