@@ -14,6 +14,8 @@ public interface TurretIO {
         public Rotation2d turretAngle = new Rotation2d();
         public double turretPIDTargetAngle = 0;
         public double turretPIDActualAngle = 0;
+        public double enc19t = 0;
+        public double enc21t = 0;
 
         public double hoodTargetElevationPercent = 0;
         public double hoodPIDTargetAngle = 0;

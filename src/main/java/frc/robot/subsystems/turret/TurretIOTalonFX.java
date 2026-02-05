@@ -53,6 +53,9 @@ public class TurretIOTalonFX implements TurretIO {
     // 0.05 rotations is 18 degrees of the encoder shaft, which is plenty of margin
     // for backlash
     private static final double MATCH_THRESHOLD = 0.05;
+    
+    // Solver Buffer: Allow solver to see past 180 (for overshoot recovery)
+    private static final double SOLVER_RANGE_BUFFER_DEG = 20.0; 
 
     // Status signals for low-latency reading
     private final StatusSignal<Angle> pos19Signal;
@@ -79,7 +82,7 @@ public class TurretIOTalonFX implements TurretIO {
         turretConfig.Slot0.kD = 1.0;
 
         turretConfig.MotionMagic.MotionMagicCruiseVelocity = 2.0; // turret rotations/sec
-        turretConfig.MotionMagic.MotionMagicAcceleration = 10.0; // turret rotations/sec^2
+        turretConfig.MotionMagic.MotionMagicAcceleration = 0.5; // turret rotations/sec^2
         turretConfig.MotionMagic.MotionMagicJerk = 0.0;
 
         // Motor Revs per 1 Turret Rev = 5 * (200/18) = 55.555...
@@ -103,14 +106,14 @@ public class TurretIOTalonFX implements TurretIO {
 
         CANcoderConfiguration config19 = new CANcoderConfiguration();
         config19.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.5;
-        config19.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
-        config19.MagnetSensor.MagnetOffset = -0.645020; // Set 19T Zero Offset
+        config19.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
+        config19.MagnetSensor.MagnetOffset = 0.640381; // Set 19T Zero Offset
         enc19.getConfigurator().apply(config19);
 
         CANcoderConfiguration config21 = new CANcoderConfiguration();
         config21.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.5;
-        config21.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
-        config21.MagnetSensor.MagnetOffset = -0.081543 ; // Set 21T Zero Offset
+        config21.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
+        config21.MagnetSensor.MagnetOffset = 0.083984 ; // Set 21T Zero Offset
         enc21.getConfigurator().apply(config21);
 
         pos19Signal = enc19.getAbsolutePosition();
@@ -119,7 +122,7 @@ public class TurretIOTalonFX implements TurretIO {
 
         BaseStatusSignal.refreshAll(pos19Signal, pos21Signal, turretMotorPositionSignal);
 
-        double initialDegrees = getTurretPositionDegrees();
+        double initialDegrees = calculateAbsolutePositionCRT();
         if (initialDegrees != -1.0) {
             // Force the seed to be within -180 to 180
             if (initialDegrees > 180)
@@ -184,76 +187,95 @@ public class TurretIOTalonFX implements TurretIO {
         flywheelMotor.getConfigurator().apply(flywheelConfig);
     }
 
-    public double getTurretPositionDegrees() {
-        // Get normalized positions (0.0 to 1.0)
-        double p19 = normalize(pos19Signal.getValue().in(Rotations));
-        double p21 = normalize(pos21Signal.getValue().in(Rotations));
 
-        // Search wider range (-1 to +12) to handle wrap-around correctly
-        int minTurns = -1;
-        int maxTurns = (int) Math.ceil(RATIO_19) + 1;
+    /**
+     * Seeds the internal Falcon encoder using the 19T and 21T encoders.
+     */
+    public void seedTurretPosition() {
+        double absoluteTurretDegrees = calculateAbsolutePositionCRT();
 
-        double bestError = 1.0;
-        double bestPosition = -1.0;
+        // Convert degrees to rotations (0.5 = 180 deg)
+        double turretRotations = absoluteTurretDegrees / 360.0;
 
-        for (int k = minTurns; k <= maxTurns; k++) {
-            double candidateTurretRotations = (k + p19) / RATIO_19;
-            double expectedP21Total = candidateTurretRotations * RATIO_21;
-            double expectedP21 = normalize(expectedP21Total);
+        // Seed the Falcon 
+        turretMotor.setPosition(turretRotations, 0.050);
+        
+        System.out.println("Turret Seeded at: " + absoluteTurretDegrees + " degrees");
+    }
 
-            double error = getShortestDistance(expectedP21, p21);
 
-            // Find Minimum Error
-            if (error < bestError) {
-                bestError = error;
-                bestPosition = candidateTurretRotations;
+
+    /**
+     * Solves for Absolute Position using CRT with the new variable names.
+     */
+    private double calculateAbsolutePositionCRT() {
+        // Refresh signals to get latest data
+        pos19Signal.refresh();
+        pos21Signal.refresh();
+
+        double pos1Rot = pos19Signal.getValueAsDouble(); 
+        double pos2Rot = pos21Signal.getValueAsDouble();
+
+        // Convert to 0-360 range for math
+        double deg1 = pos1Rot * 360.0;
+        double deg2 = pos2Rot * 360.0;
+
+        double bestMatchAngle = 0.0;
+        double minError = Double.MAX_VALUE;
+
+        // Search range (-6 to +6 covers +/- 180 deg with margin)
+        for (int k = -6; k <= 6; k++) {
+            // Hypothesis: Turret Angle = (Enc1_Angle + k*360) / Ratio19
+            double candidateTurretDeg = (deg1 + (k * 360.0)) / RATIO_19;
+
+            // Check physical possibility (Soft Limit + Buffer)
+            if (candidateTurretDeg < -(180.0 + SOLVER_RANGE_BUFFER_DEG) || 
+                candidateTurretDeg > (180.0 + SOLVER_RANGE_BUFFER_DEG)) {
+                continue;
+            }
+
+            // Validation: What should enc21 read?
+            double totalEnc2Deg = candidateTurretDeg * RATIO_21;
+            double expectedEnc2Deg = normalizeDegrees(totalEnc2Deg);
+
+            // Compare Expected Enc2 vs Actual Enc2
+            double errorDegrees = Math.abs(getShortestDistance(expectedEnc2Deg, deg2));
+
+            if (errorDegrees < minError) {
+                minError = errorDegrees;
+                bestMatchAngle = candidateTurretDeg;
             }
         }
 
-        if (bestError < MATCH_THRESHOLD) {
-            double degrees = (bestPosition * 360.0) % 360.0;
-            if (degrees < 0)
-                degrees += 360.0;
+        // Convert Threshold (Rotations) to Degrees for check
+        // 0.05 rot * 360 = 18 degrees
+        double thresholdDegrees = MATCH_THRESHOLD * 360.0;
 
-            // Invert the result so that CCW is Positive (Standard Robot Frame)
-            return (360.0 - degrees) % 360.0;
+        if (minError > thresholdDegrees) {
+            System.err.println("CRITICAL TURRET ERROR: CRT Solver mismatch. Error: " + minError);
+            return 0.0; 
         }
 
-        System.err.println("Turret Sync Failed. Best Error: " + bestError);
-        return -1.0;
+        return bestMatchAngle;
     }
 
-    private double normalize(double input) {
-        double value = input % 1.0;
-        if (value < 0)
-            value += 1.0;
-        return value;
+    private double normalizeDegrees(double angle) {
+        angle = angle % 360.0;
+        if (angle < 0) angle += 360.0;
+        return angle;
     }
 
     private double getShortestDistance(double a, double b) {
-        double diff = Math.abs(a - b);
-        if (diff > 0.5)
-            return 1.0 - diff;
-        return diff;
+        double d = Math.abs(a - b) % 360.0; 
+        return d > 180 ? 360 - d : d;
     }
-
-    @Override
-    public void setTurretAngle(double turretAngle) {
-        turretAngleTarget = turretAngle;
-
-        // 1. Wrap the input to -180 to 180
-        double wrappedDegrees = turretAngleTarget % 360;
-        if (wrappedDegrees > 180) wrappedDegrees -= 360;
-        if (wrappedDegrees < -180) wrappedDegrees += 360;
-
-        // 2. Convert to rotations (-0.5 to 0.5)
-        double targetRotations = wrappedDegrees / 360.0;
-        
-        // 3. Command the motor
-        // Since wrap is off, if the motor is at 0.45 and target is -0.45, 
-        // it will rotate the long way back through 0 to avoid the wire limit.
+    
+    public void setTurretAngle(double degrees) {
+        double clamped = Math.max(-180, Math.min(180, degrees));
+        double targetRotations = clamped / 360.0;
         turretMotor.setControl(turretControl.withPosition(targetRotations));
     }
+
 
     @Override
     //0-100 from minimum elevation to maximum elevation
@@ -281,7 +303,7 @@ public class TurretIOTalonFX implements TurretIO {
             hoodEncoderPositionSignal
         );
 
-        double actualAngle = getTurretPositionDegrees();
+        double actualAngle = calculateAbsolutePositionCRT();
         inputs.turretAngle = Rotation2d.fromDegrees(actualAngle);
         inputs.turretPIDTargetAngle = turretAngleTarget;
         inputs.turretPIDActualAngle = actualAngle;
@@ -292,6 +314,9 @@ public class TurretIOTalonFX implements TurretIO {
         inputs.hoodMotorCurrent = hoodMotorCurrentSignal.getValueAsDouble();
         inputs.hoodPIDActualAngle = hoodEncoderPositionSignal.getValueAsDouble();
         inputs.hoodPIDTargetAngle = hoodAngleTarget;
+
+        inputs.enc19t = pos19Signal.getValueAsDouble(); 
+        inputs.enc21t = pos21Signal.getValueAsDouble();
     }
 
     @Override

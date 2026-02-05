@@ -232,6 +232,7 @@ public void teleopPeriodic() {
     if(SmartDashboard.getBoolean("TestMode", false)) {
       turret.setHoodElevation(SmartDashboard.getNumber("TurretHoodElevation", 0.0));
       turret.setFlywheelVelocity(SmartDashboard.getNumber("TurretFlywheelVelocity", 0.0));
+      turret.setAimTarget(SmartDashboard.getNumber("TurretAngle", 0.0));
     }
 }
 

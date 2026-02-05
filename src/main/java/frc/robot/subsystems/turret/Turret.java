@@ -36,6 +36,7 @@ public class Turret extends SubsystemBase{
 
         SmartDashboard.putNumber("TurretHoodElevation", 0.0);
         SmartDashboard.putNumber("TurretFlywheelVelocity", 0.0);
+        SmartDashboard.putNumber("TurretAngle", 0.0);
     }
 
     @Override
@@ -48,6 +49,10 @@ public class Turret extends SubsystemBase{
             RobotContainer.turretPose.getY(),
             RobotContainer.turretPose.getZ(),
             new Rotation3d(turretInputs.turretAngle));
+    }
+
+    public void setAimTarget(double turretAngle) {
+        turretIO.setTurretAngle(turretAngle);
     }
 
     public void setAimTarget(TurretAimTarget target) {
