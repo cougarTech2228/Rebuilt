@@ -40,6 +40,8 @@ public class TurretIOTalonFX implements TurretIO {
     private final TalonFX flywheelMotor;
     private final MotionMagicVelocityVoltage flywheelControl;
 
+    private double targetFlywheelVelocity = 0;
+
     // Gear Constants
     private static final double MAIN_TEETH = 200.0;
     private static final double TEETH_19 = 19.0;
@@ -66,6 +68,11 @@ public class TurretIOTalonFX implements TurretIO {
     private final StatusSignal<Voltage> hoodMotorVoltageSignal;
     private final StatusSignal<Current> hoodMotorCurrentSignal;
     private final StatusSignal<Angle> hoodEncoderPositionSignal;
+
+    private final StatusSignal<AngularVelocity> flywheelMotorVelocitySignal;
+    private final StatusSignal<Voltage> flywheelMotorVoltageSignal;
+    private final StatusSignal<Current> flywheelMotorCurrentSignal;
+   
 
     public TurretIOTalonFX() {
         turretMotor = new TalonFX(CAN_ID_TURRET_MOTOR, frc.robot.RobotContainer.kCanivore);
@@ -185,6 +192,11 @@ public class TurretIOTalonFX implements TurretIO {
         // flywheelConfig.ClosedLoopGeneral.ContinuousWrap = false;
 
         flywheelMotor.getConfigurator().apply(flywheelConfig);
+        flywheelMotorVelocitySignal = flywheelMotor.getVelocity();
+        flywheelMotorVoltageSignal = flywheelMotor.getMotorVoltage();
+        flywheelMotorCurrentSignal = flywheelMotor.getStatorCurrent();
+    
+    
     }
 
 
@@ -288,6 +300,7 @@ public class TurretIOTalonFX implements TurretIO {
 
     @Override
     public void setFlywheelVelocity(double velocity) {
+        targetFlywheelVelocity = velocity;
         flywheelMotor.setControl(flywheelControl.withVelocity(velocity));
     }
 
@@ -300,7 +313,8 @@ public class TurretIOTalonFX implements TurretIO {
             hoodMotorCurrentSignal,
             hoodMotorVelocitySignal,
             hoodMotorVoltageSignal,
-            hoodEncoderPositionSignal
+            hoodEncoderPositionSignal,
+            flywheelMotorVelocitySignal
         );
 
         double actualAngle = calculateAbsolutePositionCRT();
@@ -317,10 +331,18 @@ public class TurretIOTalonFX implements TurretIO {
 
         inputs.enc19t = pos19Signal.getValueAsDouble(); 
         inputs.enc21t = pos21Signal.getValueAsDouble();
+
+        inputs.flywheelMotorVelocity = flywheelMotorVelocitySignal.getValueAsDouble();
+        inputs.flywheelMotorVoltage = flywheelMotorVoltageSignal.getValueAsDouble();
+        inputs.flywheelMotorCurrent = flywheelMotorCurrentSignal.getValueAsDouble();
+        inputs.flywheelPIDTargetVelocity = targetFlywheelVelocity;
+        
     }
 
-    @Override
-    public void setFlywheelsActive(boolean active) {
-        flywheelMotor.setVoltage(TurretConstants.flywheelVoltage);
+    public boolean isFlywheelAtVelocity() {
+        final double flywheelV = flywheelMotorVelocitySignal.getValueAsDouble();
+        final double flywheelT = targetFlywheelVelocity;
+        return (targetFlywheelVelocity > 0 &&
+            (Math.abs(flywheelV - flywheelT) < (0.05 * targetFlywheelVelocity)));
     }
 }

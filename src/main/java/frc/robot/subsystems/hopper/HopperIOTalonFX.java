@@ -8,6 +8,7 @@ import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
@@ -59,6 +60,7 @@ public class HopperIOTalonFX implements HopperIO {
         
         TalonFXConfiguration indexerConfig = new TalonFXConfiguration();
         indexerConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;        
+        indexerConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         indexerMotor.getConfigurator().apply(indexerConfig);        
         
         TalonFXConfiguration extConfig = new TalonFXConfiguration();

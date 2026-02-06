@@ -86,16 +86,27 @@ public class Turret extends SubsystemBase{
         turretIO.setHoodAngle(elevation);
     }
 
+    private double getVelocityForTarget() {
+        // a bunch of math at some point to calc all the things
+        return 15;
+    }
+
     public void setFlywheelVelocity(double velocity) {
         turretIO.setFlywheelVelocity(velocity);
     }
 
     public void enableShooter(boolean enable) {
+        if (enable) {
+            setFlywheelVelocity(getVelocityForTarget()); 
+        } else {
+            setFlywheelVelocity(0);
+        }
 
+        
     }
 
     public boolean canShoot() {
-        return false;
+        return turretIO.isFlywheelAtVelocity();
     }
 
     private Pose2d getTargetPoint(TurretAimTarget target) {

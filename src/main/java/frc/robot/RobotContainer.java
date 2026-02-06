@@ -20,12 +20,14 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.commands.AutoAlignCommand;
+
 import frc.robot.commands.Destination;
 import frc.robot.commands.DriveCommands;
+import frc.robot.commands.ShootCommand;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
@@ -51,9 +53,12 @@ import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
- * This class is where the bulk of the robot should be declared. Since Command-based is a
- * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
- * periodic methods (other than the scheduler calls). Instead, the structure of the robot (including
+ * This class is where the bulk of the robot should be declared. Since
+ * Command-based is a
+ * "declarative" paradigm, very little robot logic should actually be handled in
+ * the {@link Robot}
+ * periodic methods (other than the scheduler calls). Instead, the structure of
+ * the robot (including
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
@@ -63,8 +68,10 @@ public class RobotContainer {
   private final Vision vision;
 
   private final Hopper hopper;
-  
+
   private final Turret turret;
+
+ 
 
   public static final CANBus kCanivore = new CANBus("canivore", "./logs/example.hoot");
 
@@ -83,66 +90,71 @@ public class RobotContainer {
   @AutoLogOutput(key = "ComponentPoses/Intake")
   public static Pose3d intakePose = new Pose3d(0, 0, 0, new Rotation3d());
 
-  /** The container for the robot. Contains subsystems, OI devices, and commands. */
+  /**
+   * The container for the robot. Contains subsystems, OI devices, and commands.
+   */
   public RobotContainer() {
     switch (Constants.currentMode) {
       case REAL:
         // Real robot, instantiate hardware IO implementations
         // ModuleIOTalonFX is intended for modules with TalonFX drive, TalonFX turn, and
         // a CANcoder
-        drive =
-            new Drive(
-                new GyroIOPigeon2(),
-                new ModuleIOTalonFX(TunerConstants.FrontLeft),
-                new ModuleIOTalonFX(TunerConstants.FrontRight),
-                new ModuleIOTalonFX(TunerConstants.BackLeft),
-                new ModuleIOTalonFX(TunerConstants.BackRight));
+        drive = new Drive(
+            new GyroIOPigeon2(),
+            new ModuleIOTalonFX(TunerConstants.FrontLeft),
+            new ModuleIOTalonFX(TunerConstants.FrontRight),
+            new ModuleIOTalonFX(TunerConstants.BackLeft),
+            new ModuleIOTalonFX(TunerConstants.BackRight));
 
-        vision =
-            new Vision(
-                drive::addVisionMeasurement,
-                new VisionIOPhotonVision(camera1Name, robotToCamera1));
-                // new VisionIOPhotonVision(camera2Name, robotToCamera2));
+        vision = new Vision(
+            drive::addVisionMeasurement,
+            new VisionIOPhotonVision(camera1Name, robotToCamera1));
+        // new VisionIOPhotonVision(camera2Name, robotToCamera2));
 
         turret = new Turret(new TurretIOTalonFX(), drive);
-        
+
         hopper = new Hopper(new HopperIOTalonFX());
         break;
 
       case SIM:
         // Sim robot, instantiate physics sim IO implementations
-        drive =
-            new Drive(
-                new GyroIO() {},
-                new ModuleIOSim(TunerConstants.FrontLeft),
-                new ModuleIOSim(TunerConstants.FrontRight),
-                new ModuleIOSim(TunerConstants.BackLeft),
-                new ModuleIOSim(TunerConstants.BackRight));
-        vision =
-            new Vision(
-                drive::addVisionMeasurement,
-                new VisionIOPhotonVisionSim(camera1Name, robotToCamera1, drive::getPose));
-        //         new VisionIOPhotonVisionSim(camera2Name, robotToCamera2, drive::getPose));
+        drive = new Drive(
+            new GyroIO() {
+            },
+            new ModuleIOSim(TunerConstants.FrontLeft),
+            new ModuleIOSim(TunerConstants.FrontRight),
+            new ModuleIOSim(TunerConstants.BackLeft),
+            new ModuleIOSim(TunerConstants.BackRight));
+        vision = new Vision(
+            drive::addVisionMeasurement,
+            new VisionIOPhotonVisionSim(camera1Name, robotToCamera1, drive::getPose));
+        // new VisionIOPhotonVisionSim(camera2Name, robotToCamera2, drive::getPose));
 
         turret = new Turret(new TurretIOSim(), drive);
 
         hopper = new Hopper(new HopperIOSim());
         break;
 
-
-
       default:
         // Replayed robot, disable IO implementations
-        drive =
-            new Drive(
-                new GyroIO() {},
-                new ModuleIO() {},
-                new ModuleIO() {},
-                new ModuleIO() {},
-                new ModuleIO() {});
-        vision = new Vision(drive::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
-        turret = new Turret(new TurretIO() {}, drive);
-        hopper = new Hopper(new HopperIO() {});
+        drive = new Drive(
+            new GyroIO() {
+            },
+            new ModuleIO() {
+            },
+            new ModuleIO() {
+            },
+            new ModuleIO() {
+            },
+            new ModuleIO() {
+            });
+        vision = new Vision(drive::addVisionMeasurement, new VisionIO() {
+        }, new VisionIO() {
+        });
+        turret = new Turret(new TurretIO() {
+        }, drive);
+        hopper = new Hopper(new HopperIO() {
+        });
         break;
     }
 
@@ -177,6 +189,7 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing it to a {@link
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
+
   private void configureButtonBindings() {
     // Default command, normal field-relative drive
     drive.setDefaultCommand(
@@ -209,8 +222,10 @@ public class RobotContainer {
                             new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero)),
                     drive)
                 .ignoringDisable(true));
-    controller.rightBumper().onTrue(new AutoAlignCommand(drive, Destination.PROCESSOR)); //TODO smarter/better destination choice
 
+    
+    controller.rightBumper().whileTrue(new ShootCommand(hopper, turret));
+    
 //    // Auto aim command example
 //     @SuppressWarnings("resource")
 //     PIDController aimController = new PIDController(0.2, 0.0, 0.0);
@@ -237,26 +252,31 @@ public class RobotContainer {
     return autoChooser.get();
   }
 
-public void simulationPeriodic() {
-}
+  public void simulationPeriodic() {
+  }
 
-public void testPeriodic() {}
+  public void testPeriodic() {
+  }
 
-public void teleopPeriodic() {
+  public void teleopPeriodic() {
     // turret.setAimTarget(TurretAimTarget.Hub);
-    if(SmartDashboard.getBoolean("TestMode", false)) {
+    if (SmartDashboard.getBoolean("TestMode", false)) {
       turret.setHoodElevation(SmartDashboard.getNumber("TurretHoodElevation", 0.0));
       turret.setFlywheelVelocity(SmartDashboard.getNumber("TurretFlywheelVelocity", 0.0));
       turret.setAimTarget(SmartDashboard.getNumber("TurretAngle", 0.0));
-      boolean indexerTest = SmartDashboard.getBoolean("IndexerTest" , false);
-      if (indexerTest
-      ) {
+      boolean indexerTest = SmartDashboard.getBoolean("IndexerTest", false);
+      if (indexerTest) {
         hopper.indexerOn(true);
       } else {
         hopper.indexerOff();
       }
     }
-}
+  }
 
-public void autonomousPeriodic() {}
+  public void autonomousPeriodic() {
+  }
+
+  private void startCommand(Command command) {
+    CommandScheduler.getInstance().schedule(command);
+  }
 }
