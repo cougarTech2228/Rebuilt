@@ -9,7 +9,6 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.drive.Drive;
@@ -126,7 +125,7 @@ public class Turret extends SubsystemBase{
             }
             case LobLower: {
                 double x = 2;
-                double y = 1.685;
+                double y = 1;
                 if (currentAlliance == Alliance.Blue) {
                     pose = new Pose2d(x, y, new Rotation2d());
                 } else {
@@ -136,7 +135,7 @@ public class Turret extends SubsystemBase{
             }
             case LobUpper: {
                 double x = 2;
-                double y = aprilTagLayout.getFieldWidth() - 1.685;
+                double y = aprilTagLayout.getFieldWidth() - 1;
                 if (currentAlliance == Alliance.Blue) {
                     pose = new Pose2d(x, y, new Rotation2d());
                 } else {

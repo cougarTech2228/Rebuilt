@@ -63,13 +63,10 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
  */
 public class RobotContainer {
   // Subsystems
-  private final Drive drive;
-  @SuppressWarnings("unused")
-  private final Vision vision;
-
-  private final Hopper hopper;
-
-  private final Turret turret;
+  final Drive drive;
+  final Vision vision;
+  final Hopper hopper;
+  final Turret turret;
 
  
 

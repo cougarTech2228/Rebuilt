@@ -1,13 +1,10 @@
 package frc.robot.commands;
 
 import static frc.robot.subsystems.vision.VisionConstants.aprilTagLayout;
-import frc.robot.Constants;
 
 import java.util.ArrayList;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 
@@ -16,87 +13,51 @@ import edu.wpi.first.wpilibj.DriverStation;
  *  Thanks Java....
  */
 class DestConsts {
-    static double loaderCenterOffset = -0.16;
-    static double loaderRightOffset = loaderCenterOffset + 0.6096;
-    static double loaderLeftOffset = loaderCenterOffset - 0.6096;
-    static double loaderXOffset = -0.07;
-
-    static double reefLeftOffset = -0.33;
-
-    static double angleTolerance = 60; // how close to destination angle to be in zone (degrees)
+    static double field_length = aprilTagLayout.getFieldLength();
+    static double field_height = aprilTagLayout.getFieldWidth();
+    static double alliance_zone_length = 3.963924;
 }
 
-/**
- * Destinations for short autonomous paths
- */
 public enum Destination {
     // All defined here relative to Blue. All functions below will mirror as needed.
-    // Currently approximations (most destinations cause clipping with DuckBot in sim)
 
-    TOWER(31,0,1.144, 0,0, 100,0, 100,100, 0,100),
-    DEPOT(31, 2.217,0.7,0,0,100,0,100,100,0,100),
-    OUTPOST(29, 0,0,0,0,0,100,100,100,100,0),
-    PROCESSOR(25,0,0,0,0,0,100,100,100,100,0);
+    HOME_ALLIANCE_ZONE(
+        0, 0,
+        DestConsts.alliance_zone_length, 0,
+        DestConsts.alliance_zone_length, DestConsts.field_height,
+        0, DestConsts.field_height,
+        false),
 
-    // x, y, angle of the destination
-    private final Pose2d pose;
-    private final Pose2d tagPose;
+    NEUTRAL_ZONE_SOUTH(
+        DestConsts.alliance_zone_length, 0,
+        DestConsts.field_length, 0,
+        DestConsts.field_length, DestConsts.field_height/2,
+        DestConsts.alliance_zone_length, DestConsts.field_height/2,
+        false),
 
-    // vertices of the quad in which the destination is possible (???)
+    NEUTRAL_ZONE_NORTH(
+        DestConsts.alliance_zone_length, DestConsts.field_height/2,
+        DestConsts.field_length, DestConsts.field_height/2,
+        DestConsts.field_length, DestConsts.field_height,
+        DestConsts.alliance_zone_length, DestConsts.field_height,
+        false);
+
+    // vertices of the quad in which the destination is possible
     private final ArrayList<Translation2d> zone;
-    private final double yShift;
-    private final double xShift;
+    private final boolean invert_height_when_red;
 
-    private Destination(double x, double y, double angle, double p1x, double p1y, double p2x, double p2y, double p3x,
-            double p3y, double p4x, double p4y) {
-        this.pose = new Pose2d(x, y, Rotation2d.fromDegrees(angle));
-        this.tagPose = pose;
-        this.zone = new ArrayList<>(); // What is this zone for?
+    private Destination(double p1x, double p1y, double p2x, double p2y, double p3x,
+            double p3y, double p4x, double p4y, boolean invert_height_when_red) {
+
+        zone = new ArrayList<>();
         zone.add(new Translation2d(p1x, p1y));
         zone.add(new Translation2d(p2x, p2y));
         zone.add(new Translation2d(p3x, p3y));
         zone.add(new Translation2d(p4x, p4y));
-        yShift = 0;
-        xShift = 0;
-    }
-
-    private Destination(int tagID, double yShift, double xShift, double p1x, double p1y, double p2x, double p2y, double p3x,
-    double p3y, double p4x, double p4y) {
-        tagPose = aprilTagLayout.getTagPose(tagID).get().toPose2d();
-        this.pose = tagPose.transformBy(new Transform2d(Constants.robotLength/2 + xShift, yShift, new Rotation2d(Math.PI)));
-        this.zone = new ArrayList<>();
-        zone.add(new Translation2d(p1x, p1y));
-        zone.add(new Translation2d(p2x, p2y));
-        zone.add(new Translation2d(p3x, p3y));
-        zone.add(new Translation2d(p4x, p4y));
-        this.yShift = yShift;
-        this.xShift = xShift;
-    }
-
-    public Rotation2d getAngle(DriverStation.Alliance alliance) {
-        return alliance == DriverStation.Alliance.Blue ? pose.getRotation()
-                : pose.getRotation().plus(Rotation2d.k180deg);
-    }
-
-    public Pose2d getPose() {
-        return pose;
-    }
-
-    public Pose2d getApproachPose() {
-        // return pose.transformBy(new Transform2d(-Constants.robotLength/2, xShift, new Rotation2d()));
-        return tagPose.transformBy(new Transform2d(Constants.robotLength + xShift, yShift, new Rotation2d(Math.PI)));
+        this.invert_height_when_red = invert_height_when_red;
     }
 
     public boolean inZone(Pose2d pos, DriverStation.Alliance alliance) {
-        // if the robot is more than 90 degrees away from the right angle, it's not in the zone.
-        double destAngle = getAngle(alliance).getDegrees();
-        double robAngle = pos.getRotation().getDegrees();
-        double angleDiff = (robAngle-destAngle+720) % 360; //sorry
-        if (angleDiff > DestConsts.angleTolerance && angleDiff < 360-DestConsts.angleTolerance)
-            return false;
-        
-        // for the given pose, is it in the trapezoid?
-        // n>2 Keep track of cross product sign changes
         int pve = 0;
         int neg = 0;
 
@@ -107,20 +68,21 @@ public enum Destination {
             // Form a segment between the i'th point
             double x1 = zone.get(i).getX();
             if (alliance == DriverStation.Alliance.Red)
-                x1 = 17.55 - x1;
+                x1 = DestConsts.field_length - x1;
             double y1 = zone.get(i).getY();
-            if (alliance == DriverStation.Alliance.Red)
-                y1 = 8.05 - y1;
+
+            if (invert_height_when_red && alliance == DriverStation.Alliance.Red)
+                y1 = DestConsts.field_height - y1;
 
             // And the i+1'th, or if i is the last, with the first point
             int i2 = (i + 1) % 4;
 
             double x2 = zone.get(i2).getX();
             if (alliance == DriverStation.Alliance.Red)
-                x2 = 17.55 - x2;
+                x2 = DestConsts.field_length - x2;
             double y2 = zone.get(i2).getY();
-            if (alliance == DriverStation.Alliance.Red)
-                y2 = 8.05 - y2;
+            if (invert_height_when_red && alliance == DriverStation.Alliance.Red)
+                y2 = DestConsts.field_height - y2;
 
             // Compute the cross product
             double d = (x - x1) * (y2 - y1) - (y - y1) * (x2 - x1);

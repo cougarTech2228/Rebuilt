@@ -16,6 +16,7 @@ import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
+import frc.robot.commands.AutoAimCommand;
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
  * each mode, as described in the TimedRobot documentation. If you change the name of this class or
@@ -24,6 +25,7 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
  */
 public class Robot extends LoggedRobot {
   private Command autonomousCommand;
+  private Command autoAimCommand;
   private RobotContainer robotContainer;
 
   public Robot() {
@@ -69,6 +71,8 @@ public class Robot extends LoggedRobot {
     // Instantiate our RobotContainer. This will perform all our button bindings,
     // and put our autonomous chooser on the dashboard.
     robotContainer = new RobotContainer();
+
+    autoAimCommand = new AutoAimCommand(robotContainer.drive, robotContainer.turret);
   }
 
   /** This function is called periodically during all modes. */
@@ -108,6 +112,7 @@ public class Robot extends LoggedRobot {
     if (autonomousCommand != null) {
       CommandScheduler.getInstance().schedule(autonomousCommand);
     }
+    CommandScheduler.getInstance().schedule(autoAimCommand);
   }
 
   /** This function is called periodically during autonomous. */
@@ -126,6 +131,12 @@ public class Robot extends LoggedRobot {
     if (autonomousCommand != null) {
       autonomousCommand.cancel();
     }
+
+    // kill the auto aim command that was running durring auto
+    autoAimCommand.cancel();
+
+    // Start a new auto aim command that is always running
+    CommandScheduler.getInstance().schedule(autoAimCommand);
   }
 
   /** This function is called periodically during operator control. */
