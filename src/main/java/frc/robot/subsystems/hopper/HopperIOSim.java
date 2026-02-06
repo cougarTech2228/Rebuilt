@@ -16,11 +16,11 @@ public class HopperIOSim implements HopperIO {
         // inputs.hopperOccupied = sensor.get();
     }
 
-    public void turnOn() {
+    public void IndexerOn(boolean test) {
         isTurnedOn = true;
     }
 
-    public void turnOff() {
+    public void IndexerOff() {
         isTurnedOn = false;
     }
 

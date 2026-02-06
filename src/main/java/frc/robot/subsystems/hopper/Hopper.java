@@ -2,16 +2,20 @@ package frc.robot.subsystems.hopper;
 
 import org.littletonrobotics.junction.Logger;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Hopper extends SubsystemBase {
 	private final HopperIO io;
     private final HopperIOInputsAutoLogged hopperInputs = new HopperIOInputsAutoLogged();
-
-	private boolean on = false;
+	
+	private boolean on = false; 
+	
 
 	public Hopper(HopperIO io) {
 		this.io = io;
+
+		SmartDashboard.putBoolean("IndexerTest", false);
 	}
 
     @Override
@@ -25,14 +29,14 @@ public class Hopper extends SubsystemBase {
 		return this.on;
 	}
 
-	public void turnOn() {
+	public void indexerOn(boolean test) {
 		this.on = true;
-		this.io.turnOn();
+		this.io.indexerOn(test);
 	}
 	
-	public void turnOff() {
+	public void indexerOff() {
 		this.on = false;
-		this.io.turnOff();
+		this.io.indexerOff();
 	}
 
 	public boolean safeToRetract() {

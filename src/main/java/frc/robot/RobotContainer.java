@@ -31,6 +31,10 @@ import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
+import frc.robot.subsystems.hopper.Hopper;
+import frc.robot.subsystems.hopper.HopperIO;
+import frc.robot.subsystems.hopper.HopperIOSim;
+import frc.robot.subsystems.hopper.HopperIOTalonFX;
 import frc.robot.subsystems.turret.Turret;
 import frc.robot.subsystems.turret.TurretIO;
 import frc.robot.subsystems.turret.TurretIOSim;
@@ -56,6 +60,8 @@ public class RobotContainer {
   @SuppressWarnings("unused")
   private final Vision vision;
 
+  private final Hopper hopper;
+  
   private final Turret turret;
 
   public static final CANBus kCanivore = new CANBus("canivore", "./logs/example.hoot");
@@ -97,7 +103,8 @@ public class RobotContainer {
                 // new VisionIOPhotonVision(camera2Name, robotToCamera2));
 
         turret = new Turret(new TurretIOTalonFX(), drive);
-
+        
+        hopper = new Hopper(new HopperIOTalonFX());
         break;
 
       case SIM:
@@ -116,7 +123,11 @@ public class RobotContainer {
         //         new VisionIOPhotonVisionSim(camera2Name, robotToCamera2, drive::getPose));
 
         turret = new Turret(new TurretIOSim(), drive);
+
+        hopper = new Hopper(new HopperIOSim());
         break;
+
+
 
       default:
         // Replayed robot, disable IO implementations
@@ -129,6 +140,7 @@ public class RobotContainer {
                 new ModuleIO() {});
         vision = new Vision(drive::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
         turret = new Turret(new TurretIO() {}, drive);
+        hopper = new Hopper(new HopperIO() {});
         break;
     }
 
@@ -233,6 +245,13 @@ public void teleopPeriodic() {
       turret.setHoodElevation(SmartDashboard.getNumber("TurretHoodElevation", 0.0));
       turret.setFlywheelVelocity(SmartDashboard.getNumber("TurretFlywheelVelocity", 0.0));
       turret.setAimTarget(SmartDashboard.getNumber("TurretAngle", 0.0));
+      boolean indexerTest = SmartDashboard.getBoolean("IndexerTest" , false);
+      if (indexerTest
+      ) {
+        hopper.indexerOn(true);
+      } else {
+        hopper.indexerOff();
+      }
     }
 }
 

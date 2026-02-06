@@ -20,10 +20,11 @@ public interface HopperIO {
         public boolean canHome = false;
     }
     public default void updateInputs(HopperIOInputs inputs) {}
-    public default void turnOn() {}
-    public default void turnOff() {}
+    public default void indexerOn(boolean test) {}
+    public default void indexerOff() {}
     
-    public boolean safeToRetract();
+    public default boolean safeToRetract() {
+            return false;};
 }
 
 

@@ -7,6 +7,7 @@ import com.ctre.phoenix6.controls.MotionMagicVelocityDutyCycle;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
+import com.ctre.phoenix6.signals.InvertedValue;
 
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
@@ -38,7 +39,7 @@ public class HopperIOTalonFX implements HopperIO {
     public HopperIOTalonFX() {
         // Construct Motors + Status Signals
         this.indexerMotor = new TalonFX(Constants.CAN_ID_INDEXER_MOTOR, frc.robot.RobotContainer.kCanivore);
-        this.kickerMotor = new TalonFX(Constants.CAN_ID_INDEXER_MOTOR, frc.robot.RobotContainer.kCanivore);
+        this.kickerMotor = new TalonFX(Constants.CAN_ID_KICKER_MOTOR, frc.robot.RobotContainer.kCanivore);
         this.extensionMotor = new TalonFX(Constants.hopperExtensionMotorCanID, frc.robot.RobotContainer.kCanivore);
         this.homeSensor  = new DigitalInput(Constants.homeSensorDIO);
         this.extensionControl = new MotionMagicVoltage(0);
@@ -55,8 +56,13 @@ public class HopperIOTalonFX implements HopperIO {
         this.extensionMotorVelocity = extensionMotor.getVelocity();
         this.extensionMotorCurrentAmps = extensionMotor.getSupplyCurrent();
         
-        TalonFXConfiguration extConfig = new TalonFXConfiguration();
         
+        TalonFXConfiguration indexerConfig = new TalonFXConfiguration();
+        indexerConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;        
+        indexerMotor.getConfigurator().apply(indexerConfig);        
+        
+        TalonFXConfiguration extConfig = new TalonFXConfiguration();
+
         extConfig.Slot0.kP = 0.0;
         extConfig.Slot1.kI = 0.0;
         extConfig.Slot2.kD = 0.0;
@@ -70,6 +76,8 @@ public class HopperIOTalonFX implements HopperIO {
         extConfig.Feedback.SensorToMechanismRatio = 0.0;
 
         extensionMotor.getConfigurator().apply(extConfig);
+
+        
     }
 
     public void updateInputs(HopperIOInputs inputs) {
@@ -92,9 +100,15 @@ public class HopperIOTalonFX implements HopperIO {
         inputs.canHome = this.homeSensor.get();
     }
 
-    public void indexerOn() {
-        indexerMotor.setVoltage(HopperConstants.indexerVoltage);
-        kickerMotor.setVoltage(HopperConstants.kickerVoltage);
+    public void indexerOn(boolean test) {
+        if (test == true) {
+            indexerMotor.setVoltage(HopperConstants.testIndexerVoltage);
+            kickerMotor.setVoltage(HopperConstants.testKickerVoltage);
+        } else {
+            indexerMotor.setVoltage(HopperConstants.indexerVoltage);
+            kickerMotor.setVoltage(HopperConstants.kickerVoltage);
+        }
+        
 
     }
 
