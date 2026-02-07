@@ -105,16 +105,41 @@ public class Turret extends SubsystemBase{
                 return velocity;
             }
         } else {
-            Pose2d robotPose = driveSubsystem.getPose();
-            Pose2d targetPose = getTargetPoint(aimTarget);
-            double distance = robotPose.getTranslation().getDistance(targetPose.getTranslation());
 
+            final Pose2d robotPose = driveSubsystem.getPose();
+            final Pose2d targetPose = getTargetPoint(aimTarget);
+            // double distance = robotPose.getTranslation().getDistance(targetPose.getTranslation());
+
+            final double g = -9.8;
+            final double rx = robotPose.getX();
+            final double ry = robotPose.getY();
+            final double tx = targetPose.getX();
+            final double ty = targetPose.getY();
+
+            final double dx = tx - rx;
+            double dy = ty - ry;
             if (aimTarget == TurretAimTarget.Hub) {
-                distance += 2.5;
+                dy += 2;
             }
-            return Math.min((distance + 1.2833) / 0.187, TurretConstants.MAX_FLYWHEEL_SPEED);
-        }
 
+            // TODO: use a real hood angle
+            final double theta = 40;
+
+            // if (aimTarget == TurretAimTarget.Hub) {
+            //     distance += 2.5;
+            // }
+            // return Math.min((distance + 1.2833) / 0.187, TurretConstants.MAX_FLYWHEEL_SPEED);
+
+            final double denominator = 2 * Math.pow(Math.cos(theta), 2) * (dx * Math.tan(theta) - dy);
+            final double v0 = Math.sqrt(g * Math.pow(dx, 2) / denominator);
+
+        
+            SmartDashboard.putString("Turret - denominator", "(" + v0 + ", " + denominator + ")");
+            SmartDashboard.putString("Turret - robot pos", "(" + rx + ", " + ry + ")");
+            SmartDashboard.putString("Turret - target pos", "(" + tx + ", " + ty + ")");
+            SmartDashboard.putString("Turret - aim pos", "(" + dx + ", " + dy + ")");
+            return v0;
+        }
 
         // a bunch of math at some point to calc all the things
         return SmartDashboard.getNumber("TurretFlywheelVelocity", 0.0);
