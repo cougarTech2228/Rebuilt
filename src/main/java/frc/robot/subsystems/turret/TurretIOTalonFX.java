@@ -63,6 +63,7 @@ public class TurretIOTalonFX implements TurretIO {
     private final StatusSignal<Angle> pos19Signal;
     private final StatusSignal<Angle> pos21Signal;
     private final StatusSignal<Angle> turretMotorPositionSignal;
+    private final StatusSignal<Double> turretMotorPIDReferenceSignal;
 
     private final StatusSignal<AngularVelocity> hoodMotorVelocitySignal;
     private final StatusSignal<Voltage> hoodMotorVoltageSignal;
@@ -89,7 +90,7 @@ public class TurretIOTalonFX implements TurretIO {
         turretConfig.Slot0.kD = 1.0;
 
         turretConfig.MotionMagic.MotionMagicCruiseVelocity = 2.0; // turret rotations/sec
-        turretConfig.MotionMagic.MotionMagicAcceleration = 0.5; // turret rotations/sec^2
+        turretConfig.MotionMagic.MotionMagicAcceleration = 3; // turret rotations/sec^2
         turretConfig.MotionMagic.MotionMagicJerk = 0.0;
 
         // Motor Revs per 1 Turret Rev = 5 * (200/18) = 55.555...
@@ -114,18 +115,19 @@ public class TurretIOTalonFX implements TurretIO {
         CANcoderConfiguration config19 = new CANcoderConfiguration();
         config19.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.5;
         config19.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-        config19.MagnetSensor.MagnetOffset = 0.640381; // Set 19T Zero Offset
+        config19.MagnetSensor.MagnetOffset = -0.016602; // Set 19T Zero Offset
         enc19.getConfigurator().apply(config19);
 
         CANcoderConfiguration config21 = new CANcoderConfiguration();
         config21.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.5;
         config21.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-        config21.MagnetSensor.MagnetOffset = 0.083984 ; // Set 21T Zero Offset
+        config21.MagnetSensor.MagnetOffset = 0.094238 ; // Set 21T Zero Offset
         enc21.getConfigurator().apply(config21);
 
         pos19Signal = enc19.getAbsolutePosition();
         pos21Signal = enc21.getAbsolutePosition();
         turretMotorPositionSignal = turretMotor.getPosition();
+        turretMotorPIDReferenceSignal = turretMotor.getClosedLoopReference();
 
         BaseStatusSignal.refreshAll(pos19Signal, pos21Signal, turretMotorPositionSignal);
 
@@ -310,6 +312,7 @@ public class TurretIOTalonFX implements TurretIO {
             pos19Signal,
             pos21Signal,
             turretMotorPositionSignal,
+            turretMotorPIDReferenceSignal,
             hoodMotorCurrentSignal,
             hoodMotorVelocitySignal,
             hoodMotorVoltageSignal,
@@ -321,6 +324,8 @@ public class TurretIOTalonFX implements TurretIO {
         inputs.turretAngle = Rotation2d.fromDegrees(actualAngle);
         inputs.turretPIDTargetAngle = turretAngleTarget;
         inputs.turretPIDActualAngle = actualAngle;
+        inputs.turretMotorPIDTarget = turretMotorPIDReferenceSignal.getValueAsDouble();
+        inputs.turretMotorRotations = turretMotorPositionSignal.getValueAsDouble();
 
         inputs.hoodTargetElevationPercent = hoodElevationTarget;
         inputs.hoodMotorVelocity = hoodMotorVelocitySignal.getValueAsDouble();

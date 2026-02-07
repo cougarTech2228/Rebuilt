@@ -26,11 +26,11 @@ public class AutoAimCommand extends Command {
         if (DriverStation.getAlliance().isPresent()) {
             currentAlliance = DriverStation.getAlliance().get();
         }
-        if (Destination.HOME_ALLIANCE_ZONE.inZone(currentPose, currentAlliance)){
+        if (Zone.HOME_ALLIANCE_ZONE.inZone(currentPose, currentAlliance)){
             turretSubsystem.setAimTarget(TurretAimTarget.Hub);
-        } else if (Destination.NEUTRAL_ZONE_NORTH.inZone(currentPose, currentAlliance)){
+        } else if (Zone.NEUTRAL_ZONE_NORTH.inZone(currentPose, currentAlliance)){
             turretSubsystem.setAimTarget(TurretAimTarget.LobUpper);
-        } else if (Destination.NEUTRAL_ZONE_SOUTH.inZone(currentPose, currentAlliance)){
+        } else if (Zone.NEUTRAL_ZONE_SOUTH.inZone(currentPose, currentAlliance)){
             turretSubsystem.setAimTarget(TurretAimTarget.LobLower);
         }
     }

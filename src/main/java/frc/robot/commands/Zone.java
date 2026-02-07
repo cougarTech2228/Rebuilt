@@ -18,7 +18,7 @@ class DestConsts {
     static double alliance_zone_length = 3.963924;
 }
 
-public enum Destination {
+public enum Zone {
     // All defined here relative to Blue. All functions below will mirror as needed.
 
     HOME_ALLIANCE_ZONE(
@@ -46,7 +46,7 @@ public enum Destination {
     private final ArrayList<Translation2d> zone;
     private final boolean invert_height_when_red;
 
-    private Destination(double p1x, double p1y, double p2x, double p2y, double p3x,
+    private Zone(double p1x, double p1y, double p2x, double p2y, double p3x,
             double p3y, double p4x, double p4y, boolean invert_height_when_red) {
 
         zone = new ArrayList<>();

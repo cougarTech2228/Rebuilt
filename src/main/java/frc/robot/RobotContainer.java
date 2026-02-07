@@ -25,7 +25,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 
-import frc.robot.commands.Destination;
+import frc.robot.commands.Zone;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.ShootCommand;
 import frc.robot.generated.TunerConstants;
@@ -259,7 +259,7 @@ public class RobotContainer {
     // turret.setAimTarget(TurretAimTarget.Hub);
     if (SmartDashboard.getBoolean("TestMode", false)) {
       turret.setHoodElevation(SmartDashboard.getNumber("TurretHoodElevation", 0.0));
-      turret.setFlywheelVelocity(SmartDashboard.getNumber("TurretFlywheelVelocity", 0.0));
+      // turret.setFlywheelVelocity(SmartDashboard.getNumber("TurretFlywheelVelocity", 0.0));
       turret.setAimTarget(SmartDashboard.getNumber("TurretAngle", 0.0));
       boolean indexerTest = SmartDashboard.getBoolean("IndexerTest", false);
       if (indexerTest) {
