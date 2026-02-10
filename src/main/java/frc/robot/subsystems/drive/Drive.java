@@ -356,4 +356,19 @@ public class Drive extends SubsystemBase {
       new Translation2d(TunerConstants.BackRight.LocationX, TunerConstants.BackRight.LocationY)
     };
   }
+
+  public ChassisSpeeds getFieldRelativeChassisSpeeds() {
+    ChassisSpeeds robotSpeeds = getChassisSpeeds();
+    Rotation2d robotHeading = getRotation();
+    
+    // Rotate the linear speeds by the robot's heading to get field-relative speeds
+    Translation2d fieldLinearSpeeds = 
+        new Translation2d(robotSpeeds.vxMetersPerSecond, robotSpeeds.vyMetersPerSecond)
+        .rotateBy(robotHeading);
+        
+    return new ChassisSpeeds(
+        fieldLinearSpeeds.getX(), 
+        fieldLinearSpeeds.getY(), 
+        robotSpeeds.omegaRadiansPerSecond);
+  }
 }

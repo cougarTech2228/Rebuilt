@@ -6,6 +6,7 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -30,6 +31,8 @@ public class Turret extends SubsystemBase{
     private Drive driveSubsystem;
 
     private TurretAimTarget aimTarget = TurretAimTarget.Hub;
+
+    private double calculatedFlywheelSpeed = 0.0;
 
     public Turret(TurretIO turretIO, Drive driveSubsystem) {
         this.turretIO = turretIO;
@@ -59,67 +62,149 @@ public class Turret extends SubsystemBase{
         turretIO.setTurretAngle(turretAngle);
     }
 
+    // public void setAimTarget(TurretAimTarget target) {
+    //     aimTarget = target;
+    //     Pose2d robotPose = driveSubsystem.getPose();
+    //     Pose2d targetPose = getTargetPoint(target);
+    //     turretInputs.turretTargetPoint = targetPose;
+    
+    //     // Get the Translation (X, Y) of both poses
+    //     Translation2d robotXY = robotPose.getTranslation().plus(TurretConstants.TurretOffset.getTranslation().toTranslation2d());
+    //     Translation2d targetXY = targetPose.getTranslation();
+
+    //     // Calculate the difference vector (Vector from Robot -> Target)
+    //     Translation2d difference = targetXY.minus(robotXY);
+
+    //     // Get the angle of that vector relative to the field
+    //     Rotation2d angleToTargetFieldRelative = difference.getAngle();
+
+    //     // Subtract robot's rotation to make it relative to the robot front
+    //     // (Field Relative Angle - Robot Heading = Robot Relative Angle)
+    //     Rotation2d angleToTargetRobotRelative = angleToTargetFieldRelative.minus(robotPose.getRotation());
+
+    //     double degrees = angleToTargetRobotRelative.getDegrees();
+
+    //     // normalize 0-360
+    //     double turretAngle = MathUtil.inputModulus(degrees, -180, 180);
+
+    //     turretIO.setTurretAngle(turretAngle);
+    // }
+
     public void setAimTarget(TurretAimTarget target) {
         aimTarget = target;
+        
+        // 1. Get Robot State
         Pose2d robotPose = driveSubsystem.getPose();
+        ChassisSpeeds fieldSpeeds = driveSubsystem.getFieldRelativeChassisSpeeds(); 
         Pose2d targetPose = getTargetPoint(target);
-        turretInputs.turretTargetPoint = targetPose;
-    
-        // Get the Translation (X, Y) of both poses
-        Translation2d robotXY = robotPose.getTranslation().plus(TurretConstants.TurretOffset.getTranslation().toTranslation2d());
-        Translation2d targetXY = targetPose.getTranslation();
 
-        // Calculate the difference vector (Vector from Robot -> Target)
-        Translation2d difference = targetXY.minus(robotXY);
+        // 2. Calculate Turret Position on Field
+        // We must rotate the turret offset by the robot's heading to get true field position
+        Translation2d turretOffsetField = TurretConstants.TurretOffset.getTranslation().toTranslation2d()
+                .rotateBy(robotPose.getRotation());
+        Translation2d turretLoc = robotPose.getTranslation().plus(turretOffsetField);
 
-        // Get the angle of that vector relative to the field
-        Rotation2d angleToTargetFieldRelative = difference.getAngle();
+        // 3. Calculate Velocity AT THE TURRET
+        // The turret has linear velocity PLUS tangential velocity from robot rotation
+        // V_tan = omega x r
+        Translation2d tangentialVel = new Translation2d(
+            -fieldSpeeds.omegaRadiansPerSecond * turretOffsetField.getY(),
+            fieldSpeeds.omegaRadiansPerSecond * turretOffsetField.getX()
+        );
+        
+        Translation2d robotVelVector = new Translation2d(fieldSpeeds.vxMetersPerSecond, fieldSpeeds.vyMetersPerSecond)
+                .plus(tangentialVel);
 
-        // Subtract robot's rotation to make it relative to the robot front
-        // (Field Relative Angle - Robot Heading = Robot Relative Angle)
+        // 4. Calculate Time of Flight (Approximate)
+        Translation2d vectorToTarget = targetPose.getTranslation().minus(turretLoc);
+        double staticDist = vectorToTarget.getNorm();
+
+        // Use your regression to estimate speed (Meters/Sec)
+        // Note: Your regression (dist + 1.28) / 0.187 likely returns RPM or similar.
+        // You MUST convert this to Meters/Second for the physics to work.
+        // assuming 4 inch wheel (0.1016m diam) -> Circumference = 0.319m
+        // If regression is Rotations/Sec: Speed = RPS * 0.319
+        double shotRPS = (staticDist + 1.2833) / 0.187;
+        double shotSpeedMPS = shotRPS * (Math.PI * 0.1016); // ADJUST THIS based on your actual wheel diameter
+
+        double timeOfFlight = staticDist / shotSpeedMPS;
+
+        // 5. Calculate Virtual Target
+        // We aim where the target "would be" if we were standing still
+        Translation2d virtualTargetLoc = targetPose.getTranslation()
+            .minus(robotVelVector.times(timeOfFlight * TurretConstants.MOTION_COMPENSATION_FACTOR));
+
+        // 6. Calculate Aim Vector to Virtual Target
+        Translation2d aimVector = virtualTargetLoc.minus(turretLoc);
+        
+        // --- Calculate Angle ---
+        Rotation2d angleToTargetFieldRelative = aimVector.getAngle();
         Rotation2d angleToTargetRobotRelative = angleToTargetFieldRelative.minus(robotPose.getRotation());
-
         double degrees = angleToTargetRobotRelative.getDegrees();
-
-        // normalize 0-360
         double turretAngle = MathUtil.inputModulus(degrees, -180, 180);
 
         turretIO.setTurretAngle(turretAngle);
+
+        // --- Calculate Flywheel Speed ---
+        // We use the "Virtual Distance" (distance to the offset point)
+        // This automatically shoots harder if moving away, and softer if moving closer
+        double virtualDist = aimVector.getNorm();
+        if (aimTarget == TurretAimTarget.Hub) {
+            virtualDist += 2.5; // Keep your existing offset
+        }
+
+        // Update the calculated speed variable
+        calculatedFlywheelSpeed = Math.min((virtualDist + 1.2833) / 0.187, TurretConstants.MAX_FLYWHEEL_SPEED);
+        
+        // Debugging
+        SmartDashboard.putNumber("Turret/Calc/VirtualDist", virtualDist);
+        SmartDashboard.putNumber("Turret/Calc/TimeOfFlight", timeOfFlight);
+    }
+
+    private double getVelocityForTarget() {
+        // Now strictly uses the calculated speed from setAimTarget
+        double turretTestDistance = SmartDashboard.getNumber("TurretTestDistance", 0.0);
+        if (turretTestDistance > 0) {
+            double velocity = (turretTestDistance + 1.2833) / 0.187;
+            turretIO.setHoodAngle(40);
+            return velocity;
+        }
+        return calculatedFlywheelSpeed;
     }
 
     public void setHoodElevation(double elevation) {
         turretIO.setHoodAngle(elevation);
     }
 
-    private double getVelocityForTarget() {
+    // private double getVelocityForTarget() {
 
-        // 45 degree hood (40% on proto)
-        // when lobbing
-        // y = 0.187*x - 1.2833
+    //     // 45 degree hood (40% on proto)
+    //     // when lobbing
+    //     // y = 0.187*x - 1.2833
 
-        double turretTestDistance = SmartDashboard.getNumber("TurretTestDistance", 0.0);
-        if (turretTestDistance > 0) {
-            double velocity = (turretTestDistance + 1.2833) / 0.187;
-            if (velocity > 0) {
-                turretIO.setHoodAngle(40);
-                return velocity;
-            }
-        } else {
-            Pose2d robotPose = driveSubsystem.getPose();
-            Pose2d targetPose = getTargetPoint(aimTarget);
-            double distance = robotPose.getTranslation().getDistance(targetPose.getTranslation());
+    //     double turretTestDistance = SmartDashboard.getNumber("TurretTestDistance", 0.0);
+    //     if (turretTestDistance > 0) {
+    //         double velocity = (turretTestDistance + 1.2833) / 0.187;
+    //         if (velocity > 0) {
+    //             turretIO.setHoodAngle(40);
+    //             return velocity;
+    //         }
+    //     } else {
+    //         Pose2d robotPose = driveSubsystem.getPose();
+    //         Pose2d targetPose = getTargetPoint(aimTarget);
+    //         double distance = robotPose.getTranslation().getDistance(targetPose.getTranslation());
 
-            if (aimTarget == TurretAimTarget.Hub) {
-                distance += 2.5;
-            }
-            return Math.min((distance + 1.2833) / 0.187, TurretConstants.MAX_FLYWHEEL_SPEED);
-        }
+    //         if (aimTarget == TurretAimTarget.Hub) {
+    //             distance += 2.5;
+    //         }
+    //         return Math.min((distance + 1.2833) / 0.187, TurretConstants.MAX_FLYWHEEL_SPEED);
+    //     }
 
 
-        // a bunch of math at some point to calc all the things
-        return SmartDashboard.getNumber("TurretFlywheelVelocity", 0.0);
-        //return 0;
-    }
+    //     // a bunch of math at some point to calc all the things
+    //     return SmartDashboard.getNumber("TurretFlywheelVelocity", 0.0);
+    //     //return 0;
+    // }
 
     public void setFlywheelVelocity(double velocity) {
         turretIO.setFlywheelVelocity(velocity);
