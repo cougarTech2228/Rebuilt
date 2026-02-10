@@ -71,7 +71,8 @@ public class RobotContainer {
  
 
   public static final CANBus kCanivore = new CANBus("canivore", "./logs/example.hoot");
-
+  public static final CANBus kRio = new CANBus("rio");
+  
   // Controller
   private final CommandXboxController controller = new CommandXboxController(0);
 
