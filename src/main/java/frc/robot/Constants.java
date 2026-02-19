@@ -25,6 +25,7 @@ public final class Constants {
 
   public static final double robotWidth = 0.7112; // 28in
   public static final double robotLength = 0.6858; // 27in
+
   public static enum Mode {
     /** Running on a real robot. */
     REAL,
