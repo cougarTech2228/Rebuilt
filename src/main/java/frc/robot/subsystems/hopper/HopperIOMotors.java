@@ -1,27 +1,12 @@
 package frc.robot.subsystems.hopper;
 
-import com.ctre.phoenix6.BaseStatusSignal;
-import com.ctre.phoenix6.StatusSignal;
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.MotionMagicVelocityDutyCycle;
-import com.ctre.phoenix6.controls.MotionMagicVoltage;
-import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
-import com.ctre.phoenix6.signals.InvertedValue;
-import com.ctre.phoenix6.signals.NeutralModeValue;
 
-import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.config.ClosedLoopConfig;
 // import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
-import com.revrobotics.spark.config.MAXMotionConfig.MAXMotionPositionMode;
-import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-import com.revrobotics.spark.config.SparkMaxConfig;
 
-import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.units.measure.Current;
-import edu.wpi.first.units.measure.Voltage;
+
+
 import edu.wpi.first.wpilibj.DigitalInput;
 import frc.robot.Constants;
 
@@ -51,7 +36,7 @@ public class HopperIOMotors implements HopperIO {
         this.indexerMotor = new SparkMax(Constants.CAN_ID_INDEXER_MOTOR, MotorType.kBrushless);
         this.kickerMotor = new SparkMax(Constants.CAN_ID_KICKER_MOTOR, MotorType.kBrushless);
         // this.extensionMotor = new TalonFX(Constants.hopperExtensionMotorCanID, frc.robot.RobotContainer.kCanivore);
-        this.homeSensor  = new DigitalInput(Constants.homeSensorDIO);
+        this.homeSensor  = new DigitalInput(Constants.DIO_CLIMBER_EXTENSION_HOME_SENSOR);
         // this.extensionControl = new MotionMagicVoltage(0);
 
         // this.indexerMotorAppliedVoltage = indexerMotor.getAppliedOutput();

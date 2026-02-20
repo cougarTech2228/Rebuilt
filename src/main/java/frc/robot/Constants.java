@@ -74,6 +74,8 @@ public final class Constants {
   public static final int CAN_ID_INTAKE_MOTOR = 0;
   public static final int CAN_ID_INTAKE_ANGLE_MOTOR = 0;
 
+  public static final int CAN_ID_UPPER_FLYWHEEL_MOTOR = 0;
+
   // DIOs
   public static int DIO_CLIMBER_HOME_SENSOR = 0;
   public static int DIO_CLIMBER_EXTENSION_HOME_SENSOR = 1;

@@ -46,7 +46,7 @@ import frc.robot.subsystems.hopper.HopperIOMotors;
 import frc.robot.subsystems.turret.Turret;
 import frc.robot.subsystems.turret.TurretIO;
 import frc.robot.subsystems.turret.TurretIOSim;
-import frc.robot.subsystems.turret.TurretIOTalonFX;
+import frc.robot.subsystems.turret.TurretIOMotors;
 import frc.robot.subsystems.turret.Turret.TurretAimTarget;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
@@ -113,7 +113,7 @@ public class RobotContainer {
             new VisionIOPhotonVision(camera1Name, robotToCamera1));
         // new VisionIOPhotonVision(camera2Name, robotToCamera2));
 
-        turret = new Turret(new TurretIOTalonFX(), drive);
+        turret = new Turret(new TurretIOMotors(), drive);
 
         hopper = new Hopper(new HopperIOMotors());
         climber = new Climber(new ClimberIOMotor());

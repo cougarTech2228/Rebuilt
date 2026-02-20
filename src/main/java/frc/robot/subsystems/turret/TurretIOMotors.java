@@ -20,10 +20,12 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
+import frc.robot.Constants;
+import frc.robot.RobotContainer;
 
 import static frc.robot.Constants.*;
 
-public class TurretIOTalonFX implements TurretIO {
+public class TurretIOMotors implements TurretIO {
 
     private double turretAngleTarget;
     private double hoodElevationTarget; //0 .. 100
@@ -35,10 +37,15 @@ public class TurretIOTalonFX implements TurretIO {
 
     private final TalonFX turretMotor;
     private final MotionMagicVoltage turretControl;
+
     private final TalonFX hoodMotor;
     private final MotionMagicVoltage hoodControl;
+
     private final TalonFX flywheelMotor;
     private final MotionMagicVelocityVoltage flywheelControl;
+
+    private final TalonFX upperFlywheelMotor;
+    private final MotionMagicVelocityVoltage upperFlywheelControl;
 
     private double targetFlywheelVelocity = 0;
 
@@ -75,13 +82,18 @@ public class TurretIOTalonFX implements TurretIO {
     private final StatusSignal<Current> flywheelMotorCurrentSignal;
    
 
-    public TurretIOTalonFX() {
+    public TurretIOMotors() {
         turretMotor = new TalonFX(CAN_ID_TURRET_MOTOR, frc.robot.RobotContainer.kCanivore);
         turretControl = new MotionMagicVoltage(0);
+
         hoodMotor = new TalonFX(frc.robot.Constants.CAN_ID_TURRET_HOOD_MOTOR, frc.robot.RobotContainer.kCanivore);
         hoodControl = new MotionMagicVoltage(0);
+
         flywheelMotor = new TalonFX(frc.robot.Constants.CAN_ID_TURRET_MOTOR_FLYWHEEL, frc.robot.RobotContainer.kCanivore);
         flywheelControl = new MotionMagicVelocityVoltage(0);
+
+        upperFlywheelMotor = new TalonFX(frc.robot.Constants.CAN_ID_UPPER_FLYWHEEL_MOTOR, frc.robot.RobotContainer.kCanivore);
+        upperFlywheelControl = new MotionMagicVelocityVoltage(0);
 
         TalonFXConfiguration turretConfig = new TalonFXConfiguration();
 
@@ -197,7 +209,15 @@ public class TurretIOTalonFX implements TurretIO {
         flywheelMotorVelocitySignal = flywheelMotor.getVelocity();
         flywheelMotorVoltageSignal = flywheelMotor.getMotorVoltage();
         flywheelMotorCurrentSignal = flywheelMotor.getStatorCurrent();
-    
+
+        TalonFXConfiguration upperFlywheelConfig = new TalonFXConfiguration();
+
+        flywheelConfig.Slot0.kP = 0.3;
+        flywheelConfig.Slot0.kI = 0.0;
+        flywheelConfig.Slot0.kD = 0.0;
+        flywheelConfig.Slot0.kV = 0.0;
+        flywheelConfig.Slot0.kA = 0.004;
+           
     
     }
 

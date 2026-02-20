@@ -18,6 +18,9 @@ public interface HopperIO {
         public double extensionCurrent = 0.0;
 
         public boolean canHome = false;
+        public double indexerCurrent;
+        public double kickerVelocity;
+        public double kickerCurrent;
     }
     public default void updateInputs(HopperIOInputs inputs) {}
     public default void indexerOn(boolean test) {}
