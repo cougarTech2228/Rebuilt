@@ -7,11 +7,11 @@ public interface HopperIO {
     public static class HopperIOInputs {
         public double indexerVoltage = 0.0;
         public double indexerVelocity = 0.0;
-        public double indexerCurrent = 0.0;
+        public double indexerAmps = 0.0;
 
         public double kickVoltage = 0.0;
         public double kickVelocity = 0.0;
-        public double kickCurrent = 0.0;
+        public double kickAmps = 0.0;
 
         public double extensionVoltage = 0.0;
         public double extensionVelocity = 0.0;

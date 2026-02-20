@@ -38,7 +38,7 @@ import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.hopper.Hopper;
 import frc.robot.subsystems.hopper.HopperIO;
 import frc.robot.subsystems.hopper.HopperIOSim;
-import frc.robot.subsystems.hopper.HopperIOTalonFX;
+import frc.robot.subsystems.hopper.HopperIOMotors;
 import frc.robot.subsystems.turret.Turret;
 import frc.robot.subsystems.turret.TurretIO;
 import frc.robot.subsystems.turret.TurretIOSim;
@@ -111,7 +111,7 @@ public class RobotContainer {
 
         turret = new Turret(new TurretIOTalonFX(), drive);
 
-        hopper = new Hopper(new HopperIOTalonFX());
+        hopper = new Hopper(new HopperIOMotors());
         break;
 
       case SIM:

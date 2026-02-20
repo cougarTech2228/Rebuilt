@@ -69,6 +69,9 @@ public final class Constants {
   public static final int CAN_ID_KICKER_MOTOR = 20;
   public static final int hopperExtensionMotorCanID = 0;
 
+  public static final int CAN_ID_INTAKE_MOTOR = 0;
+  public static final int CAN_ID_INTAKE_ANGLE_MOTOR = 0;
+
   // DIOs
   public static int homeSensorDIO = 1;
 
