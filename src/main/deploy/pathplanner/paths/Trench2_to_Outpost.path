@@ -4,28 +4,28 @@
     {
       "anchor": {
         "x": 3.6,
-        "y": 0.67
+        "y": 7.2
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.6,
-        "y": 0.67
+        "x": 3.2464466094067266,
+        "y": 7.553553390593274
       },
       "isLocked": false,
-      "linkedName": "Trench1"
+      "linkedName": "Trench2"
     },
     {
       "anchor": {
-        "x": 0.4,
-        "y": 0.67
+        "x": 0.45,
+        "y": 6.9
       },
       "prevControl": {
-        "x": -0.6,
-        "y": 0.6700000000000002
+        "x": 0.4500000000000002,
+        "y": 7.9
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Depot"
+      "linkedName": "OutpostOutside"
     }
   ],
   "rotationTargets": [],
@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": -90.0
   },
   "reversed": false,
   "folder": "Trench Paths",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": -90.0
   },
   "useDefaultConstraints": true
 }

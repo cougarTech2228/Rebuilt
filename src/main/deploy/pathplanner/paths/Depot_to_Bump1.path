@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.6,
+        "x": 0.4,
         "y": 0.67
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.6,
-        "y": 0.67
+        "x": 1.4,
+        "y": 0.6699999999999999
       },
       "isLocked": false,
-      "linkedName": "Trench1"
+      "linkedName": "Depot"
     },
     {
       "anchor": {
-        "x": 0.4,
-        "y": 0.67
+        "x": 3.6,
+        "y": 2.1
       },
       "prevControl": {
-        "x": -0.6,
-        "y": 0.6700000000000002
+        "x": 2.6,
+        "y": 2.1
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Depot"
+      "linkedName": "Bump1"
     }
   ],
   "rotationTargets": [],
@@ -45,7 +45,7 @@
     "rotation": 0.0
   },
   "reversed": false,
-  "folder": "Trench Paths",
+  "folder": "DepotPaths",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 0.0

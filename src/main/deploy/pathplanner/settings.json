@@ -4,6 +4,8 @@
   "holonomicMode": true,
   "pathFolders": [
     "BumpPaths",
+    "DepotPaths",
+    "OutpostPaths",
     "Trench Paths"
   ],
   "autoFolders": [],

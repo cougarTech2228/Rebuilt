@@ -4,15 +4,15 @@
     {
       "anchor": {
         "x": 3.6,
-        "y": 0.67
+        "y": 2.1
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.6,
-        "y": 0.67
+        "x": 3.6,
+        "y": 0.9406439561261
       },
       "isLocked": false,
-      "linkedName": "Trench1"
+      "linkedName": "Bump1"
     },
     {
       "anchor": {
@@ -20,8 +20,8 @@
         "y": 0.67
       },
       "prevControl": {
-        "x": -0.6,
-        "y": 0.6700000000000002
+        "x": 1.4,
+        "y": 0.6699999999999999
       },
       "nextControl": null,
       "isLocked": false,
@@ -45,7 +45,7 @@
     "rotation": 0.0
   },
   "reversed": false,
-  "folder": "Trench Paths",
+  "folder": "BumpPaths",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 0.0

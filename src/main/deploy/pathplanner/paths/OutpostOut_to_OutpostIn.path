@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.6,
-        "y": 0.67
+        "x": 0.45,
+        "y": 6.9
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.6,
-        "y": 0.67
+        "x": 0.45000000000000007,
+        "y": 5.9
       },
       "isLocked": false,
-      "linkedName": "Trench1"
+      "linkedName": "OutpostOutside"
     },
     {
       "anchor": {
-        "x": 0.4,
-        "y": 0.67
+        "x": 0.45,
+        "y": 5.0
       },
       "prevControl": {
-        "x": -0.6,
-        "y": 0.6700000000000002
+        "x": 0.44999999999999996,
+        "y": 6.0
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Depot"
+      "linkedName": "OutpostIn"
     }
   ],
   "rotationTargets": [],
@@ -33,7 +33,7 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 3.0,
+    "maxVelocity": 1.0,
     "maxAcceleration": 3.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": -90.0
   },
   "reversed": false,
-  "folder": "Trench Paths",
+  "folder": "OutpostPaths",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": -90.0
   },
-  "useDefaultConstraints": true
+  "useDefaultConstraints": false
 }
