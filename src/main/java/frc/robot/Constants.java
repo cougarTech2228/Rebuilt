@@ -60,6 +60,8 @@ public final class Constants {
   public static final int CAN_ID_BR_STEER = 54;
   public static final int CAN_ID_BR_ENCODER = 55;
 
+  public static final int CAN_ID_CLIMBER_MAIN = 56;
+  public static final int CAN_ID_CLIMBER_EXTEND = 57;
 
   public static final int CAN_ID_TURRET_HOOD_ENCODER = 31;
   public static final int CAN_ID_TURRET_MOTOR_FLYWHEEL = 22;
@@ -73,6 +75,7 @@ public final class Constants {
   public static final int CAN_ID_INTAKE_ANGLE_MOTOR = 0;
 
   // DIOs
-  public static int homeSensorDIO = 1;
+  public static int DIO_CLIMBER_HOME_SENSOR = 0;
+  public static int DIO_CLIMBER_EXTENSION_HOME_SENSOR = 1;
 
 }

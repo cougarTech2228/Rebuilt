@@ -29,6 +29,10 @@ import frc.robot.commands.Zone;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.ShootCommand;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.climber.Climber;
+import frc.robot.subsystems.climber.ClimberIO;
+import frc.robot.subsystems.climber.ClimberIOMotor;
+import frc.robot.subsystems.climber.ClimberIOSim;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
@@ -67,7 +71,7 @@ public class RobotContainer {
   final Vision vision;
   final Hopper hopper;
   final Turret turret;
-
+  final Climber climber;
  
 
   public static final CANBus kCanivore = new CANBus("canivore", "./logs/example.hoot");
@@ -112,6 +116,7 @@ public class RobotContainer {
         turret = new Turret(new TurretIOTalonFX(), drive);
 
         hopper = new Hopper(new HopperIOMotors());
+        climber = new Climber(new ClimberIOMotor());
         break;
 
       case SIM:
@@ -129,7 +134,7 @@ public class RobotContainer {
         // new VisionIOPhotonVisionSim(camera2Name, robotToCamera2, drive::getPose));
 
         turret = new Turret(new TurretIOSim(), drive);
-
+        climber = new Climber(new ClimberIOSim());
         hopper = new Hopper(new HopperIOSim());
         break;
 
@@ -153,6 +158,7 @@ public class RobotContainer {
         }, drive);
         hopper = new Hopper(new HopperIO() {
         });
+        climber = new Climber(new ClimberIO() {});
         break;
     }
 
