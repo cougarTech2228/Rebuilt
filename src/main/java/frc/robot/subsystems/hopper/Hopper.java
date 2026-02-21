@@ -7,11 +7,17 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Hopper extends SubsystemBase {
 	private final HopperIO io;
+
     private final HopperIOInputsAutoLogged hopperInputs = new HopperIOInputsAutoLogged();
-	
 	private boolean on = false; 
 	
 
+
+	public enum HopperMode {
+		ON,
+		OFF
+	}
+	
 	public Hopper(HopperIO io) {
 		this.io = io;
 
@@ -25,23 +31,34 @@ public class Hopper extends SubsystemBase {
         Logger.processInputs("Hopper", hopperInputs);
     }
 
-	public boolean isOn() {
-		return this.on;
+	public boolean isOnHopper() {
+		return this.onIndexer;
+	}
+
+	public boolean isOnKicker() {
+		return this.onKicker;
 	}
 
 	public void indexerOn(boolean test) {
-		this.on = true;
+		this.onIndexer = true;
 		this.io.indexerOn(test);
 	}
 	
 	public void indexerOff() {
-		this.on = false;
+		this.onIndexer = false;
 		this.io.indexerOff();
 	}
 
-	public boolean safeToRetract() {
-		return this.io.safeToRetract();
+	public void kickerOn(boolean test) {
+		this.onKicker = true;
+		this.io.kickerOn(test);
 	}
+
+	public void kickerOff() {
+		this.onKicker = false;
+		this.io.kickerOff();
+	}
+
 }
 
 

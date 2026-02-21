@@ -1,10 +1,12 @@
 package frc.robot.subsystems.intake;
 
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.intake.IntakeIO.IntakeIOInputs;
 
-public class Intake {
+public class Intake extends SubsystemBase{
     private final IntakeIO io;
-    // private final IntakeIOInputsAutoLogged inputs = new IntakeIOInputsAutoLogged();
+    
+    private final IntakeIOInputsAutoLogged intakeInputs = new IntakeIOInputsAutoLogged();
 
     public enum IntakeAngle {
         HOME,

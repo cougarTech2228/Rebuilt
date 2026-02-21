@@ -19,6 +19,7 @@ public interface IntakeIO {
         public double angleMotorCurrent = 0.0;
 
         public boolean atHome = false;
+        
     }
 
     public default void updateInputs(IntakeIOInputs inputs) {};
@@ -27,7 +28,7 @@ public interface IntakeIO {
 
     public default void setIntakeAngle(IntakeAngle angle) {};
 
-    public default void manualSetIntakeVoltage(double voltage) {};
+    public default void manualSetIntakeVelocity(double velocity) {};
 
     public default void manualSetIntakeAngle(double angle) {};
 }

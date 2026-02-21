@@ -25,10 +25,10 @@ public class RetractIntakeCommand extends Command {
 
 	@Override
 	public void execute() {
-		if(hopper.safeToRetract()) {
-			intake.setIntakeAngle(IntakeAngle.HOME);
-			didStartRetraction = true;
-		}
+		// if(hopper.safeToRetract()) {
+		// 	intake.setIntakeAngle(IntakeAngle.HOME);
+		// 	didStartRetraction = true;
+		// }
 	}
 
 	@Override

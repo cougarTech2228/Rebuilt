@@ -1,128 +1,91 @@
 package frc.robot.subsystems.hopper;
 
-
-import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
-// import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.config.ClosedLoopConfig;
+import com.revrobotics.spark.config.SparkMaxConfig;
 
+import com.revrobotics.spark.config.MAXMotionConfig.MAXMotionPositionMode;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.FeedbackSensor;
+import com.revrobotics.spark.SparkClosedLoopController;
+import com.ctre.phoenix6.StatusSignal;
+import com.revrobotics.spark.SparkBase.ControlType;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
 
-
-import edu.wpi.first.wpilibj.DigitalInput;
 import frc.robot.Constants;
 
 public class HopperIOMotors implements HopperIO {
     
     protected final SparkMax indexerMotor;
+    private final SparkClosedLoopController indexerPID;
+
     protected final SparkMax kickerMotor;
-    // protected final TalonFX extensionMotor;
-    protected final DigitalInput homeSensor;
+    private final SparkClosedLoopController kickerPID;
 
-    // private final StatusSignal<Voltage> indexerMotorAppliedVoltage;
-    // private final StatusSignal<AngularVelocity> indexerMotorVelocity;
-    // private final StatusSignal<Current> indexerMotorCurrentAmps;
-
-    // private final StatusSignal<Voltage> kickerMotorAppliedVoltage;
-    // private final StatusSignal<AngularVelocity> kickerMotorVelocity;
-    // private final StatusSignal<Current> kickerMotorCurrentAmps;
-
-    // private final CANcoder enc19 TBD
-    // private final StatusSignal<Voltage> extensionMotorAppliedVoltage;
-    // private final StatusSignal<AngularVelocity> extensionMotorVelocity;
-    // private final StatusSignal<Current> extensionMotorCurrentAmps;
-    // private final MotionMagicVoltage extensionControl;
-    
     public HopperIOMotors() {
-        // Constructor
         this.indexerMotor = new SparkMax(Constants.CAN_ID_INDEXER_MOTOR, MotorType.kBrushless);
+        this.indexerPID = indexerMotor.getClosedLoopController();
+
         this.kickerMotor = new SparkMax(Constants.CAN_ID_KICKER_MOTOR, MotorType.kBrushless);
-        // this.extensionMotor = new TalonFX(Constants.hopperExtensionMotorCanID, frc.robot.RobotContainer.kCanivore);
-        this.homeSensor  = new DigitalInput(Constants.DIO_CLIMBER_EXTENSION_HOME_SENSOR);
-        // this.extensionControl = new MotionMagicVoltage(0);
+        this.kickerPID = kickerMotor.getClosedLoopController();
 
-        // this.indexerMotorAppliedVoltage = indexerMotor.getAppliedOutput();
-        // this.indexerMotorVelocity = indexerMotor.getVelocity();
-        // this.indexerMotorCurrentAmps = indexerMotor.getSupplyCurrent();
+        SparkMaxConfig indexerConfig = new SparkMaxConfig();
+        indexerConfig.idleMode(IdleMode.kBrake).smartCurrentLimit(40);
+        indexerConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+            .p(0)
+            .i(0)
+            .d(0);
 
-        // this.kickerMotorAppliedVoltage = kickerMotor.getMotorVoltage();
-        // this.kickerMotorVelocity = kickerMotor.getVelocity();
-        // this.kickerMotorCurrentAmps = kickerMotor.getSupplyCurrent();
+        SparkMaxConfig kickerConfig = new SparkMaxConfig();
+        kickerConfig.idleMode(IdleMode.kBrake).smartCurrentLimit(40);
+        kickerConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+            .p(0)
+            .i(0)
+            .d(0);
 
-        // this.extensionMotorAppliedVoltage = extensionMotor.getMotorVoltage();
-        // this.extensionMotorVelocity = extensionMotor.getVelocity();
-        // this.extensionMotorCurrentAmps = extensionMotor.getSupplyCurrent();
-        
-        // Configuration?
-        // TalonFXConfiguration indexerConfig = new TalonFXConfiguration();
-        // indexerConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;        
-        // indexerConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-        // indexerMotor.getConfigurator().apply(indexerConfig);        
-        
-        // TalonFXConfiguration extConfig = new TalonFXConfiguration();
+        indexerMotor.configure(indexerConfig, com.revrobotics.ResetMode.kResetSafeParameters, com.revrobotics.PersistMode.kPersistParameters);
+        kickerMotor.configure(indexerConfig, com.revrobotics.ResetMode.kResetSafeParameters, com.revrobotics.PersistMode.kPersistParameters);
 
-        // extConfig.Slot0.kP = 0.0;
-        // extConfig.Slot1.kI = 0.0;
-        // extConfig.Slot2.kD = 0.0;
-
-        // extConfig.MotionMagic.MotionMagicCruiseVelocity = 0.0;
-        // extConfig.MotionMagic.MotionMagicAcceleration = 0.0;
-        // extConfig.MotionMagic.MotionMagicJerk = 0.0;
-
-        // // Internal or external motor control?
-        // extConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
-        // extConfig.Feedback.SensorToMechanismRatio = 0.0;
-
-        // extensionMotor.getConfigurator().apply(extConfig);
-
-        
     }
 
     public void updateInputs(HopperIOInputs inputs) {
-        // BaseStatusSignal.refreshAll(indexerVoltage, indexerVelocity, indexerCurrent, kickVoltage, 
-        // kickVelocity, kickerMotorCurrentAmps, extensionMotorAppliedVoltage, 
-        // extensionMotorVelocity, extensionMotorCurrentAmps, canHome);
-        
-        inputs.indexerVoltage = indexerMotor.getAppliedOutput();
+        inputs.indexerVoltage = indexerMotor.getAppliedOutput() * indexerMotor.getBusVoltage();
         inputs.indexerVelocity = indexerMotor.getEncoder().getVelocity();
-        inputs.indexerAmps = indexerMotor.getOutputCurrent();
+        inputs.indexerCurrent = indexerMotor.getOutputCurrent();
+        inputs.indexerCurrent = indexerMotor.getOutputCurrent();
 
-        inputs.kickVoltage = kickerMotor.getAppliedOutput();
+        inputs.kickVoltage = kickerMotor.getAppliedOutput() * kickerMotor.getBusVoltage();
         inputs.kickVelocity = kickerMotor.getEncoder().getVelocity();
-        inputs.kickAmps = kickerMotor.getOutputCurrent();
+        inputs.kickCurrent = kickerMotor.getOutputCurrent();
 
-        // inputs.extensionVoltage = extensionMotorAppliedVoltage.getValueAsDouble();
-        // inputs.extensionVelocity = extensionMotorVelocity.getValueAsDouble();
-        // inputs.extensionCurrent = extensionMotorCurrentAmps.getValueAsDouble();
-
-        inputs.canHome = this.homeSensor.get();
     }
 
     public void indexerOn(boolean test) {
-        if (test == true) {
-            indexerMotor.setVoltage(HopperConstants.testIndexerVoltage);
-            kickerMotor.setVoltage(HopperConstants.testKickerVoltage);
+        if (test) {
+            indexerPID.setSetpoint(HopperConstants.testIndexerVoltage, ControlType.kMAXMotionVelocityControl);
         } else {
-            indexerMotor.setVoltage(HopperConstants.indexerVoltage);
-            kickerMotor.setVoltage(HopperConstants.kickerVoltage);
+            indexerPID.setSetpoint(HopperConstants.indexerVoltage, ControlType.kMAXMotionVelocityControl);
         }
-        
 
     }
 
     public void indexerOff() {
-        indexerMotor.setVoltage(0.0);
-        kickerMotor.setVoltage(0.0);
+        indexerPID.setSetpoint(0, ControlType.kMAXMotionVelocityControl);
     }
 
-    public void extendOut() {
-
+    public void kickerOn(boolean test) {
+        if (test) {
+            kickerPID.setSetpoint(HopperConstants.testKickerVoltage, ControlType.kMAXMotionVelocityControl);
+        } else {
+            kickerPID.setSetpoint(HopperConstants.kickerVoltage, ControlType.kMAXMotionVelocityControl);
+        }
     }
 
-    public void retract() {
-        
+    public void kickerOff() {
+        kickerPID.setSetpoint(0, ControlType.kMAXMotionVelocityControl);
     }
 
-    public boolean safeToRetract() {
-        return !homeSensor.get();
-    }
 }
 
