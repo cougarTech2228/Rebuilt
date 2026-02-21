@@ -11,6 +11,7 @@ import static frc.robot.subsystems.vision.VisionConstants.*;
 
 import com.ctre.phoenix6.CANBus;
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -26,6 +27,13 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 
 import frc.robot.commands.Zone;
+import frc.robot.commands.pathplanner.StartFiringCommand;
+import frc.robot.commands.pathplanner.StartIntakeCommand;
+import frc.robot.commands.pathplanner.StopFiringCommand;
+import frc.robot.commands.pathplanner.StopIntakeCommand;
+import frc.robot.commands.pathplanner.DeployIntakeCommand;
+import frc.robot.commands.pathplanner.RetractIntakeCommand;
+import frc.robot.commands.pathplanner.SpitCommand;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.ShootCommand;
 import frc.robot.generated.TunerConstants;
@@ -42,6 +50,10 @@ import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.hopper.Hopper;
 import frc.robot.subsystems.hopper.HopperIO;
 import frc.robot.subsystems.hopper.HopperIOSim;
+import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.intake.IntakeIO;
+import frc.robot.subsystems.intake.IntakeIOMotors;
+import frc.robot.subsystems.intake.IntakeIOSim;
 import frc.robot.subsystems.hopper.HopperIOMotors;
 import frc.robot.subsystems.turret.Turret;
 import frc.robot.subsystems.turret.TurretIO;
@@ -72,11 +84,12 @@ public class RobotContainer {
   final Hopper hopper;
   final Turret turret;
   final Climber climber;
+  final Intake intake;
  
 
   public static final CANBus kCanivore = new CANBus("canivore", "./logs/example.hoot");
   public static final CANBus kRio = new CANBus("rio");
-  
+
   // Controller
   private final CommandXboxController controller = new CommandXboxController(0);
 
@@ -93,7 +106,7 @@ public class RobotContainer {
   public static Pose3d intakePose = new Pose3d(0, 0, 0, new Rotation3d());
 
   /**
-   * The container for the robot. Contains subsystems, OI devices, and commands.
+   * The container for the robot. Contains subsystems, IO devices, and commands.
    */
   public RobotContainer() {
     switch (Constants.currentMode) {
@@ -114,9 +127,9 @@ public class RobotContainer {
         // new VisionIOPhotonVision(camera2Name, robotToCamera2));
 
         turret = new Turret(new TurretIOMotors(), drive);
-
         hopper = new Hopper(new HopperIOMotors());
         climber = new Climber(new ClimberIOMotor());
+        intake = new Intake(new IntakeIOMotors());
         break;
 
       case SIM:
@@ -136,6 +149,7 @@ public class RobotContainer {
         turret = new Turret(new TurretIOSim(), drive);
         climber = new Climber(new ClimberIOSim());
         hopper = new Hopper(new HopperIOSim());
+        intake = new Intake(new IntakeIOSim());
         break;
 
       default:
@@ -159,6 +173,7 @@ public class RobotContainer {
         hopper = new Hopper(new HopperIO() {
         });
         climber = new Climber(new ClimberIO() {});
+        intake = new Intake(new IntakeIO() {});
         break;
     }
 
@@ -180,6 +195,25 @@ public class RobotContainer {
         "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
     autoChooser.addOption(
         "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+
+    Command startFiringCommand = new StartFiringCommand(hopper, turret);
+    Command stopFiringCommand = new StopFiringCommand(hopper, turret);
+    Command deployIntakeCommand = new DeployIntakeCommand(hopper, intake);
+    Command retractIntakeCommand = new RetractIntakeCommand(hopper, intake);
+    Command startIntakeCommand = new StartIntakeCommand(hopper, intake);
+    Command stopIntakeCommand = new StopIntakeCommand(hopper, intake);
+    Command spitCommand = new SpitCommand(hopper, intake);
+    Command performClimbCommand = new PerformClimbCommand(hopper, intake, climber);
+    
+    // Register Auto commands
+    NamedCommands.registerCommand("startFiring", startFiringCommand);
+    NamedCommands.registerCommand("stopFiring", stopFiringCommand);
+    NamedCommands.registerCommand("deployIntake", deployIntakeCommand);
+    NamedCommands.registerCommand("retractIntake", retractIntakeCommand);
+    NamedCommands.registerCommand("startIntake", startIntakeCommand);
+    NamedCommands.registerCommand("stopIntake", stopIntakeCommand);
+    NamedCommands.registerCommand("spit", spitCommand);
+    NamedCommands.registerCommand("performClimb", performClimbCommand);
 
     // Configure the button bindings
     configureButtonBindings();

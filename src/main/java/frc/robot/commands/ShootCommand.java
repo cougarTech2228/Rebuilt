@@ -4,11 +4,10 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.hopper.Hopper;
 import frc.robot.subsystems.turret.Turret;
 
-public class ShootCommand extends Command{
-
+public class ShootCommand extends Command {
     private final Hopper hopper;
-    private final Turret turret; 
-    private boolean initialized = false;   
+    private final Turret turret;
+    private boolean initialized = false;
     private boolean isIndexerOn = false;
     private boolean isRunning = false;
 
@@ -25,7 +24,7 @@ public class ShootCommand extends Command{
     
 
     @Override
-    public void execute () {
+    public void execute() {
             if (turret.canShoot() && isIndexerOn == false) {
                 hopper.indexerOn(false);
                 isIndexerOn = true;
@@ -38,11 +37,11 @@ public class ShootCommand extends Command{
     }
 
     @Override
-     public void end(boolean interrupted) {
-       isRunning = false;
-      isIndexerOn = false;
+    public void end(boolean interrupted) {
+        isRunning = false;
+        isIndexerOn = false;
         turret.enableShooter(false);
-         hopper.indexerOff();
+        hopper.indexerOff();
     }
 
     @Override
