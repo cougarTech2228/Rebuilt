@@ -48,6 +48,7 @@ public class TurretIOMotors implements TurretIO {
     private final MotionMagicVelocityVoltage upperFlywheelControl;
 
     private double targetFlywheelVelocity = 0;
+    private double targetUpperFlywheelVelocity = 0;
 
     // Gear Constants
     private static final double MAIN_TEETH = 200.0;
@@ -80,6 +81,10 @@ public class TurretIOMotors implements TurretIO {
     private final StatusSignal<AngularVelocity> flywheelMotorVelocitySignal;
     private final StatusSignal<Voltage> flywheelMotorVoltageSignal;
     private final StatusSignal<Current> flywheelMotorCurrentSignal;
+
+    private final StatusSignal<AngularVelocity> upperFlywheelMotorVelocitySignal;
+    private final StatusSignal<Voltage> upperFlywheelMotorVoltageSignal;
+    private final StatusSignal<Current> upperFlywheelMotorCurrentSignal;
    
 
     public TurretIOMotors() {
@@ -190,6 +195,7 @@ public class TurretIOMotors implements TurretIO {
         hoodEncoderPositionSignal = encHood.getPosition();
 
         TalonFXConfiguration flywheelConfig = new TalonFXConfiguration();
+        TalonFXConfiguration upperFlywheelConfig = new TalonFXConfiguration();
 
         flywheelConfig.Slot0.kP = 0.3;
         flywheelConfig.Slot0.kI = 0.0;
@@ -210,14 +216,21 @@ public class TurretIOMotors implements TurretIO {
         flywheelMotorVoltageSignal = flywheelMotor.getMotorVoltage();
         flywheelMotorCurrentSignal = flywheelMotor.getStatorCurrent();
 
-        TalonFXConfiguration upperFlywheelConfig = new TalonFXConfiguration();
+        upperFlywheelMotor.getConfigurator().apply(upperFlywheelConfig);
+        upperFlywheelMotorVelocitySignal = upperFlywheelMotor.getVelocity();
+        upperFlywheelMotorVoltageSignal = flywheelMotor.getMotorVoltage();
+        upperFlywheelMotorCurrentSignal = flywheelMotor.getStatorCurrent();
+        
 
         flywheelConfig.Slot0.kP = 0.3;
         flywheelConfig.Slot0.kI = 0.0;
         flywheelConfig.Slot0.kD = 0.0;
         flywheelConfig.Slot0.kV = 0.0;
         flywheelConfig.Slot0.kA = 0.004;
-           
+
+        flywheelConfig.CurrentLimits.StatorCurrentLimit = 120.0; // Amps
+        flywheelConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+        flywheelControl.Acceleration = 180.0;          
     
     }
 
@@ -324,6 +337,7 @@ public class TurretIOMotors implements TurretIO {
     public void setFlywheelVelocity(double velocity) {
         targetFlywheelVelocity = velocity;
         flywheelMotor.setControl(flywheelControl.withVelocity(velocity));
+        upperFlywheelMotor.setControl(upperFlywheelControl.withVelocity(velocity));
     }
 
     @Override
@@ -337,7 +351,10 @@ public class TurretIOMotors implements TurretIO {
             hoodMotorVelocitySignal,
             hoodMotorVoltageSignal,
             hoodEncoderPositionSignal,
-            flywheelMotorVelocitySignal
+            flywheelMotorVelocitySignal,
+            upperFlywheelMotorVelocitySignal,
+            upperFlywheelMotorVoltageSignal,
+            upperFlywheelMotorCurrentSignal
         );
 
         double actualAngle = calculateAbsolutePositionCRT();
@@ -357,17 +374,28 @@ public class TurretIOMotors implements TurretIO {
         inputs.enc19t = pos19Signal.getValueAsDouble(); 
         inputs.enc21t = pos21Signal.getValueAsDouble();
 
+        
+
         inputs.flywheelMotorVelocity = flywheelMotorVelocitySignal.getValueAsDouble();
         inputs.flywheelMotorVoltage = flywheelMotorVoltageSignal.getValueAsDouble();
         inputs.flywheelMotorCurrent = flywheelMotorCurrentSignal.getValueAsDouble();
         inputs.flywheelPIDTargetVelocity = targetFlywheelVelocity;
-        
+
+        inputs.upperFlywheelMotorVelocity = upperFlywheelMotorVelocitySignal.getValueAsDouble();
+        inputs.upperFlywheelMotorVoltage = upperFlywheelMotorVoltageSignal.getValueAsDouble();
+        inputs.upperFlywheelMotorCurrent = upperFlywheelMotorCurrentSignal.getValueAsDouble();
+        inputs.upperFlywheelPIDTargetVelocity = targetUpperFlywheelVelocity;        
     }
 
-    public boolean isFlywheelAtVelocity() {
+    public boolean areFlywheelsAtVelocity() {
         final double flywheelV = flywheelMotorVelocitySignal.getValueAsDouble();
         final double flywheelT = targetFlywheelVelocity;
+
+        final double upperFlywheelV = upperFlywheelMotorVelocitySignal.getValueAsDouble();
+        final double upperFlywheelT = targetFlywheelVelocity;
+
         return (targetFlywheelVelocity > 0 &&
-            (Math.abs(flywheelV - flywheelT) < (0.05 * targetFlywheelVelocity)));
+            (Math.abs(flywheelV - flywheelT) < (0.05 * targetFlywheelVelocity)) && ((targetUpperFlywheelVelocity > 0) 
+            && (Math.abs(upperFlywheelV - upperFlywheelT) < (0.05 * targetFlywheelVelocity))));
     }
 }
