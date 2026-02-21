@@ -6,8 +6,10 @@ public interface ClimberIO {
 
     @AutoLog
     public static class ClimberIOInputs {
-        boolean isExtendHome;
+        boolean isExtensionHome;
         boolean isClimberHome;
+        boolean hasExtensionHomed;
+        boolean hasClimberHomed;
         boolean isClimberExtended;
 
         double climberMotorPosition;
@@ -27,4 +29,6 @@ public interface ClimberIO {
     public default void climb() {};
     public default void descend() {};
     public default boolean isExtended() {return false;};
+    public default void homeExtension() {};
+    public default void homeClimber() {};
 }

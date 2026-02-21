@@ -21,7 +21,7 @@ import frc.robot.Constants;
 public class ClimberIOMotor implements ClimberIO {
 
     private final TalonFX climberMotor;
-    private final SparkMax entensionMotor;
+    private final SparkMax extensionMotor;
     private final DigitalInput climberHomeSensor;
     private final DigitalInput extensionHomeSensor;
 
@@ -37,7 +37,7 @@ public class ClimberIOMotor implements ClimberIO {
 
     public ClimberIOMotor() {
         climberMotor = new TalonFX(Constants.CAN_ID_CLIMBER_MAIN,  frc.robot.RobotContainer.kCanivore);
-        entensionMotor = new SparkMax(Constants.CAN_ID_CLIMBER_EXTEND, MotorType.kBrushless);
+        extensionMotor = new SparkMax(Constants.CAN_ID_CLIMBER_EXTEND, MotorType.kBrushless);
         climberHomeSensor = new DigitalInput(Constants.DIO_CLIMBER_HOME_SENSOR);
         extensionHomeSensor = new DigitalInput(Constants.DIO_CLIMBER_EXTENSION_HOME_SENSOR);
 
@@ -45,7 +45,7 @@ public class ClimberIOMotor implements ClimberIO {
         climberCurrentSignal = climberMotor.getStatorCurrent();
         climberTempSignal = climberMotor.getDeviceTemp();
 
-        extensionMotorPIDController = entensionMotor.getClosedLoopController();
+        extensionMotorPIDController = extensionMotor.getClosedLoopController();
         SparkMaxConfig config = new SparkMaxConfig();
         // To set Counter-Clockwise (CCW) as positive (Default):
         // config.inverted(false);
@@ -62,7 +62,7 @@ public class ClimberIOMotor implements ClimberIO {
                 .cruiseVelocity(5000)
                 .maxAcceleration(10000)
                 .allowedProfileError(1);
-        entensionMotor.configure(config, 
+        extensionMotor.configure(config, 
                     com.revrobotics.ResetMode.kResetSafeParameters, 
                     com.revrobotics.PersistMode.kPersistParameters);
 
@@ -88,6 +88,13 @@ public class ClimberIOMotor implements ClimberIO {
         climberMotor.getConfigurator().apply(climberConfig);
     }
 
+    private boolean isExtensionHome() {
+        return !extensionHomeSensor.get();
+    }
+    private boolean isClimberHome() {
+        return !climberHomeSensor.get();
+    }
+
     public void updateInputs(ClimberIOInputs inputs) {
         BaseStatusSignal.refreshAll(
             climberPositionSignal,
@@ -95,23 +102,23 @@ public class ClimberIOMotor implements ClimberIO {
             climberTempSignal
         );
 
-        inputs.isExtendHome = extensionHomeSensor.get();
-        inputs.isClimberHome = climberHomeSensor.get();
+        inputs.isExtensionHome = isExtensionHome();
+        inputs.isClimberHome = isClimberHome();
 
         inputs.climberMotorPosition = climberPositionSignal.getValueAsDouble();
         inputs.climberMotorCurrent = climberCurrentSignal.getValueAsDouble();
         inputs.climberMotorTemp = climberTempSignal.getValueAsDouble();
 
-        inputs.extendMotorPosition = entensionMotor.getAbsoluteEncoder().getPosition();
-        inputs.extendMotorCurrent = entensionMotor.getOutputCurrent();
-        inputs.extendMotorTemp = entensionMotor.getMotorTemperature();
+        inputs.extendMotorPosition = extensionMotor.getAbsoluteEncoder().getPosition();
+        inputs.extendMotorCurrent = extensionMotor.getOutputCurrent();
+        inputs.extendMotorTemp = extensionMotor.getMotorTemperature();
 
         if (inputs.isClimberHome) {
             climberMotor.setPosition(0);
         }
 
-        if (inputs.isExtendHome) {
-            entensionMotor.getEncoder().setPosition(0);
+        if (inputs.isExtensionHome) {
+            extensionMotor.getEncoder().setPosition(0);
         }
 
         inputs.isClimberExtended = isExtended();
@@ -146,5 +153,23 @@ public class ClimberIOMotor implements ClimberIO {
     @Override
     public boolean isExtended() {
         return extensionSetpoint == ClimberConstants.EXTENSION_MAX_POSITION && extensionMotorPIDController.isAtSetpoint();
+    }
+
+    @Override
+    public void homeExtension() {
+        if (isExtensionHome()) {
+            extensionMotor.set(0);
+        } else {
+            extensionMotor.set(ClimberConstants.EXTENSION_HOME_SPEED);
+        }
+    }
+
+    @Override
+    public void homeClimber() {
+        if (isClimberHome()) {
+            climberMotor.set(0);
+        } else {
+            climberMotor.set(ClimberConstants.CLIMBER_HOME_SPEED);
+        }
     }
 }
