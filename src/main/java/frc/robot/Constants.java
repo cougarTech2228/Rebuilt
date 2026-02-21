@@ -41,8 +41,8 @@ public final class Constants {
   public static final int CAN_ID_PIGEON = 10;
 
   public static final int CAN_ID_TURRET_MOTOR = 9;
-  public static final int CAN_ID_TURRET_ENCODER_19T = 19;
-  public static final int CAN_ID_TURRET_ENCODER_21T = 21;
+  public static final int CAN_ID_TURRET_ENCODER_31T = 19;
+  public static final int CAN_ID_TURRET_ENCODER_37T = 21;
 
   public static final int CAN_ID_FL_DRIVE = 16;
   public static final int CAN_ID_FL_STEER = 17;

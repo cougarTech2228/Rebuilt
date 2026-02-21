@@ -1,9 +1,7 @@
 package frc.robot.subsystems.turret;
 
-import static edu.wpi.first.units.Units.Rotations;
-
 import com.ctre.phoenix6.BaseStatusSignal;
-import com.ctre.phoenix6.CANBus;
+
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -12,16 +10,20 @@ import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
-import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
-
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkClosedLoopController;
+import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.SparkBase.ControlType;
+import com.revrobotics.ResetMode;
+import com.revrobotics.PersistMode;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
-import frc.robot.Constants;
-import frc.robot.RobotContainer;
+
 
 import static frc.robot.Constants.*;
 
@@ -31,12 +33,12 @@ public class TurretIOMotors implements TurretIO {
     private double hoodElevationTarget; //0 .. 100
     private double hoodAngleTarget; //0 .. 0.9
 
-    private final CANcoder enc19; // The encoder on the 19T gear
-    private final CANcoder enc21; // The encoder on the 21T gear
+    private final CANcoder enc31; // The encoder on the 31T gear
+    private final CANcoder enc37; // The encoder on the 37T gear
     private final CANcoder encHood;
 
-    private final TalonFX turretMotor;
-    private final MotionMagicVoltage turretControl;
+    private final SparkMax turretMotor;
+    private final SparkClosedLoopController turretPID;
 
     private final TalonFX hoodMotor;
     private final MotionMagicVoltage hoodControl;
@@ -51,13 +53,16 @@ public class TurretIOMotors implements TurretIO {
     private double targetUpperFlywheelVelocity = 0;
 
     // Gear Constants
-    private static final double MAIN_TEETH = 200.0;
-    private static final double TEETH_19 = 19.0;
-    private static final double TEETH_21 = 21.0;
+    private static final double MAIN_TEETH = 125.0;
+    private static final double TEETH_31 = 31.0;
+    private static final double TEETH_37 = 37.0;
 
     // Gear Ratios (Encoder Rotations per Turret Rotation)
-    private static final double RATIO_19 = MAIN_TEETH / TEETH_19; // ~10.526
-    private static final double RATIO_21 = MAIN_TEETH / TEETH_21; // ~9.523
+    private static final double RATIO_31 = MAIN_TEETH / TEETH_31; // ~7.258
+    private static final double RATIO_37 = MAIN_TEETH / TEETH_37; // ~6.081
+
+    // New Turret Motor Gear Ratio (Assuming previous 5:1 planetary and new 125/18 pinion) = 34.72222222222222222
+    private static final double TURRET_GEAR_RATIO = 34.7222;
 
     // How close the two encoders must match to be considered valid (in rotations)
     // 0.05 rotations is 18 degrees of the encoder shaft, which is plenty of margin
@@ -68,10 +73,8 @@ public class TurretIOMotors implements TurretIO {
     private static final double SOLVER_RANGE_BUFFER_DEG = 20.0; 
 
     // Status signals for low-latency reading
-    private final StatusSignal<Angle> pos19Signal;
-    private final StatusSignal<Angle> pos21Signal;
-    private final StatusSignal<Angle> turretMotorPositionSignal;
-    private final StatusSignal<Double> turretMotorPIDReferenceSignal;
+    private final StatusSignal<Angle> pos31Signal;
+    private final StatusSignal<Angle> pos37Signal;
 
     private final StatusSignal<AngularVelocity> hoodMotorVelocitySignal;
     private final StatusSignal<Voltage> hoodMotorVoltageSignal;
@@ -86,10 +89,32 @@ public class TurretIOMotors implements TurretIO {
     private final StatusSignal<Voltage> upperFlywheelMotorVoltageSignal;
     private final StatusSignal<Current> upperFlywheelMotorCurrentSignal;
    
-
     public TurretIOMotors() {
-        turretMotor = new TalonFX(CAN_ID_TURRET_MOTOR, frc.robot.RobotContainer.kCanivore);
-        turretControl = new MotionMagicVoltage(0);
+        turretMotor = new SparkMax(CAN_ID_TURRET_MOTOR, MotorType.kBrushless);
+        turretPID = turretMotor.getClosedLoopController();
+
+        SparkMaxConfig turretConfig = new SparkMaxConfig();
+
+        turretConfig.closedLoop
+            .feedbackSensor(com.revrobotics.spark.FeedbackSensor.kPrimaryEncoder)
+            .p(0.1) // Note: Requires retuning for SparkMax
+            .i(0.0)
+            .d(0.0)
+            .positionWrappingEnabled(false);
+
+        // Configure mechanism conversions to rotate in Turret Rotations
+        turretConfig.encoder
+            .positionConversionFactor(1.0 / TURRET_GEAR_RATIO)
+            .velocityConversionFactor((1.0 / TURRET_GEAR_RATIO) / 60.0);
+
+        // Set limits to +/- 190 degrees to allow full 360 coverage with overlap
+        turretConfig.softLimit
+            .forwardSoftLimit(0.53)
+            .forwardSoftLimitEnabled(true)
+            .reverseSoftLimit(-0.53)
+            .reverseSoftLimitEnabled(true);
+
+        turretMotor.configure(turretConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         hoodMotor = new TalonFX(frc.robot.Constants.CAN_ID_TURRET_HOOD_MOTOR, frc.robot.RobotContainer.kCanivore);
         hoodControl = new MotionMagicVoltage(0);
@@ -100,60 +125,32 @@ public class TurretIOMotors implements TurretIO {
         upperFlywheelMotor = new TalonFX(frc.robot.Constants.CAN_ID_UPPER_FLYWHEEL_MOTOR, frc.robot.RobotContainer.kCanivore);
         upperFlywheelControl = new MotionMagicVelocityVoltage(0);
 
-        TalonFXConfiguration turretConfig = new TalonFXConfiguration();
+        enc31 = new CANcoder(CAN_ID_TURRET_ENCODER_31T, frc.robot.RobotContainer.kCanivore);
+        enc37 = new CANcoder(CAN_ID_TURRET_ENCODER_37T, frc.robot.RobotContainer.kCanivore);
 
-        turretConfig.Slot0.kP = 300.0;
-        turretConfig.Slot0.kI = 0.0;
-        turretConfig.Slot0.kD = 1.0;
+        CANcoderConfiguration config31 = new CANcoderConfiguration();
+        config31.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.5;
+        config31.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
+        config31.MagnetSensor.MagnetOffset = -0.016602; // Retained 19T Zero Offset for 31T position
+        enc31.getConfigurator().apply(config31);
 
-        turretConfig.MotionMagic.MotionMagicCruiseVelocity = 2.0; // turret rotations/sec
-        turretConfig.MotionMagic.MotionMagicAcceleration = 3; // turret rotations/sec^2
-        turretConfig.MotionMagic.MotionMagicJerk = 0.0;
+        CANcoderConfiguration config37 = new CANcoderConfiguration();
+        config37.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.5;
+        config37.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
+        config37.MagnetSensor.MagnetOffset = 0.094238 ; // Retained 21T Zero Offset for 37T position
+        enc37.getConfigurator().apply(config37);
 
-        // Motor Revs per 1 Turret Rev = 5 * (200/18) = 55.555...
-        turretConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
-        turretConfig.Feedback.SensorToMechanismRatio = 55.55555555555556;
-        turretConfig.ClosedLoopGeneral.ContinuousWrap = false;
+        pos31Signal = enc31.getAbsolutePosition();
+        pos37Signal = enc37.getAbsolutePosition();
 
-        // Invert motor so positive voltage moves CCW (Standard Robot Frame)
-        turretConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-
-        // Set limits to +/- 190 degrees to allow full 360 coverage with overlap
-        turretConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 0.53;
-        turretConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-
-        turretConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = -0.53;
-        turretConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-
-        turretMotor.getConfigurator().apply(turretConfig);
-        enc19 = new CANcoder(CAN_ID_TURRET_ENCODER_19T, frc.robot.RobotContainer.kCanivore);
-        enc21 = new CANcoder(CAN_ID_TURRET_ENCODER_21T, frc.robot.RobotContainer.kCanivore);
-
-        CANcoderConfiguration config19 = new CANcoderConfiguration();
-        config19.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.5;
-        config19.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-        config19.MagnetSensor.MagnetOffset = -0.016602; // Set 19T Zero Offset
-        enc19.getConfigurator().apply(config19);
-
-        CANcoderConfiguration config21 = new CANcoderConfiguration();
-        config21.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.5;
-        config21.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-        config21.MagnetSensor.MagnetOffset = 0.094238 ; // Set 21T Zero Offset
-        enc21.getConfigurator().apply(config21);
-
-        pos19Signal = enc19.getAbsolutePosition();
-        pos21Signal = enc21.getAbsolutePosition();
-        turretMotorPositionSignal = turretMotor.getPosition();
-        turretMotorPIDReferenceSignal = turretMotor.getClosedLoopReference();
-
-        BaseStatusSignal.refreshAll(pos19Signal, pos21Signal, turretMotorPositionSignal);
+        BaseStatusSignal.refreshAll(pos31Signal, pos37Signal);
 
         double initialDegrees = calculateAbsolutePositionCRT();
         if (initialDegrees != -1.0) {
             // Force the seed to be within -180 to 180
             if (initialDegrees > 180)
                 initialDegrees -= 360;
-            turretMotor.setPosition(initialDegrees / 360.0);
+            turretMotor.getEncoder().setPosition(initialDegrees / 360.0);
         }
 
         encHood = new CANcoder(CAN_ID_TURRET_HOOD_ENCODER, frc.robot.RobotContainer.kCanivore);
@@ -169,7 +166,6 @@ public class TurretIOMotors implements TurretIO {
         hoodConfig.MotionMagic.MotionMagicAcceleration = 500.0; // hood rotations/sec^2
         hoodConfig.MotionMagic.MotionMagicJerk = 0.0;
 
-        // Motor Revs per 1 Hood rev = ???
         hoodConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
         hoodConfig.Feedback.FeedbackRemoteSensorID = CAN_ID_TURRET_HOOD_ENCODER;
         hoodConfig.Feedback.RotorToSensorRatio = 50.0;
@@ -207,10 +203,6 @@ public class TurretIOMotors implements TurretIO {
         flywheelConfig.CurrentLimits.StatorCurrentLimitEnable = true;
         flywheelControl.Acceleration = 180.0;
 
-
-        // Motor Revs per 1 Hood rev = ???
-        // flywheelConfig.ClosedLoopGeneral.ContinuousWrap = false;
-
         flywheelMotor.getConfigurator().apply(flywheelConfig);
         flywheelMotorVelocitySignal = flywheelMotor.getVelocity();
         flywheelMotorVoltageSignal = flywheelMotor.getMotorVoltage();
@@ -218,25 +210,22 @@ public class TurretIOMotors implements TurretIO {
 
         upperFlywheelMotor.getConfigurator().apply(upperFlywheelConfig);
         upperFlywheelMotorVelocitySignal = upperFlywheelMotor.getVelocity();
-        upperFlywheelMotorVoltageSignal = flywheelMotor.getMotorVoltage();
-        upperFlywheelMotorCurrentSignal = flywheelMotor.getStatorCurrent();
+        upperFlywheelMotorVoltageSignal = upperFlywheelMotor.getMotorVoltage();
+        upperFlywheelMotorCurrentSignal = upperFlywheelMotor.getStatorCurrent();
         
+        upperFlywheelConfig.Slot0.kP = 0.3;
+        upperFlywheelConfig.Slot0.kI = 0.0;
+        upperFlywheelConfig.Slot0.kD = 0.0;
+        upperFlywheelConfig.Slot0.kV = 0.0;
+        upperFlywheelConfig.Slot0.kA = 0.004;
 
-        flywheelConfig.Slot0.kP = 0.3;
-        flywheelConfig.Slot0.kI = 0.0;
-        flywheelConfig.Slot0.kD = 0.0;
-        flywheelConfig.Slot0.kV = 0.0;
-        flywheelConfig.Slot0.kA = 0.004;
-
-        flywheelConfig.CurrentLimits.StatorCurrentLimit = 120.0; // Amps
-        flywheelConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-        flywheelControl.Acceleration = 180.0;          
-    
+        upperFlywheelConfig.CurrentLimits.StatorCurrentLimit = 120.0; // Amps
+        upperFlywheelConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+        upperFlywheelControl.Acceleration = 180.0;          
     }
 
-
     /**
-     * Seeds the internal Falcon encoder using the 19T and 21T encoders.
+     * Seeds the internal NEO encoder using the 31T and 37T encoders.
      */
     public void seedTurretPosition() {
         double absoluteTurretDegrees = calculateAbsolutePositionCRT();
@@ -244,24 +233,22 @@ public class TurretIOMotors implements TurretIO {
         // Convert degrees to rotations (0.5 = 180 deg)
         double turretRotations = absoluteTurretDegrees / 360.0;
 
-        // Seed the Falcon 
-        turretMotor.setPosition(turretRotations, 0.050);
+        // Seed the SparkMax 
+        turretMotor.getEncoder().setPosition(turretRotations);
         
         System.out.println("Turret Seeded at: " + absoluteTurretDegrees + " degrees");
     }
-
-
 
     /**
      * Solves for Absolute Position using CRT with the new variable names.
      */
     private double calculateAbsolutePositionCRT() {
         // Refresh signals to get latest data
-        pos19Signal.refresh();
-        pos21Signal.refresh();
+        pos31Signal.refresh();
+        pos37Signal.refresh();
 
-        double pos1Rot = pos19Signal.getValueAsDouble(); 
-        double pos2Rot = pos21Signal.getValueAsDouble();
+        double pos1Rot = pos31Signal.getValueAsDouble(); 
+        double pos2Rot = pos37Signal.getValueAsDouble();
 
         // Convert to 0-360 range for math
         double deg1 = pos1Rot * 360.0;
@@ -270,10 +257,10 @@ public class TurretIOMotors implements TurretIO {
         double bestMatchAngle = 0.0;
         double minError = Double.MAX_VALUE;
 
-        // Search range (-6 to +6 covers +/- 180 deg with margin)
-        for (int k = -6; k <= 6; k++) {
-            // Hypothesis: Turret Angle = (Enc1_Angle + k*360) / Ratio19
-            double candidateTurretDeg = (deg1 + (k * 360.0)) / RATIO_19;
+        // Search range (-15 to +15 covers +/- 180 deg with margin for new ratios)
+        for (int k = -15; k <= 15; k++) {
+            // Hypothesis: Turret Angle = (Enc1_Angle + k*360) / Ratio31
+            double candidateTurretDeg = (deg1 + (k * 360.0)) / RATIO_31;
 
             // Check physical possibility (Soft Limit + Buffer)
             if (candidateTurretDeg < -(180.0 + SOLVER_RANGE_BUFFER_DEG) || 
@@ -281,8 +268,8 @@ public class TurretIOMotors implements TurretIO {
                 continue;
             }
 
-            // Validation: What should enc21 read?
-            double totalEnc2Deg = candidateTurretDeg * RATIO_21;
+            // Validation: What should enc37 read?
+            double totalEnc2Deg = candidateTurretDeg * RATIO_37;
             double expectedEnc2Deg = normalizeDegrees(totalEnc2Deg);
 
             // Compare Expected Enc2 vs Actual Enc2
@@ -318,11 +305,11 @@ public class TurretIOMotors implements TurretIO {
     }
     
     public void setTurretAngle(double degrees) {
+        turretAngleTarget = degrees;
         double clamped = Math.max(-180, Math.min(180, degrees));
         double targetRotations = clamped / 360.0;
-        turretMotor.setControl(turretControl.withPosition(targetRotations));
+        turretPID.setSetpoint(targetRotations, ControlType.kPosition);
     }
-
 
     @Override
     //0-100 from minimum elevation to maximum elevation
@@ -343,10 +330,8 @@ public class TurretIOMotors implements TurretIO {
     @Override
     public void updateInputs(TurretIOInputs inputs) {
         BaseStatusSignal.refreshAll(
-            pos19Signal,
-            pos21Signal,
-            turretMotorPositionSignal,
-            turretMotorPIDReferenceSignal,
+            pos31Signal,
+            pos37Signal,
             hoodMotorCurrentSignal,
             hoodMotorVelocitySignal,
             hoodMotorVoltageSignal,
@@ -361,8 +346,8 @@ public class TurretIOMotors implements TurretIO {
         inputs.turretAngle = Rotation2d.fromDegrees(actualAngle);
         inputs.turretPIDTargetAngle = turretAngleTarget;
         inputs.turretPIDActualAngle = actualAngle;
-        inputs.turretMotorPIDTarget = turretMotorPIDReferenceSignal.getValueAsDouble();
-        inputs.turretMotorRotations = turretMotorPositionSignal.getValueAsDouble();
+        inputs.turretMotorPIDTarget = turretAngleTarget / 360.0; // in rotations
+        inputs.turretMotorRotations = turretMotor.getEncoder().getPosition(); // Configured to return rotations
 
         inputs.hoodTargetElevationPercent = hoodElevationTarget;
         inputs.hoodMotorVelocity = hoodMotorVelocitySignal.getValueAsDouble();
@@ -371,10 +356,8 @@ public class TurretIOMotors implements TurretIO {
         inputs.hoodPIDActualAngle = hoodEncoderPositionSignal.getValueAsDouble();
         inputs.hoodPIDTargetAngle = hoodAngleTarget;
 
-        inputs.enc19t = pos19Signal.getValueAsDouble(); 
-        inputs.enc21t = pos21Signal.getValueAsDouble();
-
-        
+        inputs.enc31t = pos31Signal.getValueAsDouble(); 
+        inputs.enc37t = pos37Signal.getValueAsDouble();
 
         inputs.flywheelMotorVelocity = flywheelMotorVelocitySignal.getValueAsDouble();
         inputs.flywheelMotorVoltage = flywheelMotorVoltageSignal.getValueAsDouble();

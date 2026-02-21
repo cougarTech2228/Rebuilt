@@ -17,8 +17,8 @@ public interface TurretIO {
         public double turretPIDActualAngle = 0;
         public double turretMotorPIDTarget = 0;
         public double turretMotorRotations = 0;
-        public double enc19t = 0;
-        public double enc21t = 0;
+        public double enc31t = 0;
+        public double enc37t = 0;
 
         public double hoodTargetElevationPercent = 0;
         public double hoodPIDTargetAngle = 0;
