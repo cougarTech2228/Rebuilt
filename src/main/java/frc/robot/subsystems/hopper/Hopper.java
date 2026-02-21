@@ -9,9 +9,9 @@ public class Hopper extends SubsystemBase {
 	private final HopperIO io;
 
     private final HopperIOInputsAutoLogged hopperInputs = new HopperIOInputsAutoLogged();
-	private boolean on = false; 
-	
 
+	private boolean onIndexer = false; 
+	private boolean onKicker = false;
 
 	public enum HopperMode {
 		ON,
