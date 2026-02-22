@@ -40,41 +40,41 @@ public final class Constants {
   // CAN ID constants
   public static final int CAN_ID_PIGEON = 10;
 
-  public static final int CAN_ID_TURRET_MOTOR = 9;
-  public static final int CAN_ID_TURRET_ENCODER_31T = 19;
-  public static final int CAN_ID_TURRET_ENCODER_37T = 21;
+  public static final int CAN_ID_FL_DRIVE = 11;
+  public static final int CAN_ID_FL_STEER = 12;
+  public static final int CAN_ID_FL_ENCODER = 13;
 
-  public static final int CAN_ID_FL_DRIVE = 16;
-  public static final int CAN_ID_FL_STEER = 17;
-  public static final int CAN_ID_FL_ENCODER = 27;
+  public static final int CAN_ID_FR_DRIVE = 14;
+  public static final int CAN_ID_FR_STEER = 15;
+  public static final int CAN_ID_FR_ENCODER = 16;
 
-  public static final int CAN_ID_FR_DRIVE = 56;
-  public static final int CAN_ID_FR_STEER = 57;
-  public static final int CAN_ID_FR_ENCODER = 58;
+  public static final int CAN_ID_BL_DRIVE = 17;
+  public static final int CAN_ID_BL_STEER = 18;
+  public static final int CAN_ID_BL_ENCODER = 19;
 
-  public static final int CAN_ID_BL_DRIVE = 50;
-  public static final int CAN_ID_BL_STEER = 51;
-  public static final int CAN_ID_BL_ENCODER = 52;
+  public static final int CAN_ID_BR_DRIVE = 20;
+  public static final int CAN_ID_BR_STEER = 21;
+  public static final int CAN_ID_BR_ENCODER = 22;
 
-  public static final int CAN_ID_BR_DRIVE = 53;
-  public static final int CAN_ID_BR_STEER = 54;
-  public static final int CAN_ID_BR_ENCODER = 55;
+  public static final int CAN_ID_TURRET_MOTOR = 23;
+  public static final int CAN_ID_TURRET_ENCODER_31T = 24;
+  public static final int CAN_ID_TURRET_ENCODER_37T = 25;
 
-  public static final int CAN_ID_CLIMBER_MAIN = 56;
-  public static final int CAN_ID_CLIMBER_EXTEND = 57;
+  public static final int CAN_ID_CLIMBER_MAIN = 26;
+  public static final int CAN_ID_CLIMBER_EXTEND = 26;
 
-  public static final int CAN_ID_TURRET_HOOD_ENCODER = 31;
-  public static final int CAN_ID_TURRET_MOTOR_FLYWHEEL = 22;
-  public static final int CAN_ID_TURRET_HOOD_MOTOR = 30;
+  public static final int CAN_ID_TURRET_HOOD_ENCODER = 28;
+  public static final int CAN_ID_TURRET_MOTOR_FLYWHEEL = 29;
+  public static final int CAN_ID_UPPER_FLYWHEEL_MOTOR = 30;
+  public static final int CAN_ID_TURRET_HOOD_MOTOR = 31;
 
-  public static final int CAN_ID_INDEXER_MOTOR = 10;
-  public static final int CAN_ID_KICKER_MOTOR = 20;
-  public static final int hopperExtensionMotorCanID = 0;
+  public static final int CAN_ID_INDEXER_MOTOR = 32;
+  public static final int CAN_ID_KICKER_MOTOR = 33;
 
-  public static final int CAN_ID_INTAKE_MOTOR = 0;
-  public static final int CAN_ID_INTAKE_ANGLE_MOTOR = 0;
+  public static final int CAN_ID_INTAKE_MOTOR = 34;
+  public static final int CAN_ID_INTAKE_ANGLE_MOTOR = 35;
 
-  public static final int CAN_ID_UPPER_FLYWHEEL_MOTOR = 0;
+  
 
   // DIOs
   public static int DIO_CLIMBER_HOME_SENSOR = 0;

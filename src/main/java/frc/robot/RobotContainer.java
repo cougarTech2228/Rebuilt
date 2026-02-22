@@ -301,7 +301,10 @@ public class RobotContainer {
     // turret.setAimTarget(TurretAimTarget.Hub);
     if (SmartDashboard.getBoolean("TestMode", false)) {
       turret.setHoodElevation(SmartDashboard.getNumber("TurretHoodElevation", 0.0));
-      // turret.setFlywheelVelocity(SmartDashboard.getNumber("TurretFlywheelVelocity", 0.0));
+      double ratio = SmartDashboard.getNumber("TurretTestFlywheelRatio", 1.0);
+      
+      turret.setFlywheelVelocity(SmartDashboard.getNumber("TurretFlywheelVelocity", 0.0),
+        ratio * SmartDashboard.getNumber("TurretFlywheelVelocity", 0.0));
       turret.setAimTarget(SmartDashboard.getNumber("TurretAngle", 0.0));
       boolean indexerTest = SmartDashboard.getBoolean("IndexerTest", false);
       if (indexerTest) {

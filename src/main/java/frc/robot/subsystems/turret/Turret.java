@@ -38,6 +38,7 @@ public class Turret extends SubsystemBase{
         SmartDashboard.putNumber("TurretHoodElevation", 0.0);
         SmartDashboard.putNumber("TurretFlywheelVelocity", 0.0);
         SmartDashboard.putNumber("TurretTestDistance", 0.0);
+        SmartDashboard.putNumber("TurretTestFlywheelRatio", 1.0);
 
         SmartDashboard.putNumber("TurretAngle", 0.0);
     }
@@ -91,7 +92,20 @@ public class Turret extends SubsystemBase{
         turretIO.setHoodAngle(elevation);
     }
 
+    // private double getAngleForTarget() {
+    //     // y = 4E-11x4 - 8E-08x3 + 6E-05x2 - 0.0139x + 1.1316
+
+    // }
+
+    // private double getRatioForTarget() {
+    //     // y = 5E-09x3 - 7E-06x2 + 0.0029x + 0.6728
+    // }
+
     private double getVelocityForTarget() {
+
+        // y = -4E-05x2 + 0.0706x + 24.273
+
+
 
         // 45 degree hood (40% on proto)
         // when lobbing
@@ -121,15 +135,15 @@ public class Turret extends SubsystemBase{
         //return 0;
     }
 
-    public void setFlywheelVelocity(double velocity) {
-        turretIO.setFlywheelVelocity(velocity);
+    public void setFlywheelVelocity(double mainVelocity, double upperVelocity) {
+        turretIO.setFlywheelVelocity(mainVelocity, upperVelocity);
     }
 
     public void enableShooter(boolean enable) {
         if (enable) {
-            setFlywheelVelocity(getVelocityForTarget()); 
+            setFlywheelVelocity(getVelocityForTarget(), getVelocityForTarget()); 
         } else {
-            setFlywheelVelocity(0);
+            setFlywheelVelocity(0, 0);
             if (aimTarget == TurretAimTarget.Hub){
                 turretIO.setHoodAngle(0);
             } else {
