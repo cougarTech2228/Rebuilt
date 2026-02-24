@@ -309,8 +309,10 @@ public class RobotContainer {
       boolean indexerTest = SmartDashboard.getBoolean("IndexerTest", false);
       if (indexerTest) {
         hopper.indexerOn(true);
+        hopper.kickerOn(true);
       } else {
         hopper.indexerOff();
+        hopper.kickerOff();
       }
     }
   }

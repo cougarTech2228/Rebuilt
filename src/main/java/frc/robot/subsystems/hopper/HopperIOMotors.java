@@ -34,14 +34,14 @@ public class HopperIOMotors implements HopperIO {
         SparkMaxConfig indexerConfig = new SparkMaxConfig();
         indexerConfig.idleMode(IdleMode.kBrake).smartCurrentLimit(40);
         indexerConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-            .p(0)
+            .p(1)
             .i(0)
             .d(0);
 
         SparkMaxConfig kickerConfig = new SparkMaxConfig();
         kickerConfig.idleMode(IdleMode.kBrake).smartCurrentLimit(40);
         kickerConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-            .p(0)
+            .p(1)
             .i(0)
             .d(0);
 
@@ -64,27 +64,27 @@ public class HopperIOMotors implements HopperIO {
 
     public void indexerOn(boolean test) {
         if (test) {
-            indexerPID.setSetpoint(HopperConstants.testIndexerVoltage, ControlType.kMAXMotionVelocityControl);
+            indexerPID.setSetpoint(HopperConstants.testIndexerVoltage, ControlType.kVoltage);
         } else {
-            indexerPID.setSetpoint(HopperConstants.indexerVoltage, ControlType.kMAXMotionVelocityControl);
+            indexerPID.setSetpoint(HopperConstants.indexerVoltage, ControlType.kVoltage);
         }
 
     }
 
     public void indexerOff() {
-        indexerPID.setSetpoint(0, ControlType.kMAXMotionVelocityControl);
+        indexerPID.setSetpoint(0, ControlType.kVoltage);
     }
 
     public void kickerOn(boolean test) {
         if (test) {
-            kickerPID.setSetpoint(HopperConstants.testKickerVoltage, ControlType.kMAXMotionVelocityControl);
+            kickerPID.setSetpoint(HopperConstants.testKickerVelocity, ControlType.kVoltage);
         } else {
-            kickerPID.setSetpoint(HopperConstants.kickerVoltage, ControlType.kMAXMotionVelocityControl);
+            kickerPID.setSetpoint(HopperConstants.kickerVelocity, ControlType.kVoltage);
         }
     }
 
     public void kickerOff() {
-        kickerPID.setSetpoint(0, ControlType.kMAXMotionVelocityControl);
+        kickerPID.setSetpoint(0, ControlType.kVoltage);
     }
 
 }

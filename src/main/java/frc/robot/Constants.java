@@ -61,7 +61,8 @@ public final class Constants {
   public static final int CAN_ID_TURRET_ENCODER_37T = 25;
 
   public static final int CAN_ID_CLIMBER_MAIN = 26;
-  public static final int CAN_ID_CLIMBER_EXTEND = 26;
+  public static final int CAN_ID_CLIMBER_AUX = 37;
+  public static final int CAN_ID_CLIMBER_EXTEND = 27;
 
   public static final int CAN_ID_TURRET_HOOD_ENCODER = 28;
   public static final int CAN_ID_TURRET_MOTOR_FLYWHEEL = 29;
@@ -73,6 +74,7 @@ public final class Constants {
 
   public static final int CAN_ID_INTAKE_MOTOR = 34;
   public static final int CAN_ID_INTAKE_ANGLE_MOTOR = 35;
+  public static final int CAN_ID_INTAKE_ENCODER = 36;
 
   
 
