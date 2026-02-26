@@ -64,16 +64,13 @@ public class TurretIOMotors implements TurretIO {
     private static final double RATIO_31 = MAIN_TEETH / TEETH_31; // ~4.032
     private static final double RATIO_37 = MAIN_TEETH / TEETH_37; // ~3.378
 
-    // Turret Motor Gear Ratio (10:1 planetary and new 125/18 pinion) = 69.4444...
+    // Turret Motor Gear Ratio (10:1 planetary and 125/18 pinion) = 69.4444...
     private static final double TURRET_GEAR_RATIO = (125.0 / 18.0) * 10.0;
 
     // How close the two encoders must match to be considered valid (in rotations)
     // 0.05 rotations is 18 degrees of the encoder shaft, which is plenty of margin
     // for backlash
     private static final double MATCH_THRESHOLD = 0.05;
-    
-    // Solver Buffer: Allow solver to see past 180 (for overshoot recovery)
-    private static final double SOLVER_RANGE_BUFFER_DEG = 20.0; 
 
     // Status signals for low-latency reading
     private final StatusSignal<Angle> pos31Signal;
@@ -113,9 +110,9 @@ public class TurretIOMotors implements TurretIO {
 
         // Set limits to +/- 190 degrees to allow full 360 coverage with overlap
         turretConfig.softLimit
-            .forwardSoftLimit(0.53)
+            .forwardSoftLimit((float)(TurretConstants.TURRET_MAX_ROTATION / 360.0))
             .forwardSoftLimitEnabled(true)
-            .reverseSoftLimit(-0.53)
+            .reverseSoftLimit((float)(TurretConstants.TURRET_MIN_ROTATION / 360.0))
             .reverseSoftLimitEnabled(true);
 
         turretMotor.configure(turretConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
@@ -248,7 +245,7 @@ public class TurretIOMotors implements TurretIO {
     }
 
     /**
-     * Solves for Absolute Position using CRT with the new variable names.
+     * Solves for Absolute Position using CRT.
      */
     private double calculateAbsolutePositionCRT() {
         // Refresh signals to get latest data
@@ -265,22 +262,23 @@ public class TurretIOMotors implements TurretIO {
         double bestMatchAngle = 0.0;
         double minError = Double.MAX_VALUE;
 
-        // Search range (-15 to +15 covers +/- 180 deg with margin for new ratios)
-        for (int k = -15; k <= 15; k++) {
-            // Hypothesis: Turret Angle = (Enc1_Angle + k*360) / Ratio31
+        // Try each plausible number of full enc31 wraps. Each increment of k adds ~89° of
+        // implied turret travel (360° / RATIO_31). Range -2 to 4 covers -26° to 248° with margin.
+        for (int k = -2; k <= 4; k++) {
+            // Unwrap enc31 by k full rotations, then back-calculate the implied turret angle.
             double candidateTurretDeg = (deg1 + (k * 360.0)) / RATIO_31;
 
-            // Check physical possibility (Soft Limit + Buffer)
-            if (candidateTurretDeg < -(180.0 + SOLVER_RANGE_BUFFER_DEG) || 
-                candidateTurretDeg > (180.0 + SOLVER_RANGE_BUFFER_DEG)) {
+            // Discard candidates outside the physical travel range.
+            if (candidateTurretDeg < TurretConstants.TURRET_MIN_ROTATION ||
+                candidateTurretDeg > TurretConstants.TURRET_MAX_ROTATION) {
                 continue;
             }
 
-            // Validation: What should enc37 read?
-            double totalEnc2Deg = candidateTurretDeg * RATIO_37;
-            double expectedEnc2Deg = normalizeDegrees(totalEnc2Deg);
+            // If the turret is really at candidateTurretDeg, predict what enc37 should read.
+            double expectedEnc2Deg = normalizeDegrees(candidateTurretDeg * RATIO_37);
 
-            // Compare Expected Enc2 vs Actual Enc2
+            // Score this candidate by how closely enc37's actual reading matches the prediction.
+            // The correct k will produce near-zero error; wrong k values will be off by tens of degrees.
             double errorDegrees = Math.abs(getShortestDistance(expectedEnc2Deg, deg2));
 
             if (errorDegrees < minError) {
@@ -289,13 +287,12 @@ public class TurretIOMotors implements TurretIO {
             }
         }
 
-        // Convert Threshold (Rotations) to Degrees for check
-        // 0.05 rot * 360 = 18 degrees
+        // If even the best candidate exceeds the match threshold, both encoders disagree —
+        // likely a wiring fault or encoder failure. Return NaN so the caller can react safely.
         double thresholdDegrees = MATCH_THRESHOLD * 360.0;
-
         if (minError > thresholdDegrees) {
             System.err.println("CRITICAL TURRET ERROR: CRT Solver mismatch. Error: " + minError);
-            return Double.NaN; // return NaN on failure to easily handle it upstream
+            return Double.NaN;
         }
 
         return bestMatchAngle;
