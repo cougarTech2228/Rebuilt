@@ -57,16 +57,17 @@ public class TurretIOMotors implements TurretIO {
     private double targetUpperFlywheelVelocity = 0;
 
     // Gear Constants
-    private static final double MAIN_TEETH = 125.0;
+    // Telemetry mathematically proves a physical 5:1 ratio (155T Ring Gear)
+    private static final double MAIN_TEETH = 155.0; 
     private static final double TEETH_31 = 31.0;
     private static final double TEETH_37 = 37.0;
 
     // Gear Ratios (Encoder Rotations per Turret Rotation)
-    private static final double RATIO_31 = MAIN_TEETH / TEETH_31; // ~4.032
-    private static final double RATIO_37 = MAIN_TEETH / TEETH_37; // ~3.378
+    private static final double RATIO_31 = MAIN_TEETH / TEETH_31; // 5.0
+    private static final double RATIO_37 = MAIN_TEETH / TEETH_37; // ~4.189
 
-    // Turret Motor Gear Ratio (10:1 planetary and 125/18 pinion) = 69.4444...
-    private static final double TURRET_GEAR_RATIO = (125.0 / 18.0) * 10.0;
+    // Turret Motor Gear Ratio (10:1 planetary and 155/18 pinion)
+    private static final double TURRET_GEAR_RATIO = (MAIN_TEETH / 18.0) * 10.0;
 
     // How close the two encoders must match to be considered valid (in rotations)
     // 0.05 rotations is 18 degrees of the encoder shaft, which is plenty of margin
