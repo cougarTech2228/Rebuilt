@@ -17,6 +17,7 @@ import com.ctre.phoenix6.signals.MotorArrangementValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.SparkBase.ControlType;
@@ -72,6 +73,9 @@ public class TurretIOMotors implements TurretIO {
     // for backlash
     private static final double MATCH_THRESHOLD = 0.05;
 
+    // degrees of error allowed for turret PID aiming
+    private static final double ALLOWED_TURRET_ERROR = 2;
+
     // Status signals for low-latency reading
     private final StatusSignal<Angle> pos31Signal;
     private final StatusSignal<Angle> pos37Signal;
@@ -101,6 +105,7 @@ public class TurretIOMotors implements TurretIO {
             .p(0.1)
             .i(0.0)
             .d(0.0)
+            .allowedClosedLoopError(ALLOWED_TURRET_ERROR, ClosedLoopSlot.kSlot0)
             .positionWrappingEnabled(false);
 
         // Configure mechanism conversions to rotate in Turret Rotations
@@ -383,10 +388,13 @@ public class TurretIOMotors implements TurretIO {
         inputs.upperFlywheelMotorVelocity = upperFlywheelMotorVelocitySignal.getValueAsDouble();
         inputs.upperFlywheelMotorVoltage = upperFlywheelMotorVoltageSignal.getValueAsDouble();
         inputs.upperFlywheelMotorCurrent = upperFlywheelMotorCurrentSignal.getValueAsDouble();
-        inputs.upperFlywheelPIDTargetVelocity = targetUpperFlywheelVelocity;        
+        inputs.upperFlywheelPIDTargetVelocity = targetUpperFlywheelVelocity;
+
+        inputs.areFlywheelsAtVelocity = areFlywheelsAtVelocity();
+        inputs.isTurretAtTarget = isTurretAtTarget();
     }
 
-    public boolean areFlywheelsAtVelocity() {
+    private boolean areFlywheelsAtVelocity() {
         final double flywheelV = flywheelMotorVelocitySignal.getValueAsDouble();
         final double flywheelT = targetFlywheelVelocity;
 
@@ -397,5 +405,9 @@ public class TurretIOMotors implements TurretIO {
             (Math.abs(flywheelV - flywheelT) < (0.05 * targetFlywheelVelocity)) && ((targetUpperFlywheelVelocity > 0) 
             // FIX: Replaced 0.05 * targetFlywheelVelocity to upper equivalent
             && (Math.abs(upperFlywheelV - upperFlywheelT) < (0.05 * targetUpperFlywheelVelocity))));
+    }
+
+    private boolean isTurretAtTarget() {
+        return turretPID.isAtSetpoint();
     }
 }

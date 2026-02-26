@@ -38,11 +38,12 @@ public interface TurretIO {
         public double upperFlywheelMotorVoltage = 0;
         public double upperFlywheelMotorCurrent = 0;
         public double upperFlywheelPIDTargetVelocity = 0;
+
+        public boolean areFlywheelsAtVelocity = false;
+        public boolean isTurretAtTarget = false;
+        public boolean isTargetInKeepOut = false;
     }
     public default void updateInputs(TurretIOInputs inputs) {}
-
-    public default boolean areFlywheelsAtVelocity() {return false;}
-
 
     public default void setTurretAngle(double turretAngle) {}
     public default void setHoodAngle(double hoodAngle) {}

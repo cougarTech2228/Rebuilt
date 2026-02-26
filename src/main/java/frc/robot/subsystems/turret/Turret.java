@@ -65,7 +65,7 @@ public class Turret extends SubsystemBase{
         Pose2d robotPose = driveSubsystem.getPose();
         Pose2d targetPose = getTargetPoint(target);
         turretInputs.turretTargetPoint = targetPose;
-    
+
         // Get the Translation (X, Y) of both poses
         Translation2d robotXY = robotPose.getTranslation().plus(TurretConstants.TurretOffset.getTranslation().toTranslation2d());
         Translation2d targetXY = targetPose.getTranslation();
@@ -76,14 +76,25 @@ public class Turret extends SubsystemBase{
         // Get the angle of that vector relative to the field
         Rotation2d angleToTargetFieldRelative = difference.getAngle();
 
-        // Subtract robot's rotation to make it relative to the robot front
-        // (Field Relative Angle - Robot Heading = Robot Relative Angle)
+        // Subtract robot's rotation to make it robot-relative
         Rotation2d angleToTargetRobotRelative = angleToTargetFieldRelative.minus(robotPose.getRotation());
 
-        double degrees = angleToTargetRobotRelative.getDegrees();
+        double turretAngle = MathUtil.inputModulus(angleToTargetRobotRelative.getDegrees(), 0, 360);
 
-        // normalize 0-360
-        double turretAngle = MathUtil.inputModulus(degrees, -180, 180);
+        double TURRET_KEEPOUT_START = TurretConstants.TURRET_MAX_ROTATION;
+        double TURRET_KEEPOUT_END   = 360 + TurretConstants.TURRET_MIN_ROTATION;
+
+        // If the target falls in the keep-out zone, snap to the nearest safe boundary.
+        turretInputs.isTargetInKeepOut = turretAngle > TURRET_KEEPOUT_START &&
+                                        turretAngle < TURRET_KEEPOUT_END;
+
+        if (turretInputs.isTargetInKeepOut) {
+            double distToStart = Math.abs(turretAngle - TURRET_KEEPOUT_START);
+            double distToEnd   = Math.abs(turretAngle - TURRET_KEEPOUT_END);
+            turretAngle = (distToStart < distToEnd)
+                ? TURRET_KEEPOUT_START
+                : TURRET_KEEPOUT_END;
+        }
 
         turretIO.setTurretAngle(turretAngle);
     }
@@ -92,47 +103,71 @@ public class Turret extends SubsystemBase{
         turretIO.setHoodAngle(elevation);
     }
 
-    // private double getAngleForTarget() {
-    //     // y = 4E-11x4 - 8E-08x3 + 6E-05x2 - 0.0139x + 1.1316
+    private double getAngleForTarget() {
+        double distance = 0;
 
-    // }
+        double turretTestDistance = SmartDashboard.getNumber("TurretTestDistance", 0.0);
+        if (turretTestDistance > 0) {
+            distance = turretTestDistance;
+        } else {
+            Pose2d robotPose = driveSubsystem.getPose();
+            Pose2d targetPose = getTargetPoint(aimTarget);
+            distance = robotPose.getTranslation().getDistance(targetPose.getTranslation());
+        }
+
+        double angle;
+
+        if (aimTarget == TurretAimTarget.Hub) {
+            // y = 4E-11x4 - 8E-08x3 + 6E-05x2 - 0.0139x + 1.1316
+            angle = (4E-11 * Math.pow(distance, 4)) -
+                    (8E-08 * Math.pow(distance, 3)) +
+                    (6E-05 * Math.pow(distance, 2)) -
+                    (0.0139 * distance) + 1.1316;
+        } else {
+            // FIX ME -- need real fomula
+            angle = 0.4;
+        }
+
+        // sanity check the values
+        angle = Math.min(angle, TurretConstants.HOOD_MAX_ANGLE);
+        angle = Math.max(angle, TurretConstants.HOOD_MIN_ANGLE);
+
+        return angle;
+    }
 
     // private double getRatioForTarget() {
     //     // y = 5E-09x3 - 7E-06x2 + 0.0029x + 0.6728
     // }
 
     private double getVelocityForTarget() {
-
-        // y = -4E-05x2 + 0.0706x + 24.273
-
-
-
-        // 45 degree hood (40% on proto)
-        // when lobbing
-        // y = 0.187*x - 1.2833
+        double distance = 0;
 
         double turretTestDistance = SmartDashboard.getNumber("TurretTestDistance", 0.0);
         if (turretTestDistance > 0) {
-            double velocity = (turretTestDistance + 1.2833) / 0.187;
-            if (velocity > 0) {
-                turretIO.setHoodAngle(40);
-                return velocity;
-            }
+            distance = turretTestDistance;
         } else {
             Pose2d robotPose = driveSubsystem.getPose();
             Pose2d targetPose = getTargetPoint(aimTarget);
-            double distance = robotPose.getTranslation().getDistance(targetPose.getTranslation());
-
-            if (aimTarget == TurretAimTarget.Hub) {
-                distance += 2.5;
-            }
-            return Math.min((distance + 1.2833) / 0.187, TurretConstants.MAX_FLYWHEEL_SPEED);
+            distance = robotPose.getTranslation().getDistance(targetPose.getTranslation());
         }
 
+        double velocity;
 
-        // a bunch of math at some point to calc all the things
-        return SmartDashboard.getNumber("TurretFlywheelVelocity", 0.0);
-        //return 0;
+        if (aimTarget == TurretAimTarget.Hub) {
+            // y = -4E-05x2 + 0.0706x + 24.273
+            velocity = (-4E-05 * distance * distance) + (0.0706 * distance) + 24.273;
+        } else {
+            // FIX ME -- need real fomula
+            velocity = (distance + 1.2833) / 0.187;
+        }
+
+        // cap the speed to an achievable value
+        velocity = Math.min(velocity, TurretConstants.MAX_FLYWHEEL_SPEED);
+
+        // ensure we don't end up with a negative value or super slow speed
+        velocity = Math.max(velocity, TurretConstants.MIN_FLYWHEEL_SPEED);
+
+        return velocity;
     }
 
     public void setFlywheelVelocity(double mainVelocity, double upperVelocity) {
@@ -141,22 +176,16 @@ public class Turret extends SubsystemBase{
 
     public void enableShooter(boolean enable) {
         if (enable) {
-            // setFlywheelVelocity(getVelocityForTarget(), getVelocityForTarget()); 
-            setFlywheelVelocity(10, 10);
+            setFlywheelVelocity(getVelocityForTarget(), getVelocityForTarget());
+            setHoodElevation(getAngleForTarget());
         } else {
             setFlywheelVelocity(0, 0);
-            if (aimTarget == TurretAimTarget.Hub){
-                turretIO.setHoodAngle(0);
-            } else {
-                turretIO.setHoodAngle(40);
-            }
+            // no need to move the hood on disable
         }
-
-        
     }
 
     public boolean canShoot() {
-        return turretIO.areFlywheelsAtVelocity();
+        return turretInputs.areFlywheelsAtVelocity && turretInputs.isTurretAtTarget;
     }
 
     private Pose2d getTargetPoint(TurretAimTarget target) {
