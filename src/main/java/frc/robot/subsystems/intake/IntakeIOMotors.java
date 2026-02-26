@@ -11,6 +11,9 @@ import com.revrobotics.spark.FeedbackSensor;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.ctre.phoenix6.hardware.CANcoder;
+import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
@@ -28,6 +31,9 @@ public class IntakeIOMotors implements IntakeIO {
     protected final SparkMax angleMotor;
     private final SparkClosedLoopController anglePID;
 
+    private final CANcoder intakeEncoder;
+
+
     public IntakeIOMotors() {
         this.intakeMotor = new SparkMax(Constants.CAN_ID_INTAKE_MOTOR, MotorType.kBrushless);
         this.intakePID = intakeMotor.getClosedLoopController();
@@ -36,22 +42,35 @@ public class IntakeIOMotors implements IntakeIO {
         this.anglePID = angleMotor.getClosedLoopController();
 
         SparkMaxConfig intakeConfig = new SparkMaxConfig();
-        intakeConfig.idleMode(IdleMode.kBrake).smartCurrentLimit(40);
-        intakeConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-            .p(0)
-            .i(0)
-            .d(0);
+        intakeConfig.idleMode(IdleMode.kBrake).smartCurrentLimit(20);
+ 
+        intakeMotor.configure(intakeConfig, com.revrobotics.ResetMode.kResetSafeParameters, com.revrobotics.PersistMode.kPersistParameters);
 
         SparkMaxConfig angleConfig = new SparkMaxConfig();
-        angleConfig.idleMode(IdleMode.kBrake).smartCurrentLimit(40);
+        angleConfig.idleMode(IdleMode.kBrake).smartCurrentLimit(20);
         angleConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-            .p(0)
+            .p(0.2)
             .i(0)
             .d(0);
+        angleConfig.closedLoop.maxMotion.maxAcceleration(5000);
+        angleConfig.closedLoop.maxMotion.cruiseVelocity(2500);
+        angleConfig.closedLoop.maxMotion.positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal);
+        angleConfig.closedLoop.maxMotion.allowedProfileError(1);
+        
 
-        intakeMotor.configure(intakeConfig, com.revrobotics.ResetMode.kResetSafeParameters, com.revrobotics.PersistMode.kPersistParameters);
+
+        
         angleMotor.configure(angleConfig, com.revrobotics.ResetMode.kResetSafeParameters, com.revrobotics.PersistMode.kPersistParameters);
 
+        intakeEncoder = new CANcoder(Constants.CAN_ID_INTAKE_ENCODER, frc.robot.RobotContainer.kCanivore);
+        CANcoderConfiguration encoderConfig = new CANcoderConfiguration();
+        encoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.5;
+        encoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
+        encoderConfig.MagnetSensor.MagnetOffset = -0.232910; // zero out to the retracted position
+        intakeEncoder.getConfigurator().apply(encoderConfig);
+
+        // seed the motor position based on the cancoder
+        intakeMotor.getEncoder().setPosition(intakeEncoder.getAbsolutePosition().getValueAsDouble() * 100);
     }
 
     public void updateInputs(IntakeIOInputs inputs) {
@@ -63,6 +82,7 @@ public class IntakeIOMotors implements IntakeIO {
         inputs.angleMotorVoltage = angleMotor.getAppliedOutput() * angleMotor.getBusVoltage();
         inputs.angleMotorVelocity = angleMotor.getEncoder().getVelocity();
         inputs.angleMotorCurrent = angleMotor.getOutputCurrent();
+        inputs.angleMotorPIDSetpoint = angleMotor.getClosedLoopController().getSetpoint();
     }
 
     public void setIntakeAngle(IntakeAngle angle) {
@@ -77,23 +97,26 @@ public class IntakeIOMotors implements IntakeIO {
     }
 
     public void setIntakeMode(IntakeMode mode) {
-        double intakeMotorVelocity = 0.0;
+        double intakeMotorVoltage = 0.0;
         switch (mode) {
             case INTAKE:
-                intakeMotorVelocity = IntakeConstants.intakeVelocity;
+                setIntakeAngle(IntakeAngle.DEPLOYED);
+                intakeMotorVoltage = IntakeConstants.intakeVelocity;
                 break;
             case SPIT:
-                intakeMotorVelocity = IntakeConstants.spitVelocity;
+                setIntakeAngle(IntakeAngle.DEPLOYED);
+                intakeMotorVoltage = IntakeConstants.spitVelocity;
                 break;
             case IDLE:
-                intakeMotorVelocity = IntakeConstants.idleVelocity;
+                setIntakeAngle(IntakeAngle.HOME);
+                intakeMotorVoltage = IntakeConstants.idleVelocity;
                 break;
         }
-        intakePID.setSetpoint(intakeMotorVelocity, ControlType.kMAXMotionVelocityControl);
+        intakeMotor.setVoltage(intakeMotorVoltage);
     }
 
-    public void manualSetIntakeVelocity(double velocity) {
-        intakePID.setSetpoint(velocity, ControlType.kMAXMotionVelocityControl);
+    public void manualSetIntakeVelocity(double voltage) {
+        intakeMotor.setVoltage(voltage);
     }   
 
     public void manualSetIntakeAngle(double angle) {

@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 
@@ -262,9 +263,12 @@ public class RobotContainer {
                     drive)
                 .ignoringDisable(true));
 
+    controller.rightBumper().onTrue(new InstantCommand(() -> {
+        intake.toggleIntake();
+    }));
     
-    controller.rightBumper().whileTrue(new ShootCommand(hopper, turret));
-    
+    controller.rightTrigger(0.5).whileTrue(new ShootCommand(hopper, turret));
+
 //    // Auto aim command example
 //     @SuppressWarnings("resource")
 //     PIDController aimController = new PIDController(0.2, 0.0, 0.0);
@@ -300,20 +304,23 @@ public class RobotContainer {
   public void teleopPeriodic() {
     // turret.setAimTarget(TurretAimTarget.Hub);
     if (SmartDashboard.getBoolean("TestMode", false)) {
-      turret.setHoodElevation(SmartDashboard.getNumber("TurretHoodElevation", 0.0));
-      double ratio = SmartDashboard.getNumber("TurretTestFlywheelRatio", 1.0);
+      // turret.setHoodElevation(SmartDashboard.getNumber("TurretHoodElevation", 0.0));
+      // double ratio = SmartDashboard.getNumber("TurretTestFlywheelRatio", 1.0);
       
-      turret.setFlywheelVelocity(SmartDashboard.getNumber("TurretFlywheelVelocity", 0.0),
-        ratio * SmartDashboard.getNumber("TurretFlywheelVelocity", 0.0));
-      turret.setAimTarget(SmartDashboard.getNumber("TurretAngle", 0.0));
-      boolean indexerTest = SmartDashboard.getBoolean("IndexerTest", false);
-      if (indexerTest) {
-        hopper.indexerOn(true);
-        hopper.kickerOn(true);
-      } else {
-        hopper.indexerOff();
-        hopper.kickerOff();
-      }
+      // turret.setFlywheelVelocity(SmartDashboard.getNumber("TurretFlywheelVelocity", 0.0),
+      //   ratio * SmartDashboard.getNumber("TurretFlywheelVelocity", 0.0));
+      // turret.setAimTarget(SmartDashboard.getNumber("TurretAngle", 0.0));
+      // boolean indexerTest = SmartDashboard.getBoolean("IndexerTest", false);
+      // if (indexerTest) {
+      //   hopper.indexerOn(true);
+      //   hopper.kickerOn(true);
+      // } else {
+      //   hopper.indexerOff();
+      //   hopper.kickerOff();
+      // }
+      // intake.setIntakeAngle(SmartDashboard.getNumber("IntakePosition", 1.0));
+      // intake.setIntakeVelocity(SmartDashboard.getNumber("IntakeVelocity", 1.0));
+      
     }
   }
 

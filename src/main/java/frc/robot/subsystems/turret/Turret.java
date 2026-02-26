@@ -141,7 +141,8 @@ public class Turret extends SubsystemBase{
 
     public void enableShooter(boolean enable) {
         if (enable) {
-            setFlywheelVelocity(getVelocityForTarget(), getVelocityForTarget()); 
+            // setFlywheelVelocity(getVelocityForTarget(), getVelocityForTarget()); 
+            setFlywheelVelocity(10, 10);
         } else {
             setFlywheelVelocity(0, 0);
             if (aimTarget == TurretAimTarget.Hub){

@@ -27,6 +27,7 @@ public class ShootCommand extends Command {
     public void execute() {
             if (turret.canShoot() && isIndexerOn == false) {
                 hopper.indexerOn(false);
+                hopper.kickerOn(false);
                 isIndexerOn = true;
             }
 
@@ -42,6 +43,7 @@ public class ShootCommand extends Command {
         isIndexerOn = false;
         turret.enableShooter(false);
         hopper.indexerOff();
+        hopper.kickerOff();
     }
 
     @Override

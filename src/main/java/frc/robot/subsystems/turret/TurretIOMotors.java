@@ -135,13 +135,13 @@ public class TurretIOMotors implements TurretIO {
         CANcoderConfiguration config31 = new CANcoderConfiguration();
         config31.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.5;
         config31.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
-        config31.MagnetSensor.MagnetOffset = 0.086426; // Retained 31T Zero Offset for 31T position
+        config31.MagnetSensor.MagnetOffset = 0.064697; // Retained 31T Zero Offset for 31T position
         enc31.getConfigurator().apply(config31);
 
         CANcoderConfiguration config37 = new CANcoderConfiguration();
         config37.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.5;
         config37.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
-        config37.MagnetSensor.MagnetOffset = -0.561035; // Retained 37T Zero Offset for 37T position
+        config37.MagnetSensor.MagnetOffset = 0.423340; // Retained 37T Zero Offset for 37T position
         enc37.getConfigurator().apply(config37);
 
         pos31Signal = enc31.getAbsolutePosition();
