@@ -3,7 +3,7 @@ package frc.robot.subsystems.intake;
 import frc.robot.subsystems.intake.Intake.IntakeMode;
 import frc.robot.subsystems.intake.Intake.IntakeAngle;
 
-public class IntakeIOSim extends IntakeIOMotors {
+public class IntakeIOSim implements IntakeIO {
     
     public IntakeIOSim() {
         // Constructor

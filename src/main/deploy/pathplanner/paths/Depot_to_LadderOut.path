@@ -16,12 +16,12 @@
     },
     {
       "anchor": {
-        "x": 1.048348300262833,
-        "y": 2.739202203422567
+        "x": 1.215575,
+        "y": 2.7
       },
       "prevControl": {
-        "x": 1.048348300262833,
-        "y": 1.739202203422567
+        "x": 1.215575,
+        "y": 1.7000000000000002
       },
       "nextControl": null,
       "isLocked": false,
@@ -41,14 +41,14 @@
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 0,
-    "rotation": 0.0
+    "velocity": 0.0,
+    "rotation": -90.0
   },
   "reversed": false,
   "folder": "DepotPaths",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": -90.0
   },
   "useDefaultConstraints": true
 }

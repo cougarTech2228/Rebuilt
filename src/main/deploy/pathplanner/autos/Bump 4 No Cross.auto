@@ -1,0 +1,81 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "sequential",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "DeployIntakeCommand"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "StartIntakeCommand"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Bump4_to_Outpost"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "StopIntakeCommand"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "StartFiringCommand"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "OutpostMid_to_Depot"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Depot_to_LadderOut"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "StopFiringCommand"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "PerformClimbCommand"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}

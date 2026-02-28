@@ -3,29 +3,45 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.6,
-        "y": 6.0
+        "x": 6.9,
+        "y": 2.9
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.1,
-        "y": 6.0
+        "x": 7.9,
+        "y": 2.9
       },
       "isLocked": false,
-      "linkedName": "Bump4West"
+      "linkedName": "Neutral3"
     },
     {
       "anchor": {
-        "x": 0.65,
-        "y": 6.0
+        "x": 7.7,
+        "y": 3.973159090909091
       },
       "prevControl": {
-        "x": 1.1499999999999997,
-        "y": 6.0
+        "x": 7.679386363636364,
+        "y": 3.3341363636363632
+      },
+      "nextControl": {
+        "x": 7.719798023448647,
+        "y": 4.586897817817163
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 6.9,
+        "y": 5.1
+      },
+      "prevControl": {
+        "x": 7.9,
+        "y": 5.1
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "OutpostMid"
+      "linkedName": "Neutral4"
     }
   ],
   "rotationTargets": [],
@@ -45,10 +61,10 @@
     "rotation": 180.0
   },
   "reversed": false,
-  "folder": "BumpPaths",
+  "folder": "NeutralPaths",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": 0.0
   },
   "useDefaultConstraints": true
 }

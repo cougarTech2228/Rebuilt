@@ -42,10 +42,10 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": -90.0
   },
   "reversed": false,
-  "folder": "Trench Paths",
+  "folder": "TrenchPaths",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 0.0

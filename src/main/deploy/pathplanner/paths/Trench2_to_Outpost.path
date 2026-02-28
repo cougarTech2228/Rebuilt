@@ -16,16 +16,16 @@
     },
     {
       "anchor": {
-        "x": 0.45,
+        "x": 0.4,
         "y": 6.9
       },
       "prevControl": {
-        "x": 0.4500000000000002,
+        "x": 0.4000000000000001,
         "y": 7.9
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "OutpostOutside"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
@@ -42,10 +42,10 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -90.0
+    "rotation": 90.0
   },
   "reversed": false,
-  "folder": "Trench Paths",
+  "folder": "TrenchPaths",
   "idealStartingState": {
     "velocity": 0,
     "rotation": -90.0

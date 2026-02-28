@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 0.45,
+        "x": 0.4,
         "y": 6.9
       },
       "prevControl": null,
       "nextControl": {
-        "x": 0.45000000000000007,
+        "x": 0.4000000000000001,
         "y": 5.9
       },
       "isLocked": false,
-      "linkedName": "OutpostOutside"
+      "linkedName": "OutpostOutSouth"
     },
     {
       "anchor": {
-        "x": 0.45,
+        "x": 0.4,
         "y": 5.0
       },
       "prevControl": {
-        "x": 0.44999999999999996,
+        "x": 0.39999999999999986,
         "y": 6.0
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "OutpostIn"
+      "linkedName": "OutpostInSouth"
     }
   ],
   "rotationTargets": [],
