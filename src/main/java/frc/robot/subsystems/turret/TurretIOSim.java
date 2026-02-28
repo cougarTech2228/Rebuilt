@@ -19,7 +19,7 @@ public class TurretIOSim implements TurretIO{
     }
     
     public void updateInputs(TurretIOInputs inputs) {
-        inputs.turretPIDTargetAngle = turretAngleTarget;
+        inputs.turretPIDSetpoint = turretAngleTarget;
         inputs.hoodPIDTargetAngle = turretHoodTarget;
         inputs.turretAngle = Rotation2d.fromDegrees(turretAngleTarget);
     }

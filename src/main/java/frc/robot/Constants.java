@@ -79,7 +79,5 @@ public final class Constants {
   
 
   // DIOs
-  public static int DIO_CLIMBER_HOME_SENSOR = 0;
-  public static int DIO_CLIMBER_EXTENSION_HOME_SENSOR = 1;
 
 }

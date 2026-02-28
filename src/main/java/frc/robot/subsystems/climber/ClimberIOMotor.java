@@ -5,6 +5,8 @@ import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.ReverseLimitValue;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
@@ -15,6 +17,8 @@ import edu.wpi.first.wpilibj.DigitalInput;
 
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.LimitSwitchConfig.Behavior;
+import com.revrobotics.spark.config.LimitSwitchConfig.Type;
 
 import frc.robot.Constants;
 
@@ -22,8 +26,6 @@ public class ClimberIOMotor implements ClimberIO {
 
     private final TalonFX climberMotor;
     private final SparkMax extensionMotor;
-    private final DigitalInput climberHomeSensor;
-    private final DigitalInput extensionHomeSensor;
 
     private final StatusSignal<Angle> climberPositionSignal;
     private final StatusSignal<Current> climberCurrentSignal;
@@ -38,8 +40,6 @@ public class ClimberIOMotor implements ClimberIO {
     public ClimberIOMotor() {
         climberMotor = new TalonFX(Constants.CAN_ID_CLIMBER_MAIN,  frc.robot.RobotContainer.kCanivore);
         extensionMotor = new SparkMax(Constants.CAN_ID_CLIMBER_EXTEND, MotorType.kBrushless);
-        climberHomeSensor = new DigitalInput(Constants.DIO_CLIMBER_HOME_SENSOR);
-        extensionHomeSensor = new DigitalInput(Constants.DIO_CLIMBER_EXTENSION_HOME_SENSOR);
 
         climberPositionSignal = climberMotor.getPosition();
         climberCurrentSignal = climberMotor.getStatorCurrent();
@@ -52,6 +52,10 @@ public class ClimberIOMotor implements ClimberIO {
 
         // To set Clockwise (CW) as positive:
         // config.inverted(true);
+
+        config.limitSwitch.forwardLimitSwitchPosition(0);
+        config.limitSwitch.forwardLimitSwitchTriggerBehavior(Behavior.kStopMovingMotorAndSetPosition);
+        config.limitSwitch.forwardLimitSwitchType(Type.kNormallyOpen);
 
         config.closedLoop
             .p(0.1)
@@ -73,6 +77,14 @@ public class ClimberIOMotor implements ClimberIO {
         climberConfig.Slot0.kI = 0.0;
         climberConfig.Slot0.kD = 0.0;
 
+        climberConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+    
+        // when reverse limit is hit, zero the motor
+        climberConfig.HardwareLimitSwitch.ForwardLimitEnable = false;
+        climberConfig.HardwareLimitSwitch.ReverseLimitEnable = false;
+        climberConfig.HardwareLimitSwitch.ReverseLimitAutosetPositionEnable = true;
+        climberConfig.HardwareLimitSwitch.ReverseLimitAutosetPositionValue = 0;
+
         climberConfig.MotionMagic.MotionMagicCruiseVelocity = 2.0;
         climberConfig.MotionMagic.MotionMagicAcceleration = 3;
         climberConfig.MotionMagic.MotionMagicJerk = 0.0;
@@ -89,10 +101,11 @@ public class ClimberIOMotor implements ClimberIO {
     }
 
     private boolean isExtensionHome() {
-        return !extensionHomeSensor.get();
+        return extensionMotor.getForwardLimitSwitch().isPressed();
     }
+
     private boolean isClimberHome() {
-        return !climberHomeSensor.get();
+        return climberMotor.getReverseLimit().getValue() == ReverseLimitValue.ClosedToGround;
     }
 
     public void updateInputs(ClimberIOInputs inputs) {
@@ -113,13 +126,13 @@ public class ClimberIOMotor implements ClimberIO {
         inputs.extendMotorCurrent = extensionMotor.getOutputCurrent();
         inputs.extendMotorTemp = extensionMotor.getMotorTemperature();
 
-        if (inputs.isClimberHome) {
-            climberMotor.setPosition(0);
-        }
+        // if (inputs.isClimberHome) {
+        //     climberMotor.setPosition(0);
+        // }
 
-        if (inputs.isExtensionHome) {
-            extensionMotor.getEncoder().setPosition(0);
-        }
+        // if (inputs.isExtensionHome) {
+        //     extensionMotor.getEncoder().setPosition(0);
+        // }
 
         inputs.isClimberExtended = isExtended();
         inputs.climberMotorPIDTarget = climberSetpoint;
@@ -152,7 +165,7 @@ public class ClimberIOMotor implements ClimberIO {
 
     @Override
     public boolean isExtended() {
-        return extensionSetpoint == ClimberConstants.EXTENSION_MAX_POSITION && extensionMotorPIDController.isAtSetpoint();
+        return extensionSetpoint == ClimberConstants.EXTENSION_EXTENDED_POSITION && extensionMotorPIDController.isAtSetpoint();
     }
 
     @Override

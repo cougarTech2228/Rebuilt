@@ -50,9 +50,12 @@ public class Intake extends SubsystemBase{
     }
 
     public void toggleIntake() {
+        System.out.println("toggleIntake()");
         if (currentIntakeMode == IntakeMode.IDLE) {
+            System.out.println("setIntakeMode(IntakeMode.INTAKE)");
             setIntakeMode(IntakeMode.INTAKE);
         } else {
+            System.out.println("setIntakeMode(IntakeMode.IDLE)");
             setIntakeMode(IntakeMode.IDLE);
         }
     }
@@ -62,6 +65,7 @@ public class Intake extends SubsystemBase{
      * @param angle Home or Deployed
      */
     public void setIntakeAngle(IntakeAngle angle) {
+        System.out.println("setIntakeAngle");
         io.setIntakeAngle(angle);
     }
 

@@ -1,6 +1,7 @@
 package frc.robot.subsystems.hopper;
 
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.ClosedLoopConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
@@ -21,14 +22,14 @@ public class HopperIOMotors implements HopperIO {
     protected final SparkMax indexerMotor;
     private final SparkClosedLoopController indexerPID;
 
-    protected final SparkMax kickerMotor;
+    protected final SparkFlex kickerMotor;
     private final SparkClosedLoopController kickerPID;
 
     public HopperIOMotors() {
         this.indexerMotor = new SparkMax(Constants.CAN_ID_INDEXER_MOTOR, MotorType.kBrushless);
         this.indexerPID = indexerMotor.getClosedLoopController();
 
-        this.kickerMotor = new SparkMax(Constants.CAN_ID_KICKER_MOTOR, MotorType.kBrushless);
+        this.kickerMotor = new SparkFlex(Constants.CAN_ID_KICKER_MOTOR, MotorType.kBrushless);
         this.kickerPID = kickerMotor.getClosedLoopController();
 
         SparkMaxConfig indexerConfig = new SparkMaxConfig();

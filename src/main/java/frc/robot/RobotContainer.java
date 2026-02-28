@@ -304,14 +304,14 @@ public class RobotContainer {
   }
 
   public void teleopPeriodic() {
-    // turret.setAimTarget(TurretAimTarget.Hub);
+    
     if (SmartDashboard.getBoolean("TestMode", false)) {
       // turret.setHoodElevation(SmartDashboard.getNumber("TurretHoodElevation", 0.0));
       // double ratio = SmartDashboard.getNumber("TurretTestFlywheelRatio", 1.0);
       
       // turret.setFlywheelVelocity(SmartDashboard.getNumber("TurretFlywheelVelocity", 0.0),
       //   ratio * SmartDashboard.getNumber("TurretFlywheelVelocity", 0.0));
-      // turret.setAimTarget(SmartDashboard.getNumber("TurretAngle", 0.0));
+      turret.setAimTarget(SmartDashboard.getNumber("TurretAngle", 0.0));
       // boolean indexerTest = SmartDashboard.getBoolean("IndexerTest", false);
       // if (indexerTest) {
       //   hopper.indexerOn(true);
@@ -322,7 +322,8 @@ public class RobotContainer {
       // }
       // intake.setIntakeAngle(SmartDashboard.getNumber("IntakePosition", 1.0));
       // intake.setIntakeVelocity(SmartDashboard.getNumber("IntakeVelocity", 1.0));
-      
+    } else {
+      turret.setAimTarget(TurretAimTarget.Hub);
     }
   }
 

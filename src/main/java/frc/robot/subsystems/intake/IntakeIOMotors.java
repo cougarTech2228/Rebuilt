@@ -5,6 +5,8 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.ClosedLoopConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
+import edu.wpi.first.units.measure.Angle;
+
 import com.revrobotics.spark.config.MAXMotionConfig.MAXMotionPositionMode;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.FeedbackSensor;
@@ -26,25 +28,17 @@ import frc.robot.subsystems.intake.IntakeConstants;
 public class IntakeIOMotors implements IntakeIO {
 
     protected final SparkMax intakeMotor;
-    private final SparkClosedLoopController intakePID;
 
     protected final SparkMax angleMotor;
     private final SparkClosedLoopController anglePID;
 
     private final CANcoder intakeEncoder;
+    StatusSignal<Angle> encoderPositionSignal;
 
 
     public IntakeIOMotors() {
-        this.intakeMotor = new SparkMax(Constants.CAN_ID_INTAKE_MOTOR, MotorType.kBrushless);
-        this.intakePID = intakeMotor.getClosedLoopController();
-
-        this.angleMotor = new SparkMax(Constants.CAN_ID_INTAKE_ANGLE_MOTOR, MotorType.kBrushless);
-        this.anglePID = angleMotor.getClosedLoopController();
-
-        SparkMaxConfig intakeConfig = new SparkMaxConfig();
-        intakeConfig.idleMode(IdleMode.kBrake).smartCurrentLimit(20);
- 
-        intakeMotor.configure(intakeConfig, com.revrobotics.ResetMode.kResetSafeParameters, com.revrobotics.PersistMode.kPersistParameters);
+        angleMotor = new SparkMax(Constants.CAN_ID_INTAKE_ANGLE_MOTOR, MotorType.kBrushless);
+        anglePID = angleMotor.getClosedLoopController();
 
         SparkMaxConfig angleConfig = new SparkMaxConfig();
         angleConfig.idleMode(IdleMode.kBrake).smartCurrentLimit(20);
@@ -56,24 +50,30 @@ public class IntakeIOMotors implements IntakeIO {
         angleConfig.closedLoop.maxMotion.cruiseVelocity(2500);
         angleConfig.closedLoop.maxMotion.positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal);
         angleConfig.closedLoop.maxMotion.allowedProfileError(1);
-        
-
-
-        
         angleMotor.configure(angleConfig, com.revrobotics.ResetMode.kResetSafeParameters, com.revrobotics.PersistMode.kPersistParameters);
 
+
+        intakeMotor = new SparkMax(Constants.CAN_ID_INTAKE_MOTOR, MotorType.kBrushless);
+        SparkMaxConfig intakeConfig = new SparkMaxConfig();
+        intakeConfig.idleMode(IdleMode.kBrake).smartCurrentLimit(20);
+ 
+        intakeMotor.configure(intakeConfig, com.revrobotics.ResetMode.kResetSafeParameters, com.revrobotics.PersistMode.kPersistParameters);
         intakeEncoder = new CANcoder(Constants.CAN_ID_INTAKE_ENCODER, frc.robot.RobotContainer.kCanivore);
         CANcoderConfiguration encoderConfig = new CANcoderConfiguration();
         encoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.5;
         encoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
         encoderConfig.MagnetSensor.MagnetOffset = -0.232910; // zero out to the retracted position
         intakeEncoder.getConfigurator().apply(encoderConfig);
+        encoderPositionSignal = intakeEncoder.getPosition();
+        encoderPositionSignal.waitForUpdate(0.2);
 
         // seed the motor position based on the cancoder
-        intakeMotor.getEncoder().setPosition(intakeEncoder.getAbsolutePosition().getValueAsDouble() * 100);
+        angleMotor.getEncoder().setPosition(encoderPositionSignal.getValueAsDouble() * 98.2);
     }
 
     public void updateInputs(IntakeIOInputs inputs) {
+        BaseStatusSignal.refreshAll(
+            encoderPositionSignal);
         inputs.intakeMotorVoltage = intakeMotor.getAppliedOutput() * intakeMotor.getBusVoltage();
         inputs.intakeMotorVelocity = intakeMotor.getEncoder().getVelocity();
         inputs.intakeMotorCurrent = intakeMotor.getOutputCurrent();
@@ -83,6 +83,9 @@ public class IntakeIOMotors implements IntakeIO {
         inputs.angleMotorVelocity = angleMotor.getEncoder().getVelocity();
         inputs.angleMotorCurrent = angleMotor.getOutputCurrent();
         inputs.angleMotorPIDSetpoint = angleMotor.getClosedLoopController().getSetpoint();
+
+        inputs.intakeEncoder = encoderPositionSignal.getValueAsDouble();
+
     }
 
     public void setIntakeAngle(IntakeAngle angle) {

@@ -18,7 +18,10 @@ import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.ClosedLoopSlot;
+import com.revrobotics.spark.FeedbackSensor;
 import com.revrobotics.spark.SparkClosedLoopController;
+import com.revrobotics.spark.config.MAXMotionConfig.MAXMotionPositionMode;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.ResetMode;
@@ -33,7 +36,7 @@ import static frc.robot.Constants.*;
 
 public class TurretIOMotors implements TurretIO {
 
-    private double turretAngleTarget;
+    private double turretPIDTarget;
     private double hoodElevationTarget; //0 .. 100
     private double hoodAngleTarget; //0 .. 0.9
 
@@ -57,25 +60,23 @@ public class TurretIOMotors implements TurretIO {
     private double targetUpperFlywheelVelocity = 0;
 
     // Gear Constants
-    // Telemetry mathematically proves a physical 5:1 ratio (155T Ring Gear)
-    private static final double MAIN_TEETH = 155.0; 
+    private static final double MAIN_TEETH_ENCODER = 160.0; 
+    private static final double MAIN_TEETH_BELT = 125.0; 
     private static final double TEETH_31 = 31.0;
     private static final double TEETH_37 = 37.0;
 
     // Gear Ratios (Encoder Rotations per Turret Rotation)
-    private static final double RATIO_31 = MAIN_TEETH / TEETH_31; // 5.0
-    private static final double RATIO_37 = MAIN_TEETH / TEETH_37; // ~4.189
+    private static final double RATIO_31 = MAIN_TEETH_ENCODER / TEETH_31; // Exactly 5.0
+    private static final double RATIO_37 = MAIN_TEETH_ENCODER / TEETH_37; // ~4.189
 
-    // Turret Motor Gear Ratio (10:1 planetary and 155/18 pinion)
-    private static final double TURRET_GEAR_RATIO = (MAIN_TEETH / 18.0) * 10.0;
+    // Turret Motor Gear Ratio (10:1 planetary and 125/18 pinion) -> ~69.444
+    private static final double TURRET_GEAR_RATIO = (MAIN_TEETH_BELT / 18.0) * 10.0;
 
     // How close the two encoders must match to be considered valid (in rotations)
-    // 0.05 rotations is 18 degrees of the encoder shaft, which is plenty of margin
-    // for backlash
     private static final double MATCH_THRESHOLD = 0.05;
 
     // degrees of error allowed for turret PID aiming
-    private static final double ALLOWED_TURRET_ERROR = 2;
+    private static final double ALLOWED_TURRET_ERROR = 2.0;
 
     // Status signals for low-latency reading
     private final StatusSignal<Angle> pos31Signal;
@@ -101,26 +102,29 @@ public class TurretIOMotors implements TurretIO {
 
         SparkMaxConfig turretConfig = new SparkMaxConfig();
 
-        turretConfig.closedLoop
-            .feedbackSensor(com.revrobotics.spark.FeedbackSensor.kPrimaryEncoder)
-            .p(0.1)
-            .i(0.0)
-            .d(0.0)
-            .allowedClosedLoopError(ALLOWED_TURRET_ERROR, ClosedLoopSlot.kSlot0)
-            .positionWrappingEnabled(false);
+        turretConfig.idleMode(IdleMode.kBrake).smartCurrentLimit(20);
+        turretConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+            .p(0.2)
+            .i(0)
+            .d(0);
+        turretConfig.closedLoop.maxMotion.maxAcceleration(7000);
+        turretConfig.closedLoop.maxMotion.cruiseVelocity(3500);
+        turretConfig.closedLoop.maxMotion.positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal);
+        turretConfig.closedLoop.maxMotion.allowedProfileError(1);
 
-        // Configure mechanism conversions to rotate in Turret Rotations
-        turretConfig.encoder
-            .positionConversionFactor(1.0 / TURRET_GEAR_RATIO)
-            .velocityConversionFactor((1.0 / TURRET_GEAR_RATIO) / 60.0);
+        // NATIVE UNITS: kV is DutyCycle output (0-1) per RPM. 
+        // NEO free speed is ~5676 RPM at 1.0 DutyCycle. So kV = 1.0 / 5676 = 0.00017
+        turretConfig.closedLoop.feedForward
+            .kS(0.0) 
+            .kV(0.00017) 
+            .kA(0.0);
 
-        // Set limits to +/- 190 degrees to allow full 360 coverage with overlap
+        // Set limits in Native Motor Rotations
         turretConfig.softLimit
-            .forwardSoftLimit((float)(TurretConstants.TURRET_MAX_ROTATION / 360.0))
+            .forwardSoftLimit((float)((TurretConstants.TURRET_MAX_ROTATION / 360.0) * TURRET_GEAR_RATIO))
             .forwardSoftLimitEnabled(true)
-            .reverseSoftLimit((float)(TurretConstants.TURRET_MIN_ROTATION / 360.0))
+            .reverseSoftLimit((float)((TurretConstants.TURRET_MIN_ROTATION / 360.0) * TURRET_GEAR_RATIO))
             .reverseSoftLimitEnabled(true);
-
         turretMotor.configure(turretConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         hoodMotor = new TalonFXS(frc.robot.Constants.CAN_ID_TURRET_HOOD_MOTOR, frc.robot.RobotContainer.kRio);
@@ -138,13 +142,13 @@ public class TurretIOMotors implements TurretIO {
         CANcoderConfiguration config31 = new CANcoderConfiguration();
         config31.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.5;
         config31.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
-        config31.MagnetSensor.MagnetOffset = 0.064697; // Retained 31T Zero Offset for 31T position
+        config31.MagnetSensor.MagnetOffset = 0.089111;
         enc31.getConfigurator().apply(config31);
 
         CANcoderConfiguration config37 = new CANcoderConfiguration();
         config37.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.5;
         config37.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
-        config37.MagnetSensor.MagnetOffset = 0.423340; // Retained 37T Zero Offset for 37T position
+        config37.MagnetSensor.MagnetOffset = 0.443115;
         enc37.getConfigurator().apply(config37);
 
         pos31Signal = enc31.getAbsolutePosition();
@@ -152,13 +156,7 @@ public class TurretIOMotors implements TurretIO {
 
         BaseStatusSignal.refreshAll(pos31Signal, pos37Signal);
 
-        double initialDegrees = calculateAbsolutePositionCRT();
-        if (!Double.isNaN(initialDegrees)) {
-            // Force the seed to be within -180 to 180
-            if (initialDegrees > 180)
-                initialDegrees -= 360;
-            turretMotor.getEncoder().setPosition(initialDegrees / 360.0);
-        }
+        seedTurretPosition();
 
         TalonFXSConfiguration hoodConfig = new TalonFXSConfiguration();
         hoodConfig.Commutation.MotorArrangement = MotorArrangementValue.Minion_JST;
@@ -241,11 +239,11 @@ public class TurretIOMotors implements TurretIO {
     public void seedTurretPosition() {
         double absoluteTurretDegrees = calculateAbsolutePositionCRT();
 
-        // Convert degrees to rotations (0.5 = 180 deg)
+        // Convert degrees to mechanism rotations (0.5 = 180 deg)
         double turretRotations = absoluteTurretDegrees / 360.0;
 
-        // Seed the SparkMax 
-        turretMotor.getEncoder().setPosition(turretRotations);
+        // Seed the SparkMax in NATIVE Motor Rotations
+        turretMotor.getEncoder().setPosition(turretRotations * TURRET_GEAR_RATIO);
         
         System.out.println("Turret Seeded at: " + absoluteTurretDegrees + " degrees");
     }
@@ -270,7 +268,7 @@ public class TurretIOMotors implements TurretIO {
 
         // Try each plausible number of full enc31 wraps. Each increment of k adds ~89° of
         // implied turret travel (360° / RATIO_31). Range -2 to 4 covers -26° to 248° with margin.
-        for (int k = -2; k <= 4; k++) {
+        for (int k = -5; k <= 5; k++) {
             // Unwrap enc31 by k full rotations, then back-calculate the implied turret angle.
             double candidateTurretDeg = (deg1 + (k * 360.0)) / RATIO_31;
 
@@ -316,11 +314,16 @@ public class TurretIOMotors implements TurretIO {
     }
     
     public void setTurretAngle(double degrees) {
-        turretAngleTarget = degrees;
-        //FIX ME 
-        // double clamped = Math.max(-180, Math.min(180, degrees));
-        // double targetRotations = clamped / 360.0;
-        // turretPID.setSetpoint(targetRotations, ControlType.kPosition);
+        double clampedDegrees = Math.max(TurretConstants.TURRET_MIN_ROTATION, Math.min(TurretConstants.TURRET_MAX_ROTATION, degrees));
+        
+        // Convert to mechanism rotations, then multiply by gear ratio for NATIVE Motor Rotations
+        double targetMechanismRotations = clampedDegrees / 360.0;
+        double newTarget = targetMechanismRotations * TURRET_GEAR_RATIO;
+        
+        if (Math.abs(newTarget - turretPIDTarget) > 0.01) {
+            turretPIDTarget = newTarget;
+            turretPID.setSetpoint(turretPIDTarget, ControlType.kMAXMotionPositionControl);
+        }
     }
 
     @Override
@@ -363,12 +366,10 @@ public class TurretIOMotors implements TurretIO {
         double actualAngle = calculateAbsolutePositionCRT();
         if(!Double.isNaN(actualAngle)){
             inputs.turretAngle = Rotation2d.fromDegrees(actualAngle);
-            inputs.turretPIDActualAngle = actualAngle;
         }
 
-        inputs.turretPIDTargetAngle = turretAngleTarget;
-        inputs.turretMotorPIDTarget = turretAngleTarget / 360.0; // in rotations
-        inputs.turretMotorRotations = turretMotor.getEncoder().getPosition(); // Configured to return rotations
+        inputs.turretPIDSetpoint = turretPIDTarget;
+        inputs.turretMotorPosition = turretMotor.getEncoder().getPosition();
 
         inputs.hoodTargetElevationPercent = hoodElevationTarget;
         inputs.hoodMotorVelocity = hoodMotorVelocitySignal.getValueAsDouble();
@@ -404,11 +405,14 @@ public class TurretIOMotors implements TurretIO {
 
         return (targetFlywheelVelocity > 0 &&
             (Math.abs(flywheelV - flywheelT) < (0.05 * targetFlywheelVelocity)) && ((targetUpperFlywheelVelocity > 0) 
-            // FIX: Replaced 0.05 * targetFlywheelVelocity to upper equivalent
             && (Math.abs(upperFlywheelV - upperFlywheelT) < (0.05 * targetUpperFlywheelVelocity))));
     }
 
     private boolean isTurretAtTarget() {
+        // return true;
+        // Calculate error in mechanism rotations
+        // double currentMechanismRotations = turretMotor.getEncoder().getPosition() / TURRET_GEAR_RATIO;
+        // return Math.abs((currentMechanismRotations * 360.0) - turretAngleTarget) <= ALLOWED_TURRET_ERROR;
         return turretPID.isAtSetpoint();
     }
 }
