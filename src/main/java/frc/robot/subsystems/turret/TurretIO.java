@@ -14,7 +14,10 @@ public interface TurretIO {
 
         public Rotation2d turretAngle = new Rotation2d();
         public double turretPIDSetpoint = 0;
+        public double turretRealTarget = 0;
         public double turretMotorPosition = 0;
+        public double turretMotorCurrent = 0;
+
         public double enc31t = 0;
         public double enc37t = 0;
 
@@ -22,8 +25,6 @@ public interface TurretIO {
         public double hoodPIDTargetAngle = 0;
         public double hoodEncoderPosition = 0;
 
-        public double hoodMotorVelocity = 0;
-        public double hoodMotorVoltage = 0;
         public double hoodMotorCurrent = 0;
         public double hoodMotorPosition = 0;
 

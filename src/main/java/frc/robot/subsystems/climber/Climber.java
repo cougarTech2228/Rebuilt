@@ -18,6 +18,7 @@ public class Climber extends SubsystemBase {
     Alert climberNotHomedAlert = new Alert("Climber has not been homed", AlertType.kError);
     Alert extensionNotHomedAlert = new Alert("Climber extension has not been homed", AlertType.kError);
     Alert extensionHomeError = new Alert("climber extenstion tried homing before climber!", AlertType.kError);
+    Alert climberNotEngaged = new Alert("Trying to climb without claw engaged!", AlertType.kError);
 
     public Climber(ClimberIO climberIO) {
         this.climberIO = climberIO;
@@ -36,7 +37,12 @@ public class Climber extends SubsystemBase {
     }
 
     public void climb(ClimberLevel level) {
-        climberIO.climb(level);
+        if (!climberInputs.idClimberReady) {
+            climberNotEngaged.set(true);
+        } else {
+            climberNotEngaged.set(false);
+            climberIO.climb(level);
+        }
     }
 
     public void descend() {
