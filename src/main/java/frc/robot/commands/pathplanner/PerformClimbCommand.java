@@ -24,7 +24,7 @@ public class PerformClimbCommand extends Command {
 	public void initialize() {
         intake.setIntakeMode(IntakeMode.IDLE);
         intake.setIntakeAngle(IntakeAngle.HOME);
-        climber.extend();
+        climber.extend(Climber.ClimberLevel.L1);
 	}
 
 	@Override

@@ -13,8 +13,6 @@ public class Climber extends SubsystemBase {
         L3
     }
     private final ClimberIO climberIO;
-    private boolean hasClimberHomed = false;
-    private boolean hasExtensionHomed = false;
     private final ClimberIOInputsAutoLogged climberInputs = new ClimberIOInputsAutoLogged();
 
     Alert climberNotHomedAlert = new Alert("Climber has not been homed", AlertType.kError);
@@ -29,8 +27,8 @@ public class Climber extends SubsystemBase {
         return climberIO.isExtended();
     }
 
-    public void extend() {
-        climberIO.extend();
+    public void extend(ClimberLevel level) {
+        climberIO.extend(level);
     }
 
     public void retract() {
@@ -70,28 +68,20 @@ public class Climber extends SubsystemBase {
     public void periodic() {
         climberIO.updateInputs(climberInputs);
 
-        if (!hasExtensionHomed && climberInputs.isExtensionHome) {
-            hasExtensionHomed = true;
-        }
-
-        if (!hasClimberHomed && climberInputs.isClimberHome) {
-            hasClimberHomed = true;
-        }
-
-        climberNotHomedAlert.set(!hasClimberHomed);
-        extensionNotHomedAlert.set(!hasExtensionHomed);
+        climberNotHomedAlert.set(!climberInputs.hasClimberHomed);
+        extensionNotHomedAlert.set(!climberInputs.hasExtensionHomed);
         
-        climberInputs.hasExtensionHomed = hasExtensionHomed;
-        climberInputs.hasClimberHomed = hasClimberHomed;
+
+        climberInputs.hasClimberHomed = climberInputs.hasClimberHomed;
 
         Logger.processInputs("Climber", climberInputs);
         
-        if (!hasClimberHomed || !hasExtensionHomed) {
+        if (!climberInputs.hasClimberHomed || !climberInputs.hasExtensionHomed) {
             // always home the climber before homing the extension
-            if (!hasClimberHomed) {
+            if (!climberInputs.hasClimberHomed) {
                 climberIO.homeClimber();
             }
-            if (hasClimberHomed && !hasExtensionHomed) {
+            if (climberInputs.hasClimberHomed && !climberInputs.hasExtensionHomed) {
                 climberIO.homeExtension();
             }
         }

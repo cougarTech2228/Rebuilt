@@ -128,7 +128,9 @@ public class RobotContainer {
         vision = new Vision(
             drive::addVisionMeasurement,
             new VisionIOPhotonVision(frontCameraName, robotToFrontCamera),
-            new VisionIOPhotonVision(leftCameraName, robotToLeftCamera));
+            new VisionIOPhotonVision(leftCameraName, robotToLeftCamera),
+            new VisionIOPhotonVision(backCameraName, robotToBackCamera),
+            new VisionIOPhotonVision(rightCameraName, robotToRightCamera));
 
         turret = new Turret(new TurretIOMotors(), drive);
         hopper = new Hopper(new HopperIOMotors());
@@ -148,7 +150,9 @@ public class RobotContainer {
         vision = new Vision(
             drive::addVisionMeasurement,
             new VisionIOPhotonVisionSim(frontCameraName, robotToFrontCamera, drive::getPose),
-            new VisionIOPhotonVisionSim(leftCameraName, robotToLeftCamera, drive::getPose));
+            new VisionIOPhotonVisionSim(leftCameraName, robotToLeftCamera, drive::getPose),
+            new VisionIOPhotonVisionSim(backCameraName, robotToBackCamera, drive::getPose),
+            new VisionIOPhotonVisionSim(rightCameraName, robotToRightCamera, drive::getPose));
 
         turret = new Turret(new TurretIOSim(), drive);
         climber = new Climber(new ClimberIOSim());
@@ -187,20 +191,20 @@ public class RobotContainer {
     // Set up SysId routines
 
     //Commented out default options remove clutter :)
-    // autoChooser.addOption(
-    //     "Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(drive));
-    // autoChooser.addOption(
-    //     "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive));
-    // autoChooser.addOption(
-    //     "Drive SysId (Quasistatic Forward)",
-    //     drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-    // autoChooser.addOption(
-    //     "Drive SysId (Quasistatic Reverse)",
-    //     drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-    // autoChooser.addOption(
-    //     "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
-    // autoChooser.addOption(
-    //     "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    autoChooser.addOption(
+        "Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(drive));
+    autoChooser.addOption(
+        "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive));
+    autoChooser.addOption(
+        "Drive SysId (Quasistatic Forward)",
+        drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    autoChooser.addOption(
+        "Drive SysId (Quasistatic Reverse)",
+        drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    autoChooser.addOption(
+        "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
+    autoChooser.addOption(
+        "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
     Command startFiringCommand = new StartFiringCommand(hopper, turret);
     Command stopFiringCommand = new StopFiringCommand(hopper, turret);
@@ -290,13 +294,19 @@ public class RobotContainer {
 //                 drive));
 
     SmartDashboard.putBoolean("HomeClimber", false);
-    SmartDashboard.putBoolean("ExtendClimber", false);
+    SmartDashboard.putBoolean("ExtendClimberL1", false);
+    SmartDashboard.putBoolean("ExtendClimberL3", false);
     SmartDashboard.putBoolean("ClimbL1", false);
     SmartDashboard.putBoolean("ClimbL3", false);
     SmartDashboard.putBoolean("Unclimb", false);
-    new Trigger(() -> SmartDashboard.getBoolean("ExtendClimber", false))
+    new Trigger(() -> SmartDashboard.getBoolean("ExtendClimberL1", false))
         .onTrue(new InstantCommand(() -> {
-        climber.extend();
+        climber.extend(Climber.ClimberLevel.L1);
+    }));
+
+    new Trigger(() -> SmartDashboard.getBoolean("ExtendClimberL3", false))
+        .onTrue(new InstantCommand(() -> {
+        climber.extend(Climber.ClimberLevel.L3);
     }));
 
     new Trigger(() -> SmartDashboard.getBoolean("ClimbL1", false))

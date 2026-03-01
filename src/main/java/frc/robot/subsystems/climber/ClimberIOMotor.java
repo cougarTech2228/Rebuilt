@@ -46,6 +46,9 @@ public class ClimberIOMotor implements ClimberIO {
 
     private DigitalInput climberReadyDIO;
 
+    private boolean hasClimberHomed = false;
+    private boolean hasExtensionHomed = false;
+
     public ClimberIOMotor() {
         climberReadyDIO = new DigitalInput(Constants.DIO_CLIMBER_READY);
         climberMotor = new TalonFX(Constants.CAN_ID_CLIMBER_MAIN,  frc.robot.RobotContainer.kCanivore);
@@ -62,13 +65,13 @@ public class ClimberIOMotor implements ClimberIO {
         extenstionConfig.limitSwitch.reverseLimitSwitchType(Type.kNormallyOpen);
 
         extenstionConfig.closedLoop
-            .p(2)
+            .p(1)
             .i(0)
             .d(0)
             .outputRange(-1, 1)
             .maxMotion
-                .cruiseVelocity(10000)
-                .maxAcceleration(40000)
+                .cruiseVelocity(9000)
+                .maxAcceleration(20000)
                 .allowedProfileError(1);
         extensionMotor.configure(extenstionConfig, 
                     com.revrobotics.ResetMode.kResetSafeParameters, 
@@ -90,7 +93,7 @@ public class ClimberIOMotor implements ClimberIO {
         climberConfig.HardwareLimitSwitch.ReverseLimitAutosetPositionValue = 0;
         climberConfig.HardwareLimitSwitch.ReverseLimitType = ReverseLimitTypeValue.NormallyOpen;
 
-        climberConfig.MotionMagic.MotionMagicCruiseVelocity = 50.0;
+        climberConfig.MotionMagic.MotionMagicCruiseVelocity = 90.0;
         climberConfig.MotionMagic.MotionMagicAcceleration = 200;
         climberConfig.MotionMagic.MotionMagicJerk = 0.0;
 
@@ -145,6 +148,15 @@ public class ClimberIOMotor implements ClimberIO {
         inputs.extendMotorPIDTarget = extensionSetpoint;
         inputs.idClimberReady = !climberReadyDIO.get();
 
+        if (!hasExtensionHomed && inputs.isExtensionHome) {
+            hasExtensionHomed = true;
+        }
+
+        if (!hasClimberHomed && inputs.isClimberHome) {
+            hasClimberHomed = true;
+        }
+        inputs.hasExtensionHomed = hasExtensionHomed;
+
         if (extensionHoming && inputs.isExtensionHome) {
             extensionHoming = false;
             stopExtension();
@@ -157,8 +169,19 @@ public class ClimberIOMotor implements ClimberIO {
     }
 
     @Override
-    public void extend() {
-        extensionSetpoint = ClimberConstants.EXTENSION_EXTENDED_POSITION;
+    public void extend(Climber.ClimberLevel level) {
+        switch (level) {
+            case L1:
+                extensionSetpoint = ClimberConstants.EXTENSION_EXTENDED_L1_POSITION;
+                break;
+            case L3:
+                extensionSetpoint = ClimberConstants.EXTENSION_EXTENDED_L3_POSITION;
+                break;
+            default:
+                climberSetpoint = 0;
+                break;
+            
+        }
         System.out.println("extension setpoint: extend " + extensionSetpoint);
         extensionMotorPIDController.setSetpoint(extensionSetpoint, SparkMax.ControlType.kMAXMotionPositionControl);
     }
@@ -198,7 +221,7 @@ public class ClimberIOMotor implements ClimberIO {
 
     @Override
     public boolean isExtended() {
-        return extensionSetpoint == ClimberConstants.EXTENSION_EXTENDED_POSITION && extensionMotorPIDController.isAtSetpoint();
+        return extensionSetpoint > 0 && extensionMotorPIDController.isAtSetpoint();
     }
 
     @Override
@@ -207,7 +230,12 @@ public class ClimberIOMotor implements ClimberIO {
         if (isExtensionHome()) {
             extensionMotor.set(0);
         } else {
-            extensionMotor.set(ClimberConstants.EXTENSION_HOME_SPEED);
+            if (hasExtensionHomed) {
+                extensionSetpoint = 0;
+                extensionMotorPIDController.setSetpoint(extensionSetpoint, SparkMax.ControlType.kMAXMotionPositionControl);
+            } else {
+                extensionMotor.set(ClimberConstants.EXTENSION_HOME_SPEED);
+            }
         }
     }
 

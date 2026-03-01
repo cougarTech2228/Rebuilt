@@ -25,7 +25,7 @@ public interface ClimberIO {
     }
     public default void updateInputs(ClimberIOInputs inputs) {}
 
-    public default void extend() {};
+    public default void extend(Climber.ClimberLevel level) {};
     public default void retract() {};
     public default void climb(Climber.ClimberLevel level) {};
     public default void descend() {};
