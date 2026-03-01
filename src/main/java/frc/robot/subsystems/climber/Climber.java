@@ -7,6 +7,11 @@ import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Climber extends SubsystemBase {
+
+    public enum ClimberLevel {
+        L1,
+        L3
+    }
     private final ClimberIO climberIO;
     private boolean hasClimberHomed = false;
     private boolean hasExtensionHomed = false;
@@ -14,6 +19,7 @@ public class Climber extends SubsystemBase {
 
     Alert climberNotHomedAlert = new Alert("Climber has not been homed", AlertType.kError);
     Alert extensionNotHomedAlert = new Alert("Climber extension has not been homed", AlertType.kError);
+    Alert extensionHomeError = new Alert("climber extenstion tried homing before climber!", AlertType.kError);
 
     public Climber(ClimberIO climberIO) {
         this.climberIO = climberIO;
@@ -31,12 +37,33 @@ public class Climber extends SubsystemBase {
         climberIO.retract();
     }
 
-    public void climb() {
-        climberIO.climb();
+    public void climb(ClimberLevel level) {
+        climberIO.climb(level);
     }
 
     public void descend() {
         climberIO.descend();
+    }
+
+    public boolean isClimberHome() {
+        return climberInputs.isClimberHome;
+    }
+
+    public boolean isExtensionHome() {
+        return climberInputs.isExtensionHome;
+    }
+
+    public void homeExtension() {
+        // only home the extension if the climber is already homed
+        if (isClimberHome()) {
+          climberIO.homeExtension();
+        } else {
+            extensionHomeError.set(true);
+        }
+    }
+
+    public void homeClimber() {
+        climberIO.homeClimber();
     }
 
     @Override
@@ -58,13 +85,15 @@ public class Climber extends SubsystemBase {
         climberInputs.hasClimberHomed = hasClimberHomed;
 
         Logger.processInputs("Climber", climberInputs);
-
-        // always home the climber before homing the extension
-        if (!hasClimberHomed) {
-            climberIO.homeClimber();
-        }
-        if (hasClimberHomed && !hasExtensionHomed) {
-            climberIO.homeExtension();
+        
+        if (!hasClimberHomed || !hasExtensionHomed) {
+            // always home the climber before homing the extension
+            if (!hasClimberHomed) {
+                climberIO.homeClimber();
+            }
+            if (hasClimberHomed && !hasExtensionHomed) {
+                climberIO.homeExtension();
+            }
         }
     }
 }

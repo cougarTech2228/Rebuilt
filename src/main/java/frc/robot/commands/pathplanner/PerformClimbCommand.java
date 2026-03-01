@@ -30,7 +30,7 @@ public class PerformClimbCommand extends Command {
 	@Override
 	public void execute() {
         if(climber.isExtended()) {
-            climber.climb();
+            climber.climb(Climber.ClimberLevel.L1);
             didStartClimbing = true;
         }
 	}

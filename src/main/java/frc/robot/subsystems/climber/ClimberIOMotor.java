@@ -5,7 +5,10 @@ import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.ctre.phoenix6.signals.ReverseLimitTypeValue;
 import com.ctre.phoenix6.signals.ReverseLimitValue;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
@@ -21,6 +24,7 @@ import com.revrobotics.spark.config.LimitSwitchConfig.Behavior;
 import com.revrobotics.spark.config.LimitSwitchConfig.Type;
 
 import frc.robot.Constants;
+import frc.robot.subsystems.climber.Climber.ClimberLevel;
 
 public class ClimberIOMotor implements ClimberIO {
 
@@ -37,71 +41,73 @@ public class ClimberIOMotor implements ClimberIO {
     private double extensionSetpoint = 0;
     private double climberSetpoint = 0;
 
+    private boolean extensionHoming = false;
+    private boolean climberHoming = false;
+
+    private DigitalInput climberReadyDIO;
+
     public ClimberIOMotor() {
+        climberReadyDIO = new DigitalInput(Constants.DIO_CLIMBER_READY);
         climberMotor = new TalonFX(Constants.CAN_ID_CLIMBER_MAIN,  frc.robot.RobotContainer.kCanivore);
         extensionMotor = new SparkMax(Constants.CAN_ID_CLIMBER_EXTEND, MotorType.kBrushless);
 
-        climberPositionSignal = climberMotor.getPosition();
+        climberPositionSignal = climberMotor.getRotorPosition();
         climberCurrentSignal = climberMotor.getStatorCurrent();
         climberTempSignal = climberMotor.getDeviceTemp();
 
         extensionMotorPIDController = extensionMotor.getClosedLoopController();
-        SparkMaxConfig config = new SparkMaxConfig();
-        // To set Counter-Clockwise (CCW) as positive (Default):
-        // config.inverted(false);
+        SparkMaxConfig extenstionConfig = new SparkMaxConfig();
+        extenstionConfig.limitSwitch.reverseLimitSwitchPosition(0);
+        extenstionConfig.limitSwitch.reverseLimitSwitchTriggerBehavior(Behavior.kStopMovingMotorAndSetPosition);
+        extenstionConfig.limitSwitch.reverseLimitSwitchType(Type.kNormallyOpen);
 
-        // To set Clockwise (CW) as positive:
-        // config.inverted(true);
-
-        config.limitSwitch.forwardLimitSwitchPosition(0);
-        config.limitSwitch.forwardLimitSwitchTriggerBehavior(Behavior.kStopMovingMotorAndSetPosition);
-        config.limitSwitch.forwardLimitSwitchType(Type.kNormallyOpen);
-
-        config.closedLoop
-            .p(0.1)
+        extenstionConfig.closedLoop
+            .p(2)
             .i(0)
             .d(0)
             .outputRange(-1, 1)
             .maxMotion
-                .cruiseVelocity(5000)
-                .maxAcceleration(10000)
+                .cruiseVelocity(10000)
+                .maxAcceleration(40000)
                 .allowedProfileError(1);
-        extensionMotor.configure(config, 
+        extensionMotor.configure(extenstionConfig, 
                     com.revrobotics.ResetMode.kResetSafeParameters, 
                     com.revrobotics.PersistMode.kPersistParameters);
 
         climberPIDController = new MotionMagicVoltage(0);
         TalonFXConfiguration climberConfig = new TalonFXConfiguration();
 
-        climberConfig.Slot0.kP = 0.1;
+        climberConfig.Slot0.kP = 1;
         climberConfig.Slot0.kI = 0.0;
         climberConfig.Slot0.kD = 0.0;
 
         climberConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-    
+        climberConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         // when reverse limit is hit, zero the motor
         climberConfig.HardwareLimitSwitch.ForwardLimitEnable = false;
-        climberConfig.HardwareLimitSwitch.ReverseLimitEnable = false;
+        climberConfig.HardwareLimitSwitch.ReverseLimitEnable = true;
         climberConfig.HardwareLimitSwitch.ReverseLimitAutosetPositionEnable = true;
         climberConfig.HardwareLimitSwitch.ReverseLimitAutosetPositionValue = 0;
+        climberConfig.HardwareLimitSwitch.ReverseLimitType = ReverseLimitTypeValue.NormallyOpen;
 
-        climberConfig.MotionMagic.MotionMagicCruiseVelocity = 2.0;
-        climberConfig.MotionMagic.MotionMagicAcceleration = 3;
+        climberConfig.MotionMagic.MotionMagicCruiseVelocity = 50.0;
+        climberConfig.MotionMagic.MotionMagicAcceleration = 200;
         climberConfig.MotionMagic.MotionMagicJerk = 0.0;
 
+        climberConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
         // climberConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
-        climberConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 0.53;
-        climberConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+        // climberConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 0.53;
+        // climberConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
 
-        climberConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0;
-        climberConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
+        // climberConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0;
+        // climberConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
 
         climberMotor.getConfigurator().apply(climberConfig);
     }
 
     private boolean isExtensionHome() {
-        return extensionMotor.getForwardLimitSwitch().isPressed();
+        return extensionMotor.getReverseLimitSwitch().isPressed();
     }
 
     private boolean isClimberHome() {
@@ -122,7 +128,7 @@ public class ClimberIOMotor implements ClimberIO {
         inputs.climberMotorCurrent = climberCurrentSignal.getValueAsDouble();
         inputs.climberMotorTemp = climberTempSignal.getValueAsDouble();
 
-        inputs.extendMotorPosition = extensionMotor.getAbsoluteEncoder().getPosition();
+        inputs.extendMotorPosition = extensionMotor.getEncoder().getPosition();
         inputs.extendMotorCurrent = extensionMotor.getOutputCurrent();
         inputs.extendMotorTemp = extensionMotor.getMotorTemperature();
 
@@ -130,36 +136,63 @@ public class ClimberIOMotor implements ClimberIO {
         //     climberMotor.setPosition(0);
         // }
 
-        // if (inputs.isExtensionHome) {
-        //     extensionMotor.getEncoder().setPosition(0);
-        // }
+        if (inputs.isExtensionHome) {
+            extensionMotor.getEncoder().setPosition(0);
+        }
 
         inputs.isClimberExtended = isExtended();
         inputs.climberMotorPIDTarget = climberSetpoint;
         inputs.extendMotorPIDTarget = extensionSetpoint;
+        inputs.idClimberReady = !climberReadyDIO.get();
+
+        if (extensionHoming && inputs.isExtensionHome) {
+            extensionHoming = false;
+            stopExtension();
+        }
+
+        if (climberHoming && inputs.isExtensionHome) {
+            climberHoming = false;
+            stopClimber();
+        }
     }
 
     @Override
     public void extend() {
-        extensionSetpoint = ClimberConstants.EXTENSION_MAX_POSITION;
+        extensionSetpoint = ClimberConstants.EXTENSION_EXTENDED_POSITION;
+        System.out.println("extension setpoint: extend " + extensionSetpoint);
         extensionMotorPIDController.setSetpoint(extensionSetpoint, SparkMax.ControlType.kMAXMotionPositionControl);
     }
 
     @Override
     public void retract() {
-        extensionSetpoint = 0;
+        extensionSetpoint = ClimberConstants.EXTENSION_HOME_POSITION;
+        System.out.println("extension setpoint: retract " + extensionSetpoint);
         extensionMotorPIDController.setSetpoint(extensionSetpoint, SparkMax.ControlType.kMAXMotionPositionControl);
     }
 
     @Override
-    public void climb() {
-        climberSetpoint = ClimberConstants.EXTENSION_MAX_POSITION;
+    public void climb(ClimberLevel level) {
+        switch (level) {
+            case L1:
+                climberSetpoint = ClimberConstants.CLIMBER_L1_POSITION;
+                break;
+            case L3:
+                climberSetpoint = ClimberConstants.CLIMBER_L3_POSITION;
+                break;
+            default:
+                climberSetpoint = 0;
+                break;
+            
+        }
+        
+        System.out.println("climber setpoint: climb " + climberSetpoint);
         climberMotor.setControl(climberPIDController.withPosition(climberSetpoint));
     }
 
     @Override
     public void descend() {
         climberSetpoint = 0;
+        System.out.println("climber setpoint: descend " + climberSetpoint);
         climberMotor.setControl(climberPIDController.withPosition(climberSetpoint));
     }
 
@@ -170,6 +203,7 @@ public class ClimberIOMotor implements ClimberIO {
 
     @Override
     public void homeExtension() {
+        extensionHoming = true;
         if (isExtensionHome()) {
             extensionMotor.set(0);
         } else {
@@ -179,10 +213,20 @@ public class ClimberIOMotor implements ClimberIO {
 
     @Override
     public void homeClimber() {
+        climberHoming = true;
         if (isClimberHome()) {
             climberMotor.set(0);
         } else {
             climberMotor.set(ClimberConstants.CLIMBER_HOME_SPEED);
         }
+    }
+
+    @Override
+    public void stopClimber() {
+        climberMotor.set(0);
+    }
+
+    public void stopExtension() {
+        extensionMotor.set(0);
     }
 }

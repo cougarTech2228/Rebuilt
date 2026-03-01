@@ -320,7 +320,7 @@ public class TurretIOMotors implements TurretIO {
         double targetMechanismRotations = clampedDegrees / 360.0;
         double newTarget = targetMechanismRotations * TURRET_GEAR_RATIO;
         
-        if (Math.abs(newTarget - turretPIDTarget) > 0.01) {
+        if (Math.abs(newTarget - turretPIDTarget) > 0.1) {
             turretPIDTarget = newTarget;
             turretPID.setSetpoint(turretPIDTarget, ControlType.kMAXMotionPositionControl);
         }
@@ -409,10 +409,10 @@ public class TurretIOMotors implements TurretIO {
     }
 
     private boolean isTurretAtTarget() {
-        // return true;
+        return true;
         // Calculate error in mechanism rotations
         // double currentMechanismRotations = turretMotor.getEncoder().getPosition() / TURRET_GEAR_RATIO;
         // return Math.abs((currentMechanismRotations * 360.0) - turretAngleTarget) <= ALLOWED_TURRET_ERROR;
-        return turretPID.isAtSetpoint();
+        // return turretPID.isAtSetpoint();
     }
 }

@@ -40,6 +40,7 @@ public interface TurretIO {
         public boolean areFlywheelsAtVelocity = false;
         public boolean isTurretAtTarget = false;
         public boolean isTargetInKeepOut = false;
+        public double targetDistance = 0;
     }
     public default void updateInputs(TurretIOInputs inputs) {}
 

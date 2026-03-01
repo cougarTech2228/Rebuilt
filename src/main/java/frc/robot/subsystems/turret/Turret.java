@@ -43,10 +43,17 @@ public class Turret extends SubsystemBase{
         SmartDashboard.putNumber("TurretAngle", 0.0);
     }
 
+    private double getTargetDistance() {
+        Pose2d robotPose = driveSubsystem.getPose();
+        Pose2d targetPose = getTargetPoint(aimTarget);
+        return robotPose.getTranslation().getDistance(targetPose.getTranslation());
+    }
+
     @Override
     public void periodic() {
         turretIO.updateInputs(turretInputs);
-
+        
+        turretInputs.targetDistance = getTargetDistance();
         Logger.processInputs("Turret", turretInputs);
 
         RobotContainer.turretPose = new Pose3d(
@@ -96,7 +103,11 @@ public class Turret extends SubsystemBase{
                 : TURRET_KEEPOUT_END;
         }
 
-        turretIO.setTurretAngle(turretAngle);
+        if (SmartDashboard.getBoolean("TestMode", false)) {
+            turretIO.setTurretAngle(SmartDashboard.getNumber("TurretAngle", 0.0));
+        } else {
+            turretIO.setTurretAngle(turretAngle);
+        }
     }
 
     public void setHoodElevation(double elevation) {
@@ -110,19 +121,22 @@ public class Turret extends SubsystemBase{
         if (turretTestDistance > 0) {
             distance = turretTestDistance;
         } else {
-            Pose2d robotPose = driveSubsystem.getPose();
-            Pose2d targetPose = getTargetPoint(aimTarget);
-            distance = robotPose.getTranslation().getDistance(targetPose.getTranslation());
+            distance = getTargetDistance();
         }
 
         double angle;
 
         if (aimTarget == TurretAimTarget.Hub) {
-            // y = 4E-11x4 - 8E-08x3 + 6E-05x2 - 0.0139x + 1.1316
-            angle = (4E-11 * Math.pow(distance, 4)) -
-                    (8E-08 * Math.pow(distance, 3)) +
-                    (6E-05 * Math.pow(distance, 2)) -
-                    (0.0139 * distance) + 1.1316;
+            // // y = 4E-11x4 - 8E-08x3 + 6E-05x2 - 0.0139x + 1.1316
+            // angle = (4E-11 * Math.pow(distance, 4)) -
+            //         (8E-08 * Math.pow(distance, 3)) +
+            //         (6E-05 * Math.pow(distance, 2)) -
+            //         (0.0139 * distance) + 1.1316;
+
+            // y = -0.0666x2 + 0.561x - 0.7949
+
+            angle = (-0.0666 * distance * distance) + (0.561 * distance) - 0.7949;
+
         } else {
             // FIX ME -- need real fomula
             angle = 0.4;
@@ -154,8 +168,11 @@ public class Turret extends SubsystemBase{
         double velocity;
 
         if (aimTarget == TurretAimTarget.Hub) {
-            // y = -4E-05x2 + 0.0706x + 24.273
-            velocity = (-4E-05 * distance * distance) + (0.0706 * distance) + 24.273;
+            // // y = -4E-05x2 + 0.0706x + 24.273
+            // velocity = (-4E-05 * distance * distance) + (0.0706 * distance) + 24.273;
+            //y = 3.5535x + 21.142
+            velocity = (3.5535 * distance) + 21.142;
+
         } else {
             // FIX ME -- need real fomula
             velocity = (distance + 1.2833) / 0.187;
@@ -175,12 +192,35 @@ public class Turret extends SubsystemBase{
     }
 
     public void enableShooter(boolean enable) {
-        if (enable) {
-            setFlywheelVelocity(getVelocityForTarget(), getVelocityForTarget());
-            setHoodElevation(getAngleForTarget());
+        if (SmartDashboard.getBoolean("TestMode", false)) {
+            if (enable) {
+                setHoodElevation(SmartDashboard.getNumber("TurretHoodElevation", 0.0));
+                double ratio = SmartDashboard.getNumber("TurretTestFlywheelRatio", 1.0);
+                double velocity = SmartDashboard.getNumber("TurretFlywheelVelocity", 0.0);
+                setFlywheelVelocity(velocity, ratio * velocity);
+
+                setAimTarget(SmartDashboard.getNumber("TurretAngle", 0.0));
+            } else {
+                setFlywheelVelocity(0, 0);
+            }
+            // boolean indexerTest = SmartDashboard.getBoolean("IndexerTest", false);
+            // if (indexerTest) {
+            //   hopper.indexerOn(true);
+            //   hopper.kickerOn(true);
+            // } else {
+            //   hopper.indexerOff();
+            //   hopper.kickerOff();
+            // }
+            // intake.setIntakeAngle(SmartDashboard.getNumber("IntakePosition", 1.0));
+            // intake.setIntakeVelocity(SmartDashboard.getNumber("IntakeVelocity", 1.0));
         } else {
-            setFlywheelVelocity(0, 0);
-            // no need to move the hood on disable
+            if (enable) {
+                setFlywheelVelocity(getVelocityForTarget(), getVelocityForTarget());
+                setHoodElevation(getAngleForTarget());
+            } else {
+                setFlywheelVelocity(0, 0);
+                // no need to move the hood on disable
+            }
         }
     }
 

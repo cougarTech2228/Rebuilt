@@ -8,6 +8,7 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 
 import com.revrobotics.spark.config.MAXMotionConfig.MAXMotionPositionMode;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.FeedbackSensor;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.ctre.phoenix6.StatusSignal;
@@ -39,15 +40,15 @@ public class HopperIOMotors implements HopperIO {
             .i(0)
             .d(0);
 
-        SparkMaxConfig kickerConfig = new SparkMaxConfig();
-        kickerConfig.idleMode(IdleMode.kBrake).smartCurrentLimit(40);
+        SparkFlexConfig kickerConfig = new SparkFlexConfig();
+        kickerConfig.idleMode(IdleMode.kBrake).smartCurrentLimit(80);
         kickerConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder)
             .p(1)
             .i(0)
             .d(0);
 
         indexerMotor.configure(indexerConfig, com.revrobotics.ResetMode.kResetSafeParameters, com.revrobotics.PersistMode.kPersistParameters);
-        kickerMotor.configure(indexerConfig, com.revrobotics.ResetMode.kResetSafeParameters, com.revrobotics.PersistMode.kPersistParameters);
+        kickerMotor.configure(kickerConfig, com.revrobotics.ResetMode.kResetSafeParameters, com.revrobotics.PersistMode.kPersistParameters);
 
     }
 
@@ -78,9 +79,9 @@ public class HopperIOMotors implements HopperIO {
 
     public void kickerOn(boolean test) {
         if (test) {
-            kickerPID.setSetpoint(HopperConstants.testKickerVelocity, ControlType.kVoltage);
+            kickerPID.setSetpoint(HopperConstants.testKickerVoltage, ControlType.kVoltage);
         } else {
-            kickerPID.setSetpoint(HopperConstants.kickerVelocity, ControlType.kVoltage);
+            kickerPID.setSetpoint(HopperConstants.kickerVoltage, ControlType.kVoltage);
         }
     }
 

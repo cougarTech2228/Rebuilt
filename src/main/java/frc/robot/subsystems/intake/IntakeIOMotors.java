@@ -68,7 +68,7 @@ public class IntakeIOMotors implements IntakeIO {
         encoderPositionSignal.waitForUpdate(0.2);
 
         // seed the motor position based on the cancoder
-        angleMotor.getEncoder().setPosition(encoderPositionSignal.getValueAsDouble() * 98.2);
+        angleMotor.getEncoder().setPosition(encoderPositionSignal.getValueAsDouble() * 100);
     }
 
     public void updateInputs(IntakeIOInputs inputs) {

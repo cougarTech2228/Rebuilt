@@ -25,6 +25,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 
 import frc.robot.commands.Zone;
@@ -37,6 +38,7 @@ import frc.robot.commands.pathplanner.RetractIntakeCommand;
 import frc.robot.commands.pathplanner.PerformClimbCommand;
 import frc.robot.commands.pathplanner.SpitCommand;
 import frc.robot.commands.DriveCommands;
+import frc.robot.commands.HomeClimberCommand;
 import frc.robot.commands.ShootCommand;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.climber.Climber;
@@ -125,8 +127,8 @@ public class RobotContainer {
 
         vision = new Vision(
             drive::addVisionMeasurement,
-            new VisionIOPhotonVision(camera1Name, robotToCamera1));
-        // new VisionIOPhotonVision(camera2Name, robotToCamera2));
+            new VisionIOPhotonVision(frontCameraName, robotToFrontCamera),
+            new VisionIOPhotonVision(leftCameraName, robotToLeftCamera));
 
         turret = new Turret(new TurretIOMotors(), drive);
         hopper = new Hopper(new HopperIOMotors());
@@ -145,8 +147,8 @@ public class RobotContainer {
             new ModuleIOSim(TunerConstants.BackRight));
         vision = new Vision(
             drive::addVisionMeasurement,
-            new VisionIOPhotonVisionSim(camera1Name, robotToCamera1, drive::getPose));
-        // new VisionIOPhotonVisionSim(camera2Name, robotToCamera2, drive::getPose));
+            new VisionIOPhotonVisionSim(frontCameraName, robotToFrontCamera, drive::getPose),
+            new VisionIOPhotonVisionSim(leftCameraName, robotToLeftCamera, drive::getPose));
 
         turret = new Turret(new TurretIOSim(), drive);
         climber = new Climber(new ClimberIOSim());
@@ -286,6 +288,33 @@ public class RobotContainer {
 //                   drive.run(0.0, aimController.calculate(vision.getTargetX(0).getRadians()));
 //                 },
 //                 drive));
+
+    SmartDashboard.putBoolean("HomeClimber", false);
+    SmartDashboard.putBoolean("ExtendClimber", false);
+    SmartDashboard.putBoolean("ClimbL1", false);
+    SmartDashboard.putBoolean("ClimbL3", false);
+    SmartDashboard.putBoolean("Unclimb", false);
+    new Trigger(() -> SmartDashboard.getBoolean("ExtendClimber", false))
+        .onTrue(new InstantCommand(() -> {
+        climber.extend();
+    }));
+
+    new Trigger(() -> SmartDashboard.getBoolean("ClimbL1", false))
+        .onTrue(new InstantCommand(() -> {
+        climber.climb(Climber.ClimberLevel.L1);
+    }));
+    new Trigger(() -> SmartDashboard.getBoolean("ClimbL3", false))
+        .onTrue(new InstantCommand(() -> {
+        climber.climb(Climber.ClimberLevel.L3);
+    }));
+    new Trigger(() -> SmartDashboard.getBoolean("Unclimb", false))
+        .onTrue(new InstantCommand(() -> {
+        climber.descend();
+    }));
+
+
+    new Trigger(() -> SmartDashboard.getBoolean("HomeClimber", false))
+        .onTrue(new HomeClimberCommand(climber));
   }
 
   /**
@@ -306,25 +335,27 @@ public class RobotContainer {
   public void teleopPeriodic() {
     
     if (SmartDashboard.getBoolean("TestMode", false)) {
-      // turret.setHoodElevation(SmartDashboard.getNumber("TurretHoodElevation", 0.0));
-      // double ratio = SmartDashboard.getNumber("TurretTestFlywheelRatio", 1.0);
-      
-      // turret.setFlywheelVelocity(SmartDashboard.getNumber("TurretFlywheelVelocity", 0.0),
-      //   ratio * SmartDashboard.getNumber("TurretFlywheelVelocity", 0.0));
-      turret.setAimTarget(SmartDashboard.getNumber("TurretAngle", 0.0));
-      // boolean indexerTest = SmartDashboard.getBoolean("IndexerTest", false);
-      // if (indexerTest) {
-      //   hopper.indexerOn(true);
-      //   hopper.kickerOn(true);
-      // } else {
-      //   hopper.indexerOff();
-      //   hopper.kickerOff();
-      // }
-      // intake.setIntakeAngle(SmartDashboard.getNumber("IntakePosition", 1.0));
-      // intake.setIntakeVelocity(SmartDashboard.getNumber("IntakeVelocity", 1.0));
-    } else {
-      turret.setAimTarget(TurretAimTarget.Hub);
+          intake.setIntakeAngle(SmartDashboard.getNumber("IntakePosition", 1.0));
     }
+    //   // turret.setHoodElevation(SmartDashboard.getNumber("TurretHoodElevation", 0.0));
+    //   // double ratio = SmartDashboard.getNumber("TurretTestFlywheelRatio", 1.0);
+      
+    //   // turret.setFlywheelVelocity(SmartDashboard.getNumber("TurretFlywheelVelocity", 0.0),
+    //   //   ratio * SmartDashboard.getNumber("TurretFlywheelVelocity", 0.0));
+    //   // turret.setAimTarget(SmartDashboard.getNumber("TurretAngle", 0.0));
+    //   // // boolean indexerTest = SmartDashboard.getBoolean("IndexerTest", false);
+    //   // if (indexerTest) {
+    //   //   hopper.indexerOn(true);
+    //   //   hopper.kickerOn(true);
+    //   // } else {
+    //   //   hopper.indexerOff();
+    //   //   hopper.kickerOff();
+    //   // }
+    //   // intake.setIntakeAngle(SmartDashboard.getNumber("IntakePosition", 1.0));
+    //   // intake.setIntakeVelocity(SmartDashboard.getNumber("IntakeVelocity", 1.0));
+    // } else {
+      turret.setAimTarget(TurretAimTarget.Hub);
+    // }
   }
 
   public void autonomousPeriodic() {
