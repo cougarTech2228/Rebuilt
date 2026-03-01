@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.6,
-        "y": 0.67
+        "x": 2.6000000000000005,
+        "y": 0.6700000000000002
       },
       "isLocked": false,
       "linkedName": "Trench1"
@@ -20,8 +20,8 @@
         "y": 0.67
       },
       "prevControl": {
-        "x": -0.6,
-        "y": 0.6700000000000002
+        "x": 1.4,
+        "y": 0.6699999999999999
       },
       "nextControl": null,
       "isLocked": false,

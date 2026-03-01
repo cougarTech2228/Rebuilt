@@ -5,6 +5,12 @@
     "data": {
       "commands": [
         {
+          "type": "named",
+          "data": {
+            "name": "DeployIntakeCommand"
+          }
+        },
+        {
           "type": "parallel",
           "data": {
             "commands": [
@@ -17,66 +23,66 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "load"
+                  "name": "StartIntakeCommand"
                 }
               }
             ]
           }
         },
         {
-          "type": "parallel",
+          "type": "named",
           "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "OutpostIn_to_Neutral4"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "shoot"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "parallel",
-          "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "Neutral4_to_Neutral3"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "load"
-                }
-              }
-            ]
+            "name": "StopIntakeCommand"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Neutral3_to_LadderOut"
+            "pathName": "OutpostIn_to_Neutral4"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "shoot"
+            "name": "StartIntakeCommand"
           }
         },
         {
-          "type": "named",
+          "type": "path",
           "data": {
-            "name": "climb"
+            "pathName": "Neutral5_to_Neutral3"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Neutral3_to_LadderOut"
+                }
+              },
+              {
+                "type": "sequential",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 2.0
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "StartFiringCommand"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
           }
         }
       ]
