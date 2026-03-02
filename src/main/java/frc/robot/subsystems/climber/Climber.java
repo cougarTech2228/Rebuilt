@@ -24,10 +24,6 @@ public class Climber extends SubsystemBase {
         this.climberIO = climberIO;
     }
 
-    public boolean isExtended() {
-        return climberIO.isExtended();
-    }
-
     public void extend(ClimberLevel level) {
         climberIO.extend(level);
     }
@@ -37,7 +33,7 @@ public class Climber extends SubsystemBase {
     }
 
     public void climb(ClimberLevel level) {
-        if (!climberInputs.idClimberReady) {
+        if (!climberInputs.isClimberReady) {
             climberNotEngaged.set(true);
         } else {
             climberNotEngaged.set(false);
@@ -91,5 +87,23 @@ public class Climber extends SubsystemBase {
                 climberIO.homeExtension();
             }
         }
+    }
+
+    public boolean isClimbComplete() {
+        return climberInputs.isClimbComplete;
+    }
+
+    // called from aborted commands, just stop everything!
+    public void stop() {
+        climberIO.stopClimber();
+        climberIO.stopExtension();
+    }
+
+    public boolean isSafeToClimb(ClimberLevel level) {
+        return (climberIO.isExtended(level) && climberInputs.isClimberReady);
+    }
+
+    public boolean isExtended(ClimberLevel level) {
+        return climberIO.isExtended(level);
     }
 }

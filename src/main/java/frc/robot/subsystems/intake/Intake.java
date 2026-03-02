@@ -72,5 +72,14 @@ public class Intake extends SubsystemBase{
     public void periodic() {
         io.updateInputs(intakeInputs);
         Logger.processInputs("Intake", intakeInputs);
+    }
+
+    public boolean isRetracted() {
+        return (intakeInputs.angleMotorPIDSetpoint == IntakeConstants.homePosition &&
+            (Math.abs (intakeInputs.angleMotorPosition - intakeInputs.angleMotorPIDSetpoint) < IntakeConstants.ANGLE_PID_THRESHOLD));
+    }
+
+    public void stop() {
+        io.stop();
     };
 }

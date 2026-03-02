@@ -26,4 +26,11 @@ public class HomeClimberCommand extends Command{
     public boolean isFinished() {
         return climber.isClimberHome() && climber.isExtensionHome();
     }
+
+    @Override
+    public void end(boolean interrupted) {
+        if (interrupted) {
+            climber.stop();
+        }
+    }
 }

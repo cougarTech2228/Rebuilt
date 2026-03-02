@@ -1,19 +1,107 @@
 package frc.robot.subsystems.intake;
 
-import frc.robot.subsystems.intake.Intake.IntakeMode;
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import frc.robot.subsystems.intake.Intake.IntakeAngle;
+import frc.robot.subsystems.intake.Intake.IntakeMode;
 
 public class IntakeIOSim implements IntakeIO {
     
+    private static final double GEAR_RATIO = 100.0;
+    
+    private final SingleJointedArmSim angleSim = new SingleJointedArmSim(
+        LinearSystemId.createSingleJointedArmSystem(DCMotor.getNEO(1), 0.05, GEAR_RATIO),
+        DCMotor.getNEO(1),
+        GEAR_RATIO,
+        0.3,
+        Units.degreesToRadians(-10),
+        Units.degreesToRadians(150),
+        true,
+        0.0
+    );
+
+    private final ProfiledPIDController angleFeedback = new ProfiledPIDController(
+        0.5, 0.0, 0.0, 
+        new TrapezoidProfile.Constraints(
+            2500.0 / 60.0,
+            5000.0 / 60.0
+        )
+    );
+
+    private double angleSetpointUnits = IntakeConstants.homePosition;
+    private double intakeAppliedVolts = 0.0;
+
     public IntakeIOSim() {
-        // Constructor
+        angleFeedback.reset(0);
     }
 
-    public void setIntakeAngle(IntakeAngle angle) {};
+    @Override
+    public void updateInputs(IntakeIOInputs inputs) {
+        angleSim.update(0.020);
 
-    public void setIntakeMode(IntakeMode mode) {};
+        double currentMotorRotations = (angleSim.getAngleRads() / (2 * Math.PI)) * GEAR_RATIO;
+        
+        double angleAppliedVolts = MathUtil.clamp(
+            angleFeedback.calculate(currentMotorRotations, angleSetpointUnits),
+            -12.0, 12.0
+        );
+        angleSim.setInput(angleAppliedVolts);
 
-    public void manualSetIntakeVoltage(double voltage) {};
+        inputs.angleMotorPosition = currentMotorRotations;
+        inputs.angleMotorVelocity = (angleSim.getVelocityRadPerSec() / (2 * Math.PI)) * GEAR_RATIO * 60.0;
+        inputs.angleMotorVoltage = angleAppliedVolts;
+        inputs.angleMotorCurrent = angleSim.getCurrentDrawAmps();
+        inputs.angleMotorPIDSetpoint = angleSetpointUnits;
 
-    public void manualSetIntakeAngle(double angle) {};
+        inputs.intakeEncoder = angleSim.getAngleRads() / (2 * Math.PI);
+
+        inputs.intakeMotorVoltage = intakeAppliedVolts;
+        inputs.intakeMotorVelocity = (intakeAppliedVolts / 12.0) * 5676.0;
+    }
+
+    @Override
+    public void setIntakeAngle(IntakeAngle angle) {
+        this.angleSetpointUnits = (angle == IntakeAngle.DEPLOYED) 
+            ? IntakeConstants.deployedPosition 
+            : IntakeConstants.homePosition;
+    }
+
+    @Override
+    public void manualSetIntakeAngle(double angle) {
+        this.angleSetpointUnits = angle;
+    }
+
+    @Override
+    public void setIntakeMode(IntakeMode mode) {
+        switch (mode) {
+            case INTAKE:
+                setIntakeAngle(IntakeAngle.DEPLOYED);
+                manualSetIntakeVelocity(IntakeConstants.intakeVelocity);
+                break;
+            case SPIT:
+                setIntakeAngle(IntakeAngle.DEPLOYED);
+                manualSetIntakeVelocity(IntakeConstants.spitVelocity);
+                break;
+            case IDLE:
+                setIntakeAngle(IntakeAngle.HOME);
+                manualSetIntakeVelocity(IntakeConstants.idleVelocity);
+                break;
+        }
+    }
+
+    @Override
+    public void manualSetIntakeVelocity(double voltage) {
+        this.intakeAppliedVolts = voltage;
+    }
+
+    @Override
+    public void stop() {
+        this.intakeAppliedVolts = 0.0;
+        this.angleSetpointUnits = (angleSim.getAngleRads() / (2 * Math.PI)) * GEAR_RATIO;
+    }
 }

@@ -135,18 +135,14 @@ public class ClimberIOMotor implements ClimberIO {
         inputs.extendMotorCurrent = extensionMotor.getOutputCurrent();
         inputs.extendMotorTemp = extensionMotor.getMotorTemperature();
 
-        // if (inputs.isClimberHome) {
-        //     climberMotor.setPosition(0);
-        // }
-
         if (inputs.isExtensionHome) {
             extensionMotor.getEncoder().setPosition(0);
         }
 
-        inputs.isClimberExtended = isExtended();
+        inputs.isClimberExtended = isExtended(extensionSetpoint);
         inputs.climberMotorPIDTarget = climberSetpoint;
         inputs.extendMotorPIDTarget = extensionSetpoint;
-        inputs.idClimberReady = !climberReadyDIO.get();
+        inputs.isClimberReady = !climberReadyDIO.get();
 
         if (!hasExtensionHomed && inputs.isExtensionHome) {
             hasExtensionHomed = true;
@@ -166,6 +162,8 @@ public class ClimberIOMotor implements ClimberIO {
             climberHoming = false;
             stopClimber();
         }
+
+        inputs.isClimbComplete = (Math.abs(inputs.climberMotorPIDTarget - inputs.climberMotorPosition) < ClimberConstants.CLIMBER_PID_THRESHOLD);
     }
 
     @Override
@@ -220,8 +218,24 @@ public class ClimberIOMotor implements ClimberIO {
     }
 
     @Override
-    public boolean isExtended() {
-        return extensionSetpoint > 0 && extensionMotorPIDController.isAtSetpoint();
+    public boolean isExtended(Climber.ClimberLevel level) {
+        double target = 0;
+        switch (level) {
+            case L1:
+                target = ClimberConstants.EXTENSION_EXTENDED_L1_POSITION;
+                break;
+            case L3:
+                target = ClimberConstants.EXTENSION_EXTENDED_L3_POSITION;
+                break;
+        }
+        return extensionSetpoint > 0 &&
+            (Math.abs(extensionMotor.getEncoder().getPosition() - target) < ClimberConstants.EXTENSION_PID_THRESHOLD);
+    }
+
+    // check against numerical setpoint instead of enum level
+    private boolean isExtended(double setpoint) {
+        return extensionSetpoint > 0 &&
+            (Math.abs(extensionMotor.getEncoder().getPosition() - extensionSetpoint) < ClimberConstants.EXTENSION_PID_THRESHOLD);
     }
 
     @Override
@@ -245,7 +259,12 @@ public class ClimberIOMotor implements ClimberIO {
         if (isClimberHome()) {
             climberMotor.set(0);
         } else {
-            climberMotor.set(ClimberConstants.CLIMBER_HOME_SPEED);
+            if (hasClimberHomed) {
+                climberSetpoint = 0;
+                climberMotor.setControl(climberPIDController.withPosition(climberSetpoint));
+            } else {
+                climberMotor.set(ClimberConstants.CLIMBER_HOME_SPEED);
+            }
         }
     }
 
@@ -254,6 +273,7 @@ public class ClimberIOMotor implements ClimberIO {
         climberMotor.set(0);
     }
 
+    @Override
     public void stopExtension() {
         extensionMotor.set(0);
     }

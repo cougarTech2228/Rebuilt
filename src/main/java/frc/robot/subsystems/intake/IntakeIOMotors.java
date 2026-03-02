@@ -125,4 +125,10 @@ public class IntakeIOMotors implements IntakeIO {
     public void manualSetIntakeAngle(double angle) {
         anglePID.setSetpoint(angle, ControlType.kMAXMotionPositionControl);
     }
+
+    @Override
+    public void stop() {
+        intakeMotor.set(0);
+        angleMotor.set(0);
+    }
 }

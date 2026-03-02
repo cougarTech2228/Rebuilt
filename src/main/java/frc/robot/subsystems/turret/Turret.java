@@ -61,6 +61,12 @@ public class Turret extends SubsystemBase{
             RobotContainer.turretPose.getY(),
             RobotContainer.turretPose.getZ(),
             new Rotation3d(turretInputs.turretAngle));
+        
+        RobotContainer.turretHoodPose = new Pose3d(
+            RobotContainer.turretHoodPose.getX(),
+            RobotContainer.turretHoodPose.getY(),
+            RobotContainer.turretHoodPose.getZ(),
+            new Rotation3d(0,turretInputs.hoodMotorPosition,turretInputs.turretAngle.getRadians()));
     }
 
     public void setAimTarget(double turretAngle) {
@@ -229,6 +235,11 @@ public class Turret extends SubsystemBase{
     }
 
     private Pose2d getTargetPoint(TurretAimTarget target) {
+        if (DriverStation.getAlliance().isEmpty()){
+            // no aliance color found yet, probably simulation
+            return new Pose2d();
+        }
+
         Alliance currentAlliance = DriverStation.getAlliance().get();
         Pose2d pose = new Pose2d();
 

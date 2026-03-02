@@ -28,23 +28,26 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 
-import frc.robot.commands.Zone;
 import frc.robot.commands.pathplanner.StartFiringCommand;
 import frc.robot.commands.pathplanner.StartIntakeCommand;
 import frc.robot.commands.pathplanner.StopFiringCommand;
 import frc.robot.commands.pathplanner.StopIntakeCommand;
 import frc.robot.commands.pathplanner.DeployIntakeCommand;
 import frc.robot.commands.pathplanner.RetractIntakeCommand;
-import frc.robot.commands.pathplanner.PerformClimbCommand;
 import frc.robot.commands.pathplanner.SpitCommand;
+import frc.robot.commands.ClimbCommand;
+import frc.robot.commands.DescendCommand;
 import frc.robot.commands.DriveCommands;
+import frc.robot.commands.ExtendClimberCommand;
 import frc.robot.commands.HomeClimberCommand;
 import frc.robot.commands.ShootCommand;
+import frc.robot.commands.ToggleIntakeCommand;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.climber.Climber;
 import frc.robot.subsystems.climber.ClimberIO;
 import frc.robot.subsystems.climber.ClimberIOMotor;
 import frc.robot.subsystems.climber.ClimberIOSim;
+import frc.robot.subsystems.climber.Climber.ClimberLevel;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
@@ -108,6 +111,23 @@ public class RobotContainer {
 
   @AutoLogOutput(key = "ComponentPoses/Intake")
   public static Pose3d intakePose = new Pose3d(0, 0, 0, new Rotation3d());
+
+  private static final String EXTEND_CLIMBER_L1_KEY = "ExtendClimberL1";
+  private static final String EXTEND_CLIMBER_L3_KEY = "ExtendClimberL3";
+  private static final String CLIMB_L1_KEY = "ClimbL1";
+  private static final String CLIMB_L3_KEY = "ClimbL3";
+  private static final String UNCLIMB_KEY = "Unclimb";
+  private static final String HOME_CLIMBER_KEY = "HomeClimber";
+
+  private final ExtendClimberCommand extendClimberL1Command;
+  private final ExtendClimberCommand extendClimberL3Command;
+  private final ClimbCommand climbL1Command;
+  private final ClimbCommand climbL3Command;
+  private final DescendCommand descendCommand;
+  private final HomeClimberCommand homeClimberCommand;
+
+  private final ToggleIntakeCommand toggleIntakeCommand;
+  private final ShootCommand shootCommand;
 
   /**
    * The container for the robot. Contains subsystems, IO devices, and commands.
@@ -213,7 +233,6 @@ public class RobotContainer {
     Command startIntakeCommand = new StartIntakeCommand(hopper, intake);
     Command stopIntakeCommand = new StopIntakeCommand(hopper, intake);
     Command spitCommand = new SpitCommand(hopper, intake);
-    Command performClimbCommand = new PerformClimbCommand(hopper, intake, climber);
     
     // Register Auto commands
     NamedCommands.registerCommand("startFiring", startFiringCommand);
@@ -223,8 +242,17 @@ public class RobotContainer {
     NamedCommands.registerCommand("startIntake", startIntakeCommand);
     NamedCommands.registerCommand("stopIntake", stopIntakeCommand);
     NamedCommands.registerCommand("spit", spitCommand);
-    NamedCommands.registerCommand("performClimb", performClimbCommand);
+    // NamedCommands.registerCommand("performClimb", performClimbCommand);
 
+    extendClimberL1Command = new ExtendClimberCommand(climber, intake, ClimberLevel.L1);
+    extendClimberL3Command = new ExtendClimberCommand(climber, intake, ClimberLevel.L3);
+    climbL1Command = new ClimbCommand(climber, ClimberLevel.L1);
+    climbL3Command = new ClimbCommand(climber, ClimberLevel.L3);
+    descendCommand = new DescendCommand(climber);
+    homeClimberCommand = new HomeClimberCommand(climber);
+
+    toggleIntakeCommand = new ToggleIntakeCommand(intake, climber);
+    shootCommand = new ShootCommand(hopper, turret);
     // Configure the button bindings
     configureButtonBindings();
 
@@ -247,15 +275,15 @@ public class RobotContainer {
             () -> -controller.getLeftX(),
             () -> -controller.getRightX()));
 
-    // Lock to 0° when A button is held
-    controller
-        .a()
-        .whileTrue(
-            DriveCommands.joystickDriveAtAngle(
-                drive,
-                () -> -controller.getLeftY(),
-                () -> -controller.getLeftX(),
-                () -> Rotation2d.kZero));
+    // // Lock to 0° when A button is held
+    // controller
+    //     .a()
+    //     .whileTrue(
+    //         DriveCommands.joystickDriveAtAngle(
+    //             drive,
+    //             () -> -controller.getLeftY(),
+    //             () -> -controller.getLeftX(),
+    //             () -> Rotation2d.kZero));
 
     // Switch to X pattern when X button is pressed
     controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
@@ -271,11 +299,8 @@ public class RobotContainer {
                     drive)
                 .ignoringDisable(true));
 
-    controller.rightBumper().onTrue(new InstantCommand(() -> {
-        intake.toggleIntake();
-    }));
-    
-    controller.rightTrigger(0.5).whileTrue(new ShootCommand(hopper, turret));
+    controller.rightBumper().onTrue(toggleIntakeCommand);
+    controller.rightTrigger(0.5).whileTrue(shootCommand);
 
 //    // Auto aim command example
 //     @SuppressWarnings("resource")
@@ -293,38 +318,54 @@ public class RobotContainer {
 //                 },
 //                 drive));
 
-    SmartDashboard.putBoolean("HomeClimber", false);
-    SmartDashboard.putBoolean("ExtendClimberL1", false);
-    SmartDashboard.putBoolean("ExtendClimberL3", false);
-    SmartDashboard.putBoolean("ClimbL1", false);
-    SmartDashboard.putBoolean("ClimbL3", false);
-    SmartDashboard.putBoolean("Unclimb", false);
-    new Trigger(() -> SmartDashboard.getBoolean("ExtendClimberL1", false))
-        .onTrue(new InstantCommand(() -> {
-        climber.extend(Climber.ClimberLevel.L1);
-    }));
+    SmartDashboard.putBoolean(HOME_CLIMBER_KEY, false);
+    SmartDashboard.putBoolean(EXTEND_CLIMBER_L1_KEY, false);
+    SmartDashboard.putBoolean(EXTEND_CLIMBER_L3_KEY, false);
+    SmartDashboard.putBoolean(CLIMB_L1_KEY, false);
+    SmartDashboard.putBoolean(CLIMB_L3_KEY, false);
+    SmartDashboard.putBoolean(UNCLIMB_KEY, false);
 
-    new Trigger(() -> SmartDashboard.getBoolean("ExtendClimberL3", false))
-        .onTrue(new InstantCommand(() -> {
-        climber.extend(Climber.ClimberLevel.L3);
-    }));
+    new Trigger(() -> SmartDashboard.getBoolean(EXTEND_CLIMBER_L1_KEY, false))
+        .whileTrue( extendClimberL1Command
+                    .andThen(new InstantCommand(() -> {
+                        SmartDashboard.putBoolean(EXTEND_CLIMBER_L1_KEY, false);
+                    }))
+        );
 
-    new Trigger(() -> SmartDashboard.getBoolean("ClimbL1", false))
-        .onTrue(new InstantCommand(() -> {
-        climber.climb(Climber.ClimberLevel.L1);
-    }));
-    new Trigger(() -> SmartDashboard.getBoolean("ClimbL3", false))
-        .onTrue(new InstantCommand(() -> {
-        climber.climb(Climber.ClimberLevel.L3);
-    }));
-    new Trigger(() -> SmartDashboard.getBoolean("Unclimb", false))
-        .onTrue(new InstantCommand(() -> {
-        climber.descend();
-    }));
+    new Trigger(() -> SmartDashboard.getBoolean(EXTEND_CLIMBER_L3_KEY, false))
+                .whileTrue( extendClimberL3Command
+                    .andThen(new InstantCommand(() -> {
+                        SmartDashboard.putBoolean(EXTEND_CLIMBER_L3_KEY, false);
+                    }))
+        );
 
+    new Trigger(() -> SmartDashboard.getBoolean(CLIMB_L1_KEY, false))
+                .whileTrue( climbL1Command
+                    .andThen(new InstantCommand(() -> {
+                        SmartDashboard.putBoolean(CLIMB_L1_KEY, false);
+                    }))
+        );
 
-    new Trigger(() -> SmartDashboard.getBoolean("HomeClimber", false))
-        .onTrue(new HomeClimberCommand(climber));
+    new Trigger(() -> SmartDashboard.getBoolean(CLIMB_L3_KEY, false))
+                .whileTrue( climbL3Command
+                    .andThen(new InstantCommand(() -> {
+                        SmartDashboard.putBoolean(CLIMB_L3_KEY, false);
+                    }))
+        );
+
+    new Trigger(() -> SmartDashboard.getBoolean(UNCLIMB_KEY, false))
+                .whileTrue( descendCommand
+                    .andThen(new InstantCommand(() -> {
+                        SmartDashboard.putBoolean(UNCLIMB_KEY, false);
+                    }))
+        );
+
+    new Trigger(() -> SmartDashboard.getBoolean(HOME_CLIMBER_KEY, false))
+        .whileTrue( homeClimberCommand
+            .andThen(new InstantCommand(() -> {
+                SmartDashboard.putBoolean(HOME_CLIMBER_KEY, false);
+            }))
+        );
   }
 
   /**

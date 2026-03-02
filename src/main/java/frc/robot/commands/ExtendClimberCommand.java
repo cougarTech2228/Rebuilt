@@ -1,0 +1,44 @@
+package frc.robot.commands;
+
+import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.subsystems.climber.Climber;
+import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.intake.Intake.IntakeAngle;
+
+public class ExtendClimberCommand extends Command {
+    private final Climber climber;
+    private final Intake intake;
+    private final Climber.ClimberLevel level;
+
+    public ExtendClimberCommand(Climber climber, Intake intake, Climber.ClimberLevel level) {
+        this.climber = climber;
+        this.intake = intake;
+        this.level = level;
+
+        addRequirements(climber, intake);
+    }
+
+    @Override
+    public void execute() {
+        // we MUST prevent the climber extension from being deployed while the intake is out
+        // or we will get a penality for extending on 2 sides of the bot
+        if (!intake.isRetracted()){
+            intake.setIntakeAngle(IntakeAngle.HOME);
+        } else {
+            climber.extend(level);
+        }
+    }
+
+    @Override
+    public boolean isFinished() {
+        return climber.isExtended(level);
+    }
+
+    @Override
+    public void end(boolean interrupted) {
+        if (interrupted) {
+            climber.stop();
+            intake.stop();
+        }
+    }
+}

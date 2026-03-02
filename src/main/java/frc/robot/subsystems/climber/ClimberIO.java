@@ -11,7 +11,8 @@ public interface ClimberIO {
         boolean hasExtensionHomed;
         boolean hasClimberHomed;
         boolean isClimberExtended;
-        boolean idClimberReady;
+        boolean isClimberReady;
+        boolean isClimbComplete;
 
         double climberMotorPosition;
         double climberMotorCurrent;
@@ -29,8 +30,9 @@ public interface ClimberIO {
     public default void retract() {};
     public default void climb(Climber.ClimberLevel level) {};
     public default void descend() {};
-    public default boolean isExtended() {return false;};
+    public default boolean isExtended(Climber.ClimberLevel level) {return false;};
     public default void homeExtension() {};
     public default void homeClimber() {};
     public default void stopClimber() {};
+    public default void stopExtension() {};
 }

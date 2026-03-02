@@ -12,10 +12,7 @@ public interface HopperIO {
 
         public double kickVoltage = 0.0;
         public double kickVelocity = 0.0;
-        public double kickCurrent = 0.0;
-
-        public boolean canHome = false;
-        
+        public double kickCurrent = 0.0;        
     }
 
     public default void updateInputs(HopperIOInputs inputs) {}

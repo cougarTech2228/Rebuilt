@@ -8,4 +8,5 @@ public class IntakeConstants {
 
     public static final double homePosition = 0.0;
     public static final double deployedPosition = 35;
+    public static final double ANGLE_PID_THRESHOLD = 1;
 }
