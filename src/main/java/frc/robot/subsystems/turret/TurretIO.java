@@ -13,6 +13,7 @@ public interface TurretIO {
         public Pose2d turretTargetPoint = new Pose2d();
 
         public Rotation2d turretAngle = new Rotation2d();
+        public double turretAngleDegrees = 0;
         public double turretPIDSetpoint = 0;
         public double turretRealTarget = 0;
         public double turretMotorPosition = 0;

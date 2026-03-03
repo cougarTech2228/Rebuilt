@@ -272,7 +272,7 @@ public class TurretIOMotors implements TurretIO {
 
         // Try each plausible number of full enc31 wraps. Each increment of k adds ~89° of
         // implied turret travel (360° / RATIO_31). Range -2 to 4 covers -26° to 248° with margin.
-        for (int k = -5; k <= 5; k++) {
+        for (int k = -7; k <= 7; k++) {
             // Unwrap enc31 by k full rotations, then back-calculate the implied turret angle.
             double candidateTurretDeg = (deg1 + (k * 360.0)) / RATIO_31;
 
@@ -365,6 +365,7 @@ public class TurretIOMotors implements TurretIO {
         );
 
         double actualAngle = calculateAbsolutePositionCRT();
+        inputs.turretAngleDegrees = actualAngle;
         if(!Double.isNaN(actualAngle)){
             inputs.turretAngle = Rotation2d.fromDegrees(actualAngle);
         }
