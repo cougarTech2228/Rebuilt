@@ -31,6 +31,7 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.RobotContainer;
 
 import static frc.robot.Constants.*;
@@ -81,7 +82,7 @@ public class TurretIOMotors implements TurretIO {
     private static final double MATCH_THRESHOLD = 0.05;
 
     // degrees of error allowed for turret PID aiming
-    private static final double ALLOWED_TURRET_ERROR_DEGREES = 2.0;
+    private static final double ALLOWED_TURRET_ERROR_DEGREES = 5.0;
     private static final double ALLOWED_TURRET_ERROR_ROTATIONS = (ALLOWED_TURRET_ERROR_DEGREES * TURRET_MOTOR_REVS_PER_DEGREE);
 
     // Status signals for low-latency reading
@@ -109,13 +110,13 @@ public class TurretIOMotors implements TurretIO {
 
         TalonFXSConfiguration turretConfig = new TalonFXSConfiguration();
         turretConfig.Commutation.MotorArrangement = MotorArrangementValue.NEO550_JST;
-        turretConfig.Slot0.kP = 0.1;
+        turretConfig.Slot0.kP = 2;
         turretConfig.Slot0.kI = 0.0;
         turretConfig.Slot0.kD = 0.0;
-        turretConfig.Slot0.kV = 0.0;
+        turretConfig.Slot0.kV = 0.0005;
 
-        turretConfig.MotionMagic.MotionMagicCruiseVelocity = 3500.0; // rotations/sec
-        turretConfig.MotionMagic.MotionMagicAcceleration = 3500 * 4;  // rotations/sec/sec
+        turretConfig.MotionMagic.MotionMagicCruiseVelocity = 1000; // rotations/sec
+        turretConfig.MotionMagic.MotionMagicAcceleration = 100 * 4;  // rotations/sec/sec
         turretConfig.MotionMagic.MotionMagicJerk = 0.0;
 
         turretConfig.ClosedLoopGeneral.ContinuousWrap = false;
@@ -410,6 +411,9 @@ public class TurretIOMotors implements TurretIO {
 
     private boolean isTurretAtTarget() {
         final double position = turretMotorPositionSignal.getValueAsDouble();
-        return (turretPIDTarget == turretRealTarget) && (Math.abs(turretPIDTarget - position) < ALLOWED_TURRET_ERROR_ROTATIONS);
+        final double error = Math.abs(turretPIDTarget - position);
+        final double realTarget = ((turretRealTarget / 360) * TURRET_GEAR_RATIO);
+        SmartDashboard.putNumber("TurretError", error);
+        return (Math.abs(turretPIDTarget - realTarget) < 1)  && (error < ALLOWED_TURRET_ERROR_ROTATIONS);
     }
 }
