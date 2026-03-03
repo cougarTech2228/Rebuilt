@@ -151,6 +151,7 @@ public class ClimberIOMotor implements ClimberIO {
         if (!hasClimberHomed && inputs.isClimberHome) {
             hasClimberHomed = true;
         }
+        inputs.hasClimberHomed = hasClimberHomed;
         inputs.hasExtensionHomed = hasExtensionHomed;
 
         if (extensionHoming && inputs.isExtensionHome) {

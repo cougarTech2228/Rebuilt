@@ -73,9 +73,6 @@ public class Climber extends SubsystemBase {
         climberNotHomedAlert.set(!climberInputs.hasClimberHomed);
         extensionNotHomedAlert.set(!climberInputs.hasExtensionHomed);
         
-
-        climberInputs.hasClimberHomed = climberInputs.hasClimberHomed;
-
         Logger.processInputs("Climber", climberInputs);
         
         if (!climberInputs.hasClimberHomed || !climberInputs.hasExtensionHomed) {

@@ -413,7 +413,6 @@ public class TurretIOMotors implements TurretIO {
         final double position = turretMotorPositionSignal.getValueAsDouble();
         final double error = Math.abs(turretPIDTarget - position);
         final double realTarget = ((turretRealTarget / 360) * TURRET_GEAR_RATIO);
-        SmartDashboard.putNumber("TurretError", error);
         return (Math.abs(turretPIDTarget - realTarget) < 1)  && (error < ALLOWED_TURRET_ERROR_ROTATIONS);
     }
 }
