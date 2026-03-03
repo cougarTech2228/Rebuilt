@@ -112,6 +112,9 @@ public class RobotContainer {
   @AutoLogOutput(key = "ComponentPoses/Intake")
   public static Pose3d intakePose = new Pose3d(0, 0, 0, new Rotation3d());
 
+  @AutoLogOutput(key = "ComponentPoses/Climber")
+  public static Pose3d climberPose = new Pose3d(0, 0, 0, new Rotation3d());
+
   private static final String EXTEND_CLIMBER_L1_KEY = "ExtendClimberL1";
   private static final String EXTEND_CLIMBER_L3_KEY = "ExtendClimberL3";
   private static final String CLIMB_L1_KEY = "ClimbL1";
@@ -146,7 +149,7 @@ public class RobotContainer {
             new ModuleIOTalonFX(TunerConstants.BackRight));
 
         vision = new Vision(
-            drive::addVisionMeasurement,
+            drive::addVisionMeasurement, drive::getPose,
             new VisionIOPhotonVision(frontCameraName, robotToFrontCamera),
             new VisionIOPhotonVision(leftCameraName, robotToLeftCamera),
             new VisionIOPhotonVision(backCameraName, robotToBackCamera),
@@ -168,7 +171,7 @@ public class RobotContainer {
             new ModuleIOSim(TunerConstants.BackLeft),
             new ModuleIOSim(TunerConstants.BackRight));
         vision = new Vision(
-            drive::addVisionMeasurement,
+            drive::addVisionMeasurement, drive::getPose,
             new VisionIOPhotonVisionSim(frontCameraName, robotToFrontCamera, drive::getPose),
             new VisionIOPhotonVisionSim(leftCameraName, robotToLeftCamera, drive::getPose),
             new VisionIOPhotonVisionSim(backCameraName, robotToBackCamera, drive::getPose),
@@ -193,7 +196,7 @@ public class RobotContainer {
             },
             new ModuleIO() {
             });
-        vision = new Vision(drive::addVisionMeasurement, new VisionIO() {
+        vision = new Vision(drive::addVisionMeasurement, drive::getPose, new VisionIO() {
         }, new VisionIO() {
         });
         turret = new Turret(new TurretIO() {

@@ -22,16 +22,19 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.vision.VisionIO.PoseObservationType;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
 public class Vision extends SubsystemBase {
   private final VisionConsumer consumer;
+  private final Supplier<Pose2d> poseSupplier;
   private final VisionIO[] io;
   private final VisionIOInputsAutoLogged[] inputs;
   private final Alert[] disconnectedAlerts;
 
-  public Vision(VisionConsumer consumer, VisionIO... io) {
+  public Vision(VisionConsumer consumer, Supplier<Pose2d> poseSupplier, VisionIO... io) {
     this.consumer = consumer;
+    this.poseSupplier = poseSupplier;
     this.io = io;
 
     // Initialize inputs
@@ -97,17 +100,19 @@ public class Vision extends SubsystemBase {
             observation.tagCount() == 0 // Must have at least one tag
                 || (observation.tagCount() == 1
                     && observation.ambiguity() > maxAmbiguity) // Cannot be high ambiguity
+                || (observation.tagCount() == 1
+                    && observation.averageTagDistance() > maxSingleTagDistance) // Too far for single tag
                 || Math.abs(observation.pose().getZ())
                     > maxZError // Must have realistic Z coordinate
-
                 // Must be within the field boundaries
                 || observation.pose().getX() < 0.0
                 || observation.pose().getX() > aprilTagLayout.getFieldLength()
                 || observation.pose().getY() < 0.0
                 || observation.pose().getY() > aprilTagLayout.getFieldWidth();
 
-        // Add pose to log
+        // Add poses to log
         robotPoses.add(observation.pose());
+
         if (rejectPose) {
           robotPosesRejected.add(observation.pose());
         } else {
@@ -120,10 +125,20 @@ public class Vision extends SubsystemBase {
         }
 
         // Calculate standard deviations
-        double stdDevFactor =
-            Math.pow(observation.averageTagDistance(), 2.0) / observation.tagCount();
-        double linearStdDev = linearStdDevBaseline * stdDevFactor;
-        double angularStdDev = angularStdDevBaseline * stdDevFactor;
+        double distanceMultiplier = Math.pow(observation.averageTagDistance(), 2.0);
+        double linearStdDev;
+        double angularStdDev;
+
+        if (observation.tagCount() == 1) {
+            // Single tag: inherently noisy. Massively penalize to act as a smoothing sponge.
+            linearStdDev = singleTagLinearStdDev * distanceMultiplier;
+            angularStdDev = Double.POSITIVE_INFINITY; // Fully trust the Pigeon 2 for heading
+        } else {
+            // Multi-tag: highly stable.
+            linearStdDev = multiTagLinearStdDev * distanceMultiplier;
+            angularStdDev = multiTagAngularStdDev * distanceMultiplier;
+        }
+
         if (observation.type() == PoseObservationType.MEGATAG_2) {
           linearStdDev *= linearStdDevMegatag2Factor;
           angularStdDev *= angularStdDevMegatag2Factor;
@@ -153,6 +168,7 @@ public class Vision extends SubsystemBase {
       Logger.recordOutput(
           "Vision/Camera" + Integer.toString(cameraIndex) + "/RobotPosesRejected",
           robotPosesRejected.toArray(new Pose3d[0]));
+          
       allTagPoses.addAll(tagPoses);
       allRobotPoses.addAll(robotPoses);
       allRobotPosesAccepted.addAll(robotPosesAccepted);
@@ -166,6 +182,14 @@ public class Vision extends SubsystemBase {
         "Vision/Summary/RobotPosesAccepted", allRobotPosesAccepted.toArray(new Pose3d[0]));
     Logger.recordOutput(
         "Vision/Summary/RobotPosesRejected", allRobotPosesRejected.toArray(new Pose3d[0]));
+
+    // Log static camera mount positions for alignment debugging
+    Pose3d currentRobotPose = new Pose3d(poseSupplier.get());
+    Pose3d[] cameraMountPoses = new Pose3d[cameraTransforms.length];
+    for (int i = 0; i < cameraTransforms.length; i++) {
+        cameraMountPoses[i] = currentRobotPose.transformBy(cameraTransforms[i]);
+    }
+    Logger.recordOutput("Vision/CameraMountPoses", cameraMountPoses);
   }
 
   @FunctionalInterface

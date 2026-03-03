@@ -25,22 +25,24 @@ public class VisionConstants {
 
     // Robot to camera transforms
     // (Not used by Limelight, configure in web UI instead)
-    public static Transform3d robotToFrontCamera = new Transform3d(-0.13, -0.21, 0.72,
+    public static Transform3d robotToFrontCamera = new Transform3d(-0.13, -0.224, 0.706,
             new Rotation3d(0.0, Units.degreesToRadians(0), 0.0));
     public static Transform3d robotToLeftCamera = new Transform3d(-0.095, 0.345, 0.19,
             new Rotation3d(0.0, Units.degreesToRadians(-25), Units.degreesToRadians(90.0)));
     public static Transform3d robotToBackCamera = new Transform3d(-0.313, 0.213, 0.19,
             new Rotation3d(0.0, Units.degreesToRadians(-25), Units.degreesToRadians(180.0)));
-    public static Transform3d robotToRightCamera = new Transform3d(-0.095, -0.345, 0.19,
+    public static Transform3d robotToRightCamera = new Transform3d(-0.20, -0.325, 0.19,
             new Rotation3d(0.0, Units.degreesToRadians(-25), Units.degreesToRadians(-90.0)));
+            
     // Basic filtering thresholds
-    public static double maxAmbiguity = 0.3;
+    public static double maxAmbiguity = 0.15; // Tightened from 0.3 to kill ambiguity flipping
     public static double maxZError = 0.75;
+    public static double maxSingleTagDistance = 4.0; // Meters - ignore single tags further than this
 
-    // Standard deviation baselines, for 1 meter distance and 1 tag
-    // (Adjusted automatically based on distance and # of tags)
-    public static double linearStdDevBaseline = 0.0001; // Meters
-    public static double angularStdDevBaseline = 0.0001; // Radians
+    // Standard deviation baselines
+    public static double multiTagLinearStdDev = 0.05; // Highly stable, trust it more
+    public static double multiTagAngularStdDev = 0.05;
+    public static double singleTagLinearStdDev = 0.5; // 10x less trust to act as a rigid noise filter
 
     // Standard deviation multipliers for each camera
     // (Adjust to trust some cameras more than others)
@@ -54,4 +56,12 @@ public class VisionConstants {
     // Multipliers to apply for MegaTag 2 observations
     public static double linearStdDevMegatag2Factor = 0.5; // More stable than full 3D solve
     public static double angularStdDevMegatag2Factor = Double.POSITIVE_INFINITY; // No rotation data available
+
+    // Array of transforms for logging actual camera positions in 3D space
+    public static Transform3d[] cameraTransforms = new Transform3d[] {
+            robotToFrontCamera,
+            robotToLeftCamera,
+            robotToBackCamera,
+            robotToRightCamera
+    };
 }
