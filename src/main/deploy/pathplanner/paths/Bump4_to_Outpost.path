@@ -4,12 +4,12 @@
     {
       "anchor": {
         "x": 3.6,
-        "y": 6.0
+        "y": 5.9
       },
       "prevControl": null,
       "nextControl": {
         "x": 3.1,
-        "y": 6.0
+        "y": 5.9
       },
       "isLocked": false,
       "linkedName": "Bump4West"

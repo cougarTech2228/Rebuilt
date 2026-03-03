@@ -9,6 +9,24 @@
           "data": {
             "pathName": "Bump3_to_Neutral4"
           }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "DeployIntakeCommand"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "StartIntakeCommand"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Neutral3_to_Neutral4"
+          }
         }
       ]
     }

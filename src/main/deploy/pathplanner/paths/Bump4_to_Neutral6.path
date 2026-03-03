@@ -4,12 +4,12 @@
     {
       "anchor": {
         "x": 3.6,
-        "y": 6.0
+        "y": 5.9
       },
       "prevControl": null,
       "nextControl": {
         "x": 4.1,
-        "y": 6.0
+        "y": 5.9
       },
       "isLocked": false,
       "linkedName": "Bump4"
@@ -17,15 +17,15 @@
     {
       "anchor": {
         "x": 6.0,
-        "y": 6.0
+        "y": 5.9
       },
       "prevControl": {
         "x": 5.667923602196313,
-        "y": 5.996290516753412
+        "y": 5.896290516753412
       },
       "nextControl": {
         "x": 6.499968807500543,
-        "y": 6.005584937464711
+        "y": 5.905584937464711
       },
       "isLocked": false,
       "linkedName": null

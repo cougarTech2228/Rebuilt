@@ -1,6 +1,6 @@
 {
-  "robotWidth": 0.7608,
-  "robotLength": 0.7862,
+  "robotWidth": 0.88,
+  "robotLength": 0.83,
   "holonomicMode": true,
   "pathFolders": [
     "BumpPaths",

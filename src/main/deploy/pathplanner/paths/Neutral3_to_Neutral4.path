@@ -3,16 +3,32 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.6,
-        "y": 5.3
+        "x": 6.9,
+        "y": 2.9
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.1,
-        "y": 5.3
+        "x": 7.9,
+        "y": 2.9
       },
       "isLocked": false,
-      "linkedName": "Bump3"
+      "linkedName": "Neutral3"
+    },
+    {
+      "anchor": {
+        "x": 7.7,
+        "y": 3.973159090909091
+      },
+      "prevControl": {
+        "x": 7.679386363636364,
+        "y": 3.3341363636363632
+      },
+      "nextControl": {
+        "x": 7.719798023448647,
+        "y": 4.586897817817163
+      },
+      "isLocked": false,
+      "linkedName": null
     },
     {
       "anchor": {
@@ -20,8 +36,8 @@
         "y": 5.2
       },
       "prevControl": {
-        "x": 6.4,
-        "y": 5.1999999999999975
+        "x": 7.9,
+        "y": 5.2
       },
       "nextControl": null,
       "isLocked": false,
@@ -45,7 +61,7 @@
     "rotation": 0.0
   },
   "reversed": false,
-  "folder": "BumpPaths",
+  "folder": "NeutralPaths",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 0.0

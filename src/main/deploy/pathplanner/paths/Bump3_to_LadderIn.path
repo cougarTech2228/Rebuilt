@@ -4,12 +4,12 @@
     {
       "anchor": {
         "x": 3.6,
-        "y": 5.1
+        "y": 5.3
       },
       "prevControl": null,
       "nextControl": {
         "x": 2.6000000000000005,
-        "y": 5.1
+        "y": 5.3
       },
       "isLocked": false,
       "linkedName": "Bump3"
@@ -17,11 +17,11 @@
     {
       "anchor": {
         "x": 0.919425,
-        "y": 4.8
+        "y": 4.95
       },
       "prevControl": {
         "x": 0.9194250000000004,
-        "y": 5.8
+        "y": 5.95
       },
       "nextControl": null,
       "isLocked": false,
