@@ -6,6 +6,7 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -31,6 +32,9 @@ public class Turret extends SubsystemBase{
 
     private TurretAimTarget aimTarget = TurretAimTarget.Hub;
 
+    // Store the compensated target each loop
+    private Pose2d virtualTargetPose = new Pose2d();
+
     public Turret(TurretIO turretIO, Drive driveSubsystem) {
         this.turretIO = turretIO;
         this.driveSubsystem = driveSubsystem;
@@ -39,21 +43,52 @@ public class Turret extends SubsystemBase{
         SmartDashboard.putNumber("TurretFlywheelVelocity", 0.0);
         SmartDashboard.putNumber("TurretTestDistance", 0.0);
         SmartDashboard.putNumber("TurretTestFlywheelRatio", 1.0);
-
         SmartDashboard.putNumber("TurretAngle", 0.0);
+
+        // Shoot-on-the-move tuning parameter. Represents the average m/s of the fuel
+        // across its entire flight path.
+        SmartDashboard.putNumber("TurretShotSpeedM/S", 15.0);
     }
 
     private double getTargetDistance() {
         Pose2d robotPose = driveSubsystem.getPose();
-        Pose2d targetPose = getTargetPoint(aimTarget);
-        return robotPose.getTranslation().getDistance(targetPose.getTranslation());
+        // Return distance to the virtual compensated target, not the physical hub
+        return robotPose.getTranslation().getDistance(virtualTargetPose.getTranslation());
     }
 
     @Override
     public void periodic() {
         turretIO.updateInputs(turretInputs);
-        
+
+        // --- Shoot On The Move Math ---
+        Pose2d robotPose = driveSubsystem.getPose();
+        Pose2d realTargetPose = getTargetPoint(aimTarget);
+
+        // Get the robot's velocity and make it field-relative
+        ChassisSpeeds speeds = driveSubsystem.getChassisSpeeds();
+        Translation2d fieldRelativeVelocity = new Translation2d(
+            speeds.vxMetersPerSecond,
+            speeds.vyMetersPerSecond
+        ).rotateBy(robotPose.getRotation());
+
+        // Estimate time of flight
+        double realDistance = robotPose.getTranslation().getDistance(realTargetPose.getTranslation());
+        double shotVelocity = SmartDashboard.getNumber("TurretShotSpeedM/S", 15.0);
+        double timeOfFlight = realDistance / shotVelocity;
+
+        // Offset the target point by the velocity we will impart during the time of flight
+        Translation2d movingOffset = fieldRelativeVelocity.times(timeOfFlight);
+        virtualTargetPose = new Pose2d(
+            realTargetPose.getTranslation().minus(movingOffset),
+            realTargetPose.getRotation()
+        );
+
         turretInputs.targetDistance = getTargetDistance();
+
+        // Log the real target vs the virtual aim target for easy debugging in AdvantageScope
+        Logger.recordOutput("Turret/RealTargetPose", realTargetPose);
+        Logger.recordOutput("Turret/VirtualTargetPose", virtualTargetPose);
+
         Logger.processInputs("Turret", turretInputs);
 
         RobotContainer.turretPose = new Pose3d(
@@ -76,7 +111,9 @@ public class Turret extends SubsystemBase{
     public void setAimTarget(TurretAimTarget target) {
         aimTarget = target;
         Pose2d robotPose = driveSubsystem.getPose();
-        Pose2d targetPose = getTargetPoint(target);
+
+        // Point the turret at the compensated virtual target
+        Pose2d targetPose = virtualTargetPose;
         turretInputs.turretTargetPoint = targetPose;
 
         // Get the Translation (X, Y) of both poses
@@ -133,14 +170,7 @@ public class Turret extends SubsystemBase{
         double angle;
 
         if (aimTarget == TurretAimTarget.Hub) {
-            // // y = 4E-11x4 - 8E-08x3 + 6E-05x2 - 0.0139x + 1.1316
-            // angle = (4E-11 * Math.pow(distance, 4)) -
-            //         (8E-08 * Math.pow(distance, 3)) +
-            //         (6E-05 * Math.pow(distance, 2)) -
-            //         (0.0139 * distance) + 1.1316;
-
             // y = -0.0666x2 + 0.561x - 0.7949
-
             angle = (-0.0666 * distance * distance) + (0.561 * distance) - 0.7949;
 
         } else {
@@ -155,10 +185,6 @@ public class Turret extends SubsystemBase{
         return angle;
     }
 
-    // private double getRatioForTarget() {
-    //     // y = 5E-09x3 - 7E-06x2 + 0.0029x + 0.6728
-    // }
-
     private double getVelocityForTarget() {
         double distance = 0;
 
@@ -166,16 +192,12 @@ public class Turret extends SubsystemBase{
         if (turretTestDistance > 0) {
             distance = turretTestDistance;
         } else {
-            Pose2d robotPose = driveSubsystem.getPose();
-            Pose2d targetPose = getTargetPoint(aimTarget);
-            distance = robotPose.getTranslation().getDistance(targetPose.getTranslation());
+            distance = getTargetDistance();
         }
 
         double velocity;
 
         if (aimTarget == TurretAimTarget.Hub) {
-            // // y = -4E-05x2 + 0.0706x + 24.273
-            // velocity = (-4E-05 * distance * distance) + (0.0706 * distance) + 24.273;
             //y = 3.5535x + 21.142
             velocity = (3.5535 * distance) + 21.142;
 
@@ -209,16 +231,6 @@ public class Turret extends SubsystemBase{
             } else {
                 setFlywheelVelocity(0, 0);
             }
-            // boolean indexerTest = SmartDashboard.getBoolean("IndexerTest", false);
-            // if (indexerTest) {
-            //   hopper.indexerOn(true);
-            //   hopper.kickerOn(true);
-            // } else {
-            //   hopper.indexerOff();
-            //   hopper.kickerOff();
-            // }
-            // intake.setIntakeAngle(SmartDashboard.getNumber("IntakePosition", 1.0));
-            // intake.setIntakeVelocity(SmartDashboard.getNumber("IntakeVelocity", 1.0));
         } else {
             if (enable) {
                 setFlywheelVelocity(getVelocityForTarget(), getVelocityForTarget());
