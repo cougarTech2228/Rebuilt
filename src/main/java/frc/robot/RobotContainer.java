@@ -102,16 +102,14 @@ public class RobotContainer {
   private final LoggedDashboardChooser<Command> autoChooser;
 
   @AutoLogOutput(key = "ComponentPoses/Turret")
-  public static Pose3d turretPose = new Pose3d(0, 0, 0, new Rotation3d());
-
-  @AutoLogOutput(key = "ComponentPoses/TurretHood")
-  public static Pose3d turretHoodPose = new Pose3d(0, 0, 0, new Rotation3d());
+  public static Pose3d turretPose = new Pose3d(-0.11, 0.1241, 0.5, new Rotation3d());
 
   @AutoLogOutput(key = "ComponentPoses/Intake")
-  public static Pose3d intakePose = new Pose3d(0, 0, 0, new Rotation3d());
+  public static Pose3d intakePose = new Pose3d(0.295, -0.3, 0.22, new Rotation3d());
 
+  public static final double climberXBase = -0.277;
   @AutoLogOutput(key = "ComponentPoses/Climber")
-  public static Pose3d climberPose = new Pose3d(0, 0, 0, new Rotation3d());
+  public static Pose3d climberPose = new Pose3d( climberXBase, -0.155, 0.709, new Rotation3d());
 
   private static final String EXTEND_CLIMBER_L1_KEY = "ExtendClimberL1";
   private static final String EXTEND_CLIMBER_L3_KEY = "ExtendClimberL3";

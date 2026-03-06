@@ -2,8 +2,13 @@ package frc.robot.subsystems.intake;
 
 import org.littletonrobotics.junction.Logger;
 
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.RobotContainer;
 import frc.robot.subsystems.intake.IntakeIO.IntakeIOInputs;
 
 public class Intake extends SubsystemBase{
@@ -72,6 +77,12 @@ public class Intake extends SubsystemBase{
     public void periodic() {
         io.updateInputs(intakeInputs);
         Logger.processInputs("Intake", intakeInputs);
+
+        RobotContainer.intakePose = new Pose3d(
+            RobotContainer.intakePose.getX(),
+            RobotContainer.intakePose.getY(),
+            RobotContainer.intakePose.getZ(),
+            new Rotation3d(0, Units.degreesToRadians(intakeInputs.intakeEncoder * 360), 0));
     }
 
     public boolean isRetracted() {

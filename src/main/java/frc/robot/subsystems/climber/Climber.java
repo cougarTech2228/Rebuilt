@@ -2,9 +2,13 @@ package frc.robot.subsystems.climber;
 
 import org.littletonrobotics.junction.Logger;
 
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.RobotContainer;
 
 public class Climber extends SubsystemBase {
 
@@ -84,6 +88,12 @@ public class Climber extends SubsystemBase {
                 climberIO.homeExtension();
             }
         }
+
+        RobotContainer.climberPose = new Pose3d(
+            RobotContainer.climberXBase - (climberInputs.extendMotorPosition * ClimberConstants.EXTENSION_METERS_PER_ROTATION),
+            RobotContainer.climberPose.getY(),
+            RobotContainer.climberPose.getZ(),
+            new Rotation3d(-Units.degreesToRadians(ClimberConstants.CLIMBER_ROATATION_DEG_PER_MOTOR_ROTATION * climberInputs.climberMotorPosition) , 0, 0));
     }
 
     public boolean isClimbComplete() {

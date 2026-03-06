@@ -26,10 +26,10 @@ public class IntakeIOSim implements IntakeIO {
     );
 
     private final ProfiledPIDController angleFeedback = new ProfiledPIDController(
-        0.5, 0.0, 0.0, 
+        1, 0.0, 0.0,
         new TrapezoidProfile.Constraints(
-            2500.0 / 60.0,
-            5000.0 / 60.0
+            9000.0 / 60.0,
+            10000.0 / 60.0
         )
     );
 

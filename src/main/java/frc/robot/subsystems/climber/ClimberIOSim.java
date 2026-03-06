@@ -17,17 +17,17 @@ public class ClimberIOSim implements ClimberIO {
     private final DigitalInput climberReadyDIO = new DigitalInput(Constants.DIO_CLIMBER_READY);
 
     private final DCMotorSim extensionSim = new DCMotorSim(
-        LinearSystemId.createDCMotorSystem(DCMotor.getNeo550(1), 0.0002, 1.0),
+        LinearSystemId.createDCMotorSystem(DCMotor.getNeo550(1), 0.005, 1.0),
         DCMotor.getNeo550(1)
     );
 
     private final DCMotorSim climberSim = new DCMotorSim(
-        LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX60(1), 0.001, 1.0),
+        LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX60(1), 0.01, 1.0),
         DCMotor.getKrakenX60(1)
     );
 
     private final ProfiledPIDController extensionPID = new ProfiledPIDController(
-        0.5, 0, 0.0,
+        0.1, 0, 0.3,
         new TrapezoidProfile.Constraints(9000.0 / 60.0, 20000.0 / 60.0) 
     );
     
@@ -38,7 +38,7 @@ public class ClimberIOSim implements ClimberIO {
     );
 
     private final ProfiledPIDController climberPID = new ProfiledPIDController(
-        0.5, 0, 0.0,
+        0.01, 0, 0.1,
         new TrapezoidProfile.Constraints(90.0, 200.0)
     );
     
@@ -50,9 +50,6 @@ public class ClimberIOSim implements ClimberIO {
 
     private double extensionSetpoint = 0.0;
     private double climberSetpoint = 0.0;
-    
-    private double lastExtensionVel = 0.0;
-    private double lastClimberVel = 0.0;
 
     private boolean isExtensionHoming = false;
     private boolean isClimberHoming = false;
@@ -74,27 +71,19 @@ public class ClimberIOSim implements ClimberIO {
         if (extensionClosedLoop) {
             double pidVolts = extensionPID.calculate(extensionSim.getAngularPositionRotations(), extensionSetpoint);
             double currentSetpointVel = extensionPID.getSetpoint().velocity;
-            double accel = (currentSetpointVel == 0.0) ? 0.0 : (currentSetpointVel - lastExtensionVel) / 0.020;
-            
-            lastExtensionVel = currentSetpointVel;
-            double ffVolts = extensionFF.calculateWithVelocities(currentSetpointVel, accel);
+            double ffVolts = extensionFF.calculate(currentSetpointVel);
             extensionVolts = MathUtil.clamp(pidVolts + ffVolts, -12.0, 12.0);
         } else {
             extensionPID.reset(extensionSim.getAngularPositionRotations());
-            lastExtensionVel = 0.0;
         }
         
         if (climberClosedLoop) {
             double pidVolts = climberPID.calculate(climberSim.getAngularPositionRotations(), climberSetpoint);
             double currentSetpointVel = climberPID.getSetpoint().velocity;
-            double accel = (currentSetpointVel == 0.0) ? 0.0 : (currentSetpointVel - lastClimberVel) / 0.020;
-            
-            lastClimberVel = currentSetpointVel;
-            double ffVolts = climberFF.calculateWithVelocities(currentSetpointVel, accel);
+            double ffVolts = climberFF.calculate(currentSetpointVel);
             climberVolts = MathUtil.clamp(pidVolts + ffVolts, -12.0, 12.0);
         } else {
             climberPID.reset(climberSim.getAngularPositionRotations());
-            lastClimberVel = 0.0;
         }
 
         extensionSim.setInput(extensionVolts);

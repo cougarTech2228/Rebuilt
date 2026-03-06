@@ -61,12 +61,6 @@ public class Turret extends SubsystemBase{
             RobotContainer.turretPose.getY(),
             RobotContainer.turretPose.getZ(),
             new Rotation3d(turretInputs.turretAngle));
-        
-        RobotContainer.turretHoodPose = new Pose3d(
-            RobotContainer.turretHoodPose.getX(),
-            RobotContainer.turretHoodPose.getY(),
-            RobotContainer.turretHoodPose.getZ(),
-            new Rotation3d(0,turretInputs.hoodMotorPosition,turretInputs.turretAngle.getRadians()));
     }
 
     public void setAimTarget(double turretAngle) {
@@ -92,21 +86,27 @@ public class Turret extends SubsystemBase{
         // Subtract robot's rotation to make it robot-relative
         Rotation2d angleToTargetRobotRelative = angleToTargetFieldRelative.minus(robotPose.getRotation());
 
-        double turretAngle = MathUtil.inputModulus(angleToTargetRobotRelative.getDegrees(), 0, 360);
+        // Wrap the angle so it maps exactly to the physical 360-degree window of the mechanism.
+        double turretAngle = MathUtil.inputModulus(
+            angleToTargetRobotRelative.getDegrees(),
+            TurretConstants.TURRET_MIN_ROTATION,
+            TurretConstants.TURRET_MIN_ROTATION + 360.0
+        );
 
-        double TURRET_KEEPOUT_START = TurretConstants.TURRET_MAX_ROTATION;
-        double TURRET_KEEPOUT_END   = 360 + TurretConstants.TURRET_MIN_ROTATION;
-
-        // If the target falls in the keep-out zone, snap to the nearest safe boundary.
-        turretInputs.isTargetInKeepOut = turretAngle > TURRET_KEEPOUT_START &&
-                                        turretAngle < TURRET_KEEPOUT_END;
+        // Because we wrapped it to the physical minimum, anything greater than the MAX
+        // is mathematically sitting inside the deadzone/keep-out.
+        turretInputs.isTargetInKeepOut = turretAngle > TurretConstants.TURRET_MAX_ROTATION;
 
         if (turretInputs.isTargetInKeepOut) {
-            double distToStart = Math.abs(turretAngle - TURRET_KEEPOUT_START);
-            double distToEnd   = Math.abs(turretAngle - TURRET_KEEPOUT_END);
-            turretAngle = (distToStart < distToEnd)
-                ? TURRET_KEEPOUT_START
-                : TURRET_KEEPOUT_END;
+            // It's in the keep-out zone. Which valid boundary is physically closer?
+            double distToMax = Math.abs(turretAngle - TurretConstants.TURRET_MAX_ROTATION);
+
+            // The distance to the minimum involves wrapping against the upper bound of our Modulus
+            double distToMin = Math.abs((TurretConstants.TURRET_MIN_ROTATION + 360.0) - turretAngle);
+
+            turretAngle = (distToMax < distToMin)
+                ? TurretConstants.TURRET_MAX_ROTATION
+                : TurretConstants.TURRET_MIN_ROTATION;
         }
 
         if (SmartDashboard.getBoolean("TestMode", false)) {

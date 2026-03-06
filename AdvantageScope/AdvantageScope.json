@@ -1,0 +1,111 @@
+{
+  "hubs": [
+    {
+      "x": 1411,
+      "y": 43,
+      "width": 1861,
+      "height": 1310,
+      "state": {
+        "sidebar": {
+          "width": 300,
+          "expanded": [
+            "/AdvantageKit/RealOutputs/Odometry",
+            "/AdvantageKit/RealOutputs/ComponentPoses/Intake/translation",
+            "/AdvantageKit/RealOutputs/ComponentPoses/Intake/rotation",
+            "/AdvantageKit/RealOutputs/ComponentPoses/Intake/rotation/q",
+            "/AdvantageKit/RealOutputs/ComponentPoses/Climber",
+            "/AdvantageKit/RealOutputs/Vision/Summary",
+            "/AdvantageKit/Vision/Camera0",
+            "/AdvantageKit/RealOutputs/Vision",
+            "/AdvantageKit/RealOutputs/Vision/Camera0/CameraPoses",
+            "/AdvantageKit/RealOutputs/Vision/Camera0/CameraPoses/0",
+            "/AdvantageKit/RealOutputs/Vision/Camera0/CameraPoses/0/rotation",
+            "/AdvantageKit/RealOutputs/Vision/Camera0/CameraPoses/0/translation",
+            "/AdvantageKit/RealOutputs/Vision/Camera0/CameraPoses/1",
+            "/AdvantageKit/RealOutputs/Vision/Camera0/CameraPoses/1/translation",
+            "/AdvantageKit/RealOutputs/Vision/Camera0/CameraPoses/2",
+            "/AdvantageKit/RealOutputs/Vision/Camera0/CameraPoses/2/translation",
+            "/AdvantageKit/RealOutputs/Vision/Camera1/CameraPoses",
+            "/AdvantageKit/RealOutputs/Vision/Camera1/CameraPoses/0/translation",
+            "/AdvantageKit/RealOutputs/Vision/CameraMountPoses",
+            "/AdvantageKit/RealOutputs/Turret",
+            "/AdvantageKit/RealOutputs/ComponentPoses",
+            "/AdvantageKit",
+            "/AdvantageKit/RealOutputs",
+            "/AdvantageKit/Climber"
+          ]
+        },
+        "tabs": {
+          "selected": 1,
+          "tabs": [
+            {
+              "type": 0,
+              "title": "",
+              "controller": null,
+              "controllerUUID": "5btirlre73bs285xp8mp9de2lymh06ro",
+              "renderer": "",
+              "controlsHeight": 0
+            },
+            {
+              "type": 3,
+              "title": "3D Field",
+              "controller": {
+                "sources": [
+                  {
+                    "type": "robot",
+                    "logKey": "NT:/AdvantageKit/RealOutputs/Odometry/Robot",
+                    "logType": "Pose2d",
+                    "visible": true,
+                    "options": {
+                      "model": "Tau"
+                    }
+                  },
+                  {
+                    "type": "component",
+                    "logKey": "NT:/AdvantageKit/RealOutputs/ComponentPoses/Turret",
+                    "logType": "Pose3d",
+                    "visible": true,
+                    "options": {}
+                  },
+                  {
+                    "type": "component",
+                    "logKey": "NT:/AdvantageKit/RealOutputs/ComponentPoses/Intake",
+                    "logType": "Pose3d",
+                    "visible": true,
+                    "options": {}
+                  },
+                  {
+                    "type": "component",
+                    "logKey": "NT:/AdvantageKit/RealOutputs/ComponentPoses/Climber",
+                    "logType": "Pose3d",
+                    "visible": true,
+                    "options": {}
+                  }
+                ],
+                "game": "FRC:2026 Field"
+              },
+              "controllerUUID": "72k2gle32dgrr8067d1gqozmg963o9nz",
+              "renderer": {
+                "cameraIndex": -1,
+                "orbitFov": 50,
+                "cameraPosition": [
+                  -9.43041100051696,
+                  1.648320885845589,
+                  4.722755860678859
+                ],
+                "cameraTarget": [
+                  -8.703388076175028,
+                  0.3422369402767258,
+                  3.9777107532358036
+                ]
+              },
+              "controlsHeight": 228
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "satellites": [],
+  "version": "26.0.0"
+}
