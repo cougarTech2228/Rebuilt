@@ -77,7 +77,7 @@ public class ClimberIOSim implements ClimberIO {
             double accel = (currentSetpointVel == 0.0) ? 0.0 : (currentSetpointVel - lastExtensionVel) / 0.020;
             
             lastExtensionVel = currentSetpointVel;
-            double ffVolts = extensionFF.calculate(currentSetpointVel, accel);
+            double ffVolts = extensionFF.calculateWithVelocities(currentSetpointVel, accel);
             extensionVolts = MathUtil.clamp(pidVolts + ffVolts, -12.0, 12.0);
         } else {
             extensionPID.reset(extensionSim.getAngularPositionRotations());
@@ -90,7 +90,7 @@ public class ClimberIOSim implements ClimberIO {
             double accel = (currentSetpointVel == 0.0) ? 0.0 : (currentSetpointVel - lastClimberVel) / 0.020;
             
             lastClimberVel = currentSetpointVel;
-            double ffVolts = climberFF.calculate(currentSetpointVel, accel);
+            double ffVolts = climberFF.calculateWithVelocities(currentSetpointVel, accel);
             climberVolts = MathUtil.clamp(pidVolts + ffVolts, -12.0, 12.0);
         } else {
             climberPID.reset(climberSim.getAngularPositionRotations());

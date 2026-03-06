@@ -2,7 +2,6 @@ package frc.robot.subsystems.intake;
 
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.config.ClosedLoopConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.units.measure.Angle;
@@ -11,19 +10,15 @@ import com.revrobotics.spark.config.MAXMotionConfig.MAXMotionPositionMode;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.FeedbackSensor;
 import com.revrobotics.spark.SparkClosedLoopController;
-import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.revrobotics.spark.SparkBase.ControlType;
-import com.revrobotics.spark.SparkBase.PersistMode;
-import com.revrobotics.spark.SparkBase.ResetMode;
 
 import frc.robot.Constants;
 import frc.robot.subsystems.intake.Intake.IntakeMode;
 import frc.robot.subsystems.intake.Intake.IntakeAngle;
-import frc.robot.subsystems.intake.IntakeConstants;
 
 public class IntakeIOMotors implements IntakeIO {
 
@@ -77,8 +72,8 @@ public class IntakeIOMotors implements IntakeIO {
     }
 
     public void updateInputs(IntakeIOInputs inputs) {
-        BaseStatusSignal.refreshAll(
-            encoderPositionSignal);
+        encoderPositionSignal.refresh();
+
         inputs.intakeMotorVoltage = intakeMotor.getAppliedOutput() * intakeMotor.getBusVoltage();
         inputs.intakeMotorVelocity = intakeMotor.getEncoder().getVelocity();
         inputs.intakeMotorCurrent = intakeMotor.getOutputCurrent();

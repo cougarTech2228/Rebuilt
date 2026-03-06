@@ -66,7 +66,6 @@ import frc.robot.subsystems.turret.Turret;
 import frc.robot.subsystems.turret.TurretIO;
 import frc.robot.subsystems.turret.TurretIOSim;
 import frc.robot.subsystems.turret.TurretIOMotors;
-import frc.robot.subsystems.turret.Turret.TurretAimTarget;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
@@ -93,8 +92,7 @@ public class RobotContainer {
   final Climber climber;
   final Intake intake;
  
-
-  public static final CANBus kCanivore = new CANBus("canivore", "./logs/example.hoot");
+  public static final CANBus kCanivore = new CANBus("canivore");
   public static final CANBus kRio = new CANBus("rio");
 
   // Controller
@@ -394,25 +392,6 @@ public class RobotContainer {
     if (SmartDashboard.getBoolean("TestMode", false)) {
           intake.setIntakeAngle(SmartDashboard.getNumber("IntakePosition", 1.0));
     }
-    //   // turret.setHoodElevation(SmartDashboard.getNumber("TurretHoodElevation", 0.0));
-    //   // double ratio = SmartDashboard.getNumber("TurretTestFlywheelRatio", 1.0);
-      
-    //   // turret.setFlywheelVelocity(SmartDashboard.getNumber("TurretFlywheelVelocity", 0.0),
-    //   //   ratio * SmartDashboard.getNumber("TurretFlywheelVelocity", 0.0));
-    //   // turret.setAimTarget(SmartDashboard.getNumber("TurretAngle", 0.0));
-    //   // // boolean indexerTest = SmartDashboard.getBoolean("IndexerTest", false);
-    //   // if (indexerTest) {
-    //   //   hopper.indexerOn(true);
-    //   //   hopper.kickerOn(true);
-    //   // } else {
-    //   //   hopper.indexerOff();
-    //   //   hopper.kickerOff();
-    //   // }
-    //   // intake.setIntakeAngle(SmartDashboard.getNumber("IntakePosition", 1.0));
-    //   // intake.setIntakeVelocity(SmartDashboard.getNumber("IntakeVelocity", 1.0));
-    // } else {
-      turret.setAimTarget(TurretAimTarget.Hub);
-    // }
   }
 
   public void autonomousPeriodic() {

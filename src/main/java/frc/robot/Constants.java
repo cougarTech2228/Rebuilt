@@ -1,30 +1,10 @@
-// Copyright (c) 2021-2026 Littleton Robotics
-// http://github.com/Mechanical-Advantage
-//
-// Use of this source code is governed by a BSD
-// license that can be found in the LICENSE file
-// at the root directory of this project.
-
 package frc.robot;
 
-import com.ctre.phoenix6.CANBus;
-
-import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.RobotBase;
 
-/**
- * This class defines the runtime mode used by AdvantageKit. The mode is always "real" when running
- * on a roboRIO. Change the value of "simMode" to switch between "sim" (physics sim) and "replay"
- * (log replay from a file).
- */
 public final class Constants {
   public static final Mode simMode = Mode.SIM;
   public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
-
-
-  public static final double robotWidth = 0.7112; // 28in
-  public static final double robotLength = 0.6858; // 27in
 
   public static enum Mode {
     /** Running on a real robot. */
@@ -75,8 +55,6 @@ public final class Constants {
   public static final int CAN_ID_INTAKE_MOTOR = 34;
   public static final int CAN_ID_INTAKE_ANGLE_MOTOR = 35;
   public static final int CAN_ID_INTAKE_ENCODER = 36;
-
-  
 
   // DIOs
   public static final int DIO_CLIMBER_READY = 0;

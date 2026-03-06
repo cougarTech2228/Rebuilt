@@ -66,11 +66,11 @@ public class ModuleIOTalonFX implements ModuleIO {
       new VelocityTorqueCurrentFOC(0.0);
 
   // Timestamp inputs from Phoenix thread
-  private final Queue<Double> timestampQueue;
+  private final PhoenixOdometryThread.DoubleQueue timestampQueue;
 
   // Inputs from drive motor
   private final StatusSignal<Angle> drivePosition;
-  private final Queue<Double> drivePositionQueue;
+  private final PhoenixOdometryThread.DoubleQueue drivePositionQueue;
   private final StatusSignal<AngularVelocity> driveVelocity;
   private final StatusSignal<Voltage> driveAppliedVolts;
   private final StatusSignal<Current> driveCurrent;
@@ -78,10 +78,11 @@ public class ModuleIOTalonFX implements ModuleIO {
   // Inputs from turn motor
   private final StatusSignal<Angle> turnAbsolutePosition;
   private final StatusSignal<Angle> turnPosition;
-  private final Queue<Double> turnPositionQueue;
+  private final PhoenixOdometryThread.DoubleQueue turnPositionQueue;
   private final StatusSignal<AngularVelocity> turnVelocity;
   private final StatusSignal<Voltage> turnAppliedVolts;
   private final StatusSignal<Current> turnCurrent;
+  private final BaseStatusSignal[] allSignals;
 
   // Connection debouncers
   private final Debouncer driveConnectedDebounce =
@@ -169,6 +170,18 @@ public class ModuleIOTalonFX implements ModuleIO {
     turnAppliedVolts = turnTalon.getMotorVoltage();
     turnCurrent = turnTalon.getStatorCurrent();
 
+    allSignals = new BaseStatusSignal[] {
+        drivePosition,
+        driveVelocity,
+        driveAppliedVolts,
+        driveCurrent,
+        turnAbsolutePosition,
+        turnPosition,
+        turnVelocity,
+        turnAppliedVolts,
+        turnCurrent
+    };
+
     // Configure periodic frames
     BaseStatusSignal.setUpdateFrequencyForAll(
         Drive.ODOMETRY_FREQUENCY, drivePosition, turnPosition);
@@ -186,43 +199,35 @@ public class ModuleIOTalonFX implements ModuleIO {
 
   @Override
   public void updateInputs(ModuleIOInputs inputs) {
-    // Refresh all signals
-    var driveStatus =
-        BaseStatusSignal.refreshAll(drivePosition, driveVelocity, driveAppliedVolts, driveCurrent);
-    var turnStatus =
-        BaseStatusSignal.refreshAll(turnPosition, turnVelocity, turnAppliedVolts, turnCurrent);
-    var turnEncoderStatus = BaseStatusSignal.refreshAll(turnAbsolutePosition);
+    BaseStatusSignal.refreshAll(allSignals);
+
+    inputs.driveConnected = driveConnectedDebounce.calculate(drivePosition.getStatus().isOK());
+    inputs.turnConnected = turnConnectedDebounce.calculate(turnPosition.getStatus().isOK());
+    inputs.turnEncoderConnected = turnEncoderConnectedDebounce.calculate(turnAbsolutePosition.getStatus().isOK());
 
     // Update drive inputs
-    inputs.driveConnected = driveConnectedDebounce.calculate(driveStatus.isOK());
     inputs.drivePositionRad = Units.rotationsToRadians(drivePosition.getValueAsDouble());
     inputs.driveVelocityRadPerSec = Units.rotationsToRadians(driveVelocity.getValueAsDouble());
     inputs.driveAppliedVolts = driveAppliedVolts.getValueAsDouble();
     inputs.driveCurrentAmps = driveCurrent.getValueAsDouble();
 
     // Update turn inputs
-    inputs.turnConnected = turnConnectedDebounce.calculate(turnStatus.isOK());
-    inputs.turnEncoderConnected = turnEncoderConnectedDebounce.calculate(turnEncoderStatus.isOK());
     inputs.turnAbsolutePosition = Rotation2d.fromRotations(turnAbsolutePosition.getValueAsDouble());
     inputs.turnPosition = Rotation2d.fromRotations(turnPosition.getValueAsDouble());
     inputs.turnVelocityRadPerSec = Units.rotationsToRadians(turnVelocity.getValueAsDouble());
     inputs.turnAppliedVolts = turnAppliedVolts.getValueAsDouble();
     inputs.turnCurrentAmps = turnCurrent.getValueAsDouble();
 
-    // Update odometry inputs
-    inputs.odometryTimestamps =
-        timestampQueue.stream().mapToDouble((Double value) -> value).toArray();
-    inputs.odometryDrivePositionsRad =
-        drivePositionQueue.stream()
-            .mapToDouble((Double value) -> Units.rotationsToRadians(value))
-            .toArray();
-    inputs.odometryTurnPositions =
-        turnPositionQueue.stream()
-            .map((Double value) -> Rotation2d.fromRotations(value))
-            .toArray(Rotation2d[]::new);
-    timestampQueue.clear();
-    drivePositionQueue.clear();
-    turnPositionQueue.clear();
+    int queueSize = timestampQueue.size();
+    inputs.odometryTimestamps = new double[queueSize];
+    inputs.odometryDrivePositionsRad = new double[queueSize];
+    inputs.odometryTurnPositions = new Rotation2d[queueSize];
+
+    for (int i = 0; i < queueSize; i++) {
+      inputs.odometryTimestamps[i] = timestampQueue.poll();
+      inputs.odometryDrivePositionsRad[i] = Units.rotationsToRadians(drivePositionQueue.poll());
+      inputs.odometryTurnPositions[i] = Rotation2d.fromRotations(turnPositionQueue.poll());
+    }
   }
 
   @Override

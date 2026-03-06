@@ -11,11 +11,8 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.RobotController;
-import frc.robot.generated.TunerConstants;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Queue;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.DoubleSupplier;
@@ -33,9 +30,11 @@ public class PhoenixOdometryThread extends Thread {
       new ReentrantLock(); // Prevents conflicts when registering signals
   private BaseStatusSignal[] phoenixSignals = new BaseStatusSignal[0];
   private final List<DoubleSupplier> genericSignals = new ArrayList<>();
-  private final List<Queue<Double>> phoenixQueues = new ArrayList<>();
-  private final List<Queue<Double>> genericQueues = new ArrayList<>();
-  private final List<Queue<Double>> timestampQueues = new ArrayList<>();
+
+  // [2228 CHANGE] Replaced Queue<Double> with allocation-free DoubleQueue primitives
+  private final List<DoubleQueue> phoenixQueues = new ArrayList<>();
+  private final List<DoubleQueue> genericQueues = new ArrayList<>();
+  private final List<DoubleQueue> timestampQueues = new ArrayList<>();
 
   private static boolean isCANFD = frc.robot.RobotContainer.kCanivore.isNetworkFD();
   private static PhoenixOdometryThread instance = null;
@@ -60,8 +59,8 @@ public class PhoenixOdometryThread extends Thread {
   }
 
   /** Registers a Phoenix signal to be read from the thread. */
-  public Queue<Double> registerSignal(StatusSignal<Angle> signal) {
-    Queue<Double> queue = new ArrayBlockingQueue<>(20);
+  public DoubleQueue registerSignal(StatusSignal<Angle> signal) {
+    DoubleQueue queue = new DoubleQueue(20);
     signalsLock.lock();
     Drive.odometryLock.lock();
     try {
@@ -78,8 +77,8 @@ public class PhoenixOdometryThread extends Thread {
   }
 
   /** Registers a generic signal to be read from the thread. */
-  public Queue<Double> registerSignal(DoubleSupplier signal) {
-    Queue<Double> queue = new ArrayBlockingQueue<>(20);
+  public DoubleQueue registerSignal(DoubleSupplier signal) {
+    DoubleQueue queue = new DoubleQueue(20);
     signalsLock.lock();
     Drive.odometryLock.lock();
     try {
@@ -93,8 +92,8 @@ public class PhoenixOdometryThread extends Thread {
   }
 
   /** Returns a new queue that returns timestamp values for each sample. */
-  public Queue<Double> makeTimestampQueue() {
-    Queue<Double> queue = new ArrayBlockingQueue<>(20);
+  public DoubleQueue makeTimestampQueue() {
+    DoubleQueue queue = new DoubleQueue(20);
     Drive.odometryLock.lock();
     try {
       timestampQueues.add(queue);
@@ -128,16 +127,12 @@ public class PhoenixOdometryThread extends Thread {
       // Save new data to queues
       Drive.odometryLock.lock();
       try {
-        // Sample timestamp is current FPGA time minus average CAN latency
-        // Default timestamps from Phoenix are NOT compatible with
-        // FPGA timestamps, this solution is imperfect but close
         double timestamp = RobotController.getFPGATime() / 1e6;
-        double totalLatency = 0.0;
-        for (BaseStatusSignal signal : phoenixSignals) {
-          totalLatency += signal.getTimestamp().getLatency();
-        }
+
+        // [2228 CHANGE] Removed loop over all signals. We only need to check the latency of the
+        // first signal, which avoids allocating dozens of Timestamp objects every loop.
         if (phoenixSignals.length > 0) {
-          timestamp -= totalLatency / phoenixSignals.length;
+          timestamp -= phoenixSignals[0].getTimestamp().getLatency();
         }
 
         // Add new samples to queues
@@ -153,6 +148,45 @@ public class PhoenixOdometryThread extends Thread {
       } finally {
         Drive.odometryLock.unlock();
       }
+    }
+  }
+
+  /** [2228 Change] A lightweight, allocation-free circular buffer for primitive doubles.
+   * This completely eliminates autoboxing overhead and redundant ArrayBlockingQueue locking.
+   */
+  public static class DoubleQueue {
+    private final double[] array;
+    private int head = 0;
+    private int tail = 0;
+    private int size = 0;
+
+    public DoubleQueue(int capacity) {
+      array = new double[capacity];
+    }
+
+    public void offer(double value) {
+      if (size == array.length) return; // Drop if full
+      array[tail] = value;
+      tail = (tail + 1) % array.length;
+      size++;
+    }
+
+    public double poll() {
+      if (size == 0) return 0.0;
+      double val = array[head];
+      head = (head + 1) % array.length;
+      size--;
+      return val;
+    }
+
+    public int size() {
+      return size;
+    }
+
+    public void clear() {
+      head = 0;
+      tail = 0;
+      size = 0;
     }
   }
 }

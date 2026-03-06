@@ -11,27 +11,22 @@ import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.hardware.TalonFXS;
-import com.ctre.phoenix6.signals.ExternalFeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MotorArrangementValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.FeedbackSensor;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.config.MAXMotionConfig.MAXMotionPositionMode;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.SparkBase.ControlType;
-import com.revrobotics.ResetMode;
-import com.revrobotics.PersistMode;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 import frc.robot.RobotContainer;
 
@@ -50,8 +45,6 @@ public class TurretIOMotors implements TurretIO {
     private final TalonFXS turretMotor;
     private final MotionMagicVoltage turretControl;
 
-    // private final TalonFXS hoodMotor;
-    // private final MotionMagicVoltage hoodControl;
     private final SparkMax hoodMotor;
     private final SparkClosedLoopController hoodPID;
 
@@ -106,6 +99,8 @@ public class TurretIOMotors implements TurretIO {
     private final StatusSignal<Voltage> upperFlywheelMotorVoltageSignal;
     private final StatusSignal<Current> upperFlywheelMotorCurrentSignal;
    
+    private final BaseStatusSignal[] allSignals;
+
     public TurretIOMotors() {
         turretMotor = new TalonFXS(CAN_ID_TURRET_MOTOR, RobotContainer.kRio);
         turretControl = new MotionMagicVoltage(0);
@@ -133,9 +128,6 @@ public class TurretIOMotors implements TurretIO {
 
         turretMotorCurrentSignal = turretMotor.getTorqueCurrent();
         turretMotorPositionSignal = turretMotor.getPosition();
-
-        // hoodMotor = new TalonFXS(frc.robot.Constants.CAN_ID_TURRET_HOOD_MOTOR, frc.robot.RobotContainer.kRio);
-        // hoodControl = new MotionMagicVoltage(0);
 
         hoodMotor = new SparkMax(Constants.CAN_ID_TURRET_HOOD_MOTOR, MotorType.kBrushless);
         hoodPID = hoodMotor.getClosedLoopController();
@@ -180,32 +172,6 @@ public class TurretIOMotors implements TurretIO {
         BaseStatusSignal.refreshAll(pos31Signal, pos37Signal);
 
         seedTurretPosition();
-
-        // TalonFXSConfiguration hoodConfig = new TalonFXSConfiguration();
-        // hoodConfig.Commutation.MotorArrangement = MotorArrangementValue.Minion_JST;
-        // hoodConfig.Slot0.kP = 20.0;
-        // hoodConfig.Slot0.kI = 0.0;
-        // hoodConfig.Slot0.kD = 0.0;
-        // hoodConfig.Slot0.kV = 0.0;
-
-        // hoodConfig.MotionMagic.MotionMagicCruiseVelocity = 5.0; // hood encoder rotations/sec
-        // hoodConfig.MotionMagic.MotionMagicAcceleration = 20.0; // hood encoder rotations/sec^2
-        // hoodConfig.MotionMagic.MotionMagicJerk = 0.0;
-
-        
-        // hoodConfig.ExternalFeedback.FeedbackRemoteSensorID = CAN_ID_TURRET_HOOD_ENCODER;
-        // hoodConfig.ExternalFeedback.ExternalFeedbackSensorSource = ExternalFeedbackSensorSourceValue.RemoteCANcoder;
-        // hoodConfig.ExternalFeedback.RotorToSensorRatio = 50.0;
-
-        // hoodConfig.ClosedLoopGeneral.ContinuousWrap = false;
-
-        // // Set limits to safe values
-        // hoodConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = TurretConstants.HOOD_MAX_ANGLE;
-        // hoodConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-        // hoodConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = TurretConstants.HOOD_MIN_ANGLE;
-        // hoodConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-
-        // hoodMotor.getConfigurator().apply(hoodConfig);
 
         encHood = new CANcoder(CAN_ID_TURRET_HOOD_ENCODER, frc.robot.RobotContainer.kRio);
         CANcoderConfiguration configHood = new CANcoderConfiguration();
@@ -252,6 +218,18 @@ public class TurretIOMotors implements TurretIO {
         upperFlywheelMotorVelocitySignal = upperFlywheelMotor.getVelocity();
         upperFlywheelMotorVoltageSignal = upperFlywheelMotor.getMotorVoltage();
         upperFlywheelMotorCurrentSignal = upperFlywheelMotor.getStatorCurrent();
+
+        allSignals = new BaseStatusSignal[] {
+            pos31Signal,
+            pos37Signal,
+            turretMotorCurrentSignal,
+            turretMotorPositionSignal,
+            hoodEncoderPositionSignal,
+            flywheelMotorVelocitySignal,
+            upperFlywheelMotorVelocitySignal,
+            upperFlywheelMotorVoltageSignal,
+            upperFlywheelMotorCurrentSignal
+        };
     }
 
     /**
@@ -367,17 +345,7 @@ public class TurretIOMotors implements TurretIO {
 
     @Override
     public void updateInputs(TurretIOInputs inputs) {
-        BaseStatusSignal.refreshAll(
-            pos31Signal,
-            pos37Signal,
-            turretMotorCurrentSignal,
-            turretMotorPositionSignal,
-            hoodEncoderPositionSignal,
-            flywheelMotorVelocitySignal,
-            upperFlywheelMotorVelocitySignal,
-            upperFlywheelMotorVoltageSignal,
-            upperFlywheelMotorCurrentSignal
-        );
+        BaseStatusSignal.refreshAll(allSignals);
         
         double actualAngle = calculateAbsolutePositionCRT();
         inputs.turretAngleDegrees = actualAngle;

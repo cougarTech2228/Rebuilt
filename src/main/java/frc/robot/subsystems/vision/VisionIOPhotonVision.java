@@ -12,8 +12,8 @@ import static frc.robot.subsystems.vision.VisionConstants.*;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
+import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import org.photonvision.PhotonCamera;
@@ -22,6 +22,9 @@ import org.photonvision.PhotonCamera;
 public class VisionIOPhotonVision implements VisionIO {
   protected final PhotonCamera camera;
   protected final Transform3d robotToCamera;
+
+  private final Set<Short> tagIds = new HashSet<>();
+  private final List<PoseObservation> poseObservations = new ArrayList<>();
 
   /**
    * Creates a new VisionIOPhotonVision.
@@ -38,9 +41,9 @@ public class VisionIOPhotonVision implements VisionIO {
   public void updateInputs(VisionIOInputs inputs) {
     inputs.connected = camera.isConnected();
 
-    // Read new camera observations
-    Set<Short> tagIds = new HashSet<>();
-    List<PoseObservation> poseObservations = new LinkedList<>();
+    tagIds.clear();
+    poseObservations.clear();
+
     for (var result : camera.getAllUnreadResults()) {
       // Update latest target observation
       if (result.hasTargets()) {
@@ -118,7 +121,7 @@ public class VisionIOPhotonVision implements VisionIO {
     // Save tag IDs to inputs objects
     inputs.tagIds = new int[tagIds.size()];
     int i = 0;
-    for (int id : tagIds) {
+    for (short id : tagIds) {
       inputs.tagIds[i++] = id;
     }
   }

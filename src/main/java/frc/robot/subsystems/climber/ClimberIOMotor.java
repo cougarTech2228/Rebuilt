@@ -35,6 +35,8 @@ public class ClimberIOMotor implements ClimberIO {
     private final StatusSignal<Current> climberCurrentSignal;
     private final StatusSignal<Temperature> climberTempSignal;
 
+    private final BaseStatusSignal[] allSignals;
+
     SparkClosedLoopController extensionMotorPIDController;
     private final MotionMagicVoltage climberPIDController;
 
@@ -57,6 +59,12 @@ public class ClimberIOMotor implements ClimberIO {
         climberPositionSignal = climberMotor.getRotorPosition();
         climberCurrentSignal = climberMotor.getStatorCurrent();
         climberTempSignal = climberMotor.getDeviceTemp();
+
+        allSignals = new BaseStatusSignal[] {
+            climberPositionSignal,
+            climberCurrentSignal,
+            climberTempSignal
+        };
 
         extensionMotorPIDController = extensionMotor.getClosedLoopController();
         SparkMaxConfig extenstionConfig = new SparkMaxConfig();
@@ -118,11 +126,7 @@ public class ClimberIOMotor implements ClimberIO {
     }
 
     public void updateInputs(ClimberIOInputs inputs) {
-        BaseStatusSignal.refreshAll(
-            climberPositionSignal,
-            climberCurrentSignal,
-            climberTempSignal
-        );
+        BaseStatusSignal.refreshAll(allSignals);
 
         inputs.isExtensionHome = isExtensionHome();
         inputs.isClimberHome = isClimberHome();
