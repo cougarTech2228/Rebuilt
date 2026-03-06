@@ -21,13 +21,12 @@ public interface TurretIO {
 
         public double enc31t = 0;
         public double enc37t = 0;
-
-        public double hoodTargetElevationPercent = 0;
-        public double hoodPIDTargetAngle = 0;
+        
         public double hoodEncoderPosition = 0;
 
         public double hoodMotorCurrent = 0;
         public double hoodMotorPosition = 0;
+        public double hoodMotorPIDTarget = 0;
 
         public double flywheelMotorVelocity = 0;
         public double flywheelMotorVoltage = 0;

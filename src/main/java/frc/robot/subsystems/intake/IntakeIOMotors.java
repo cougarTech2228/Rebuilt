@@ -41,13 +41,18 @@ public class IntakeIOMotors implements IntakeIO {
         anglePID = angleMotor.getClosedLoopController();
 
         SparkMaxConfig angleConfig = new SparkMaxConfig();
-        angleConfig.idleMode(IdleMode.kBrake).smartCurrentLimit(20);
+        angleConfig.idleMode(IdleMode.kBrake).smartCurrentLimit(40);
         angleConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-            .p(0.2)
+            .p(1)
             .i(0)
             .d(0);
-        angleConfig.closedLoop.maxMotion.maxAcceleration(5000);
-        angleConfig.closedLoop.maxMotion.cruiseVelocity(2500);
+        angleConfig.closedLoop.feedForward
+            .kV(0)   // Velocity gain (Volts per Velocity Unit)
+            .kA(0)   // Acceleration gain (Volts per Velocity Unit / s)
+            .kG(0)    // Optional: Linear gravity gain for elevators (Volts)
+            .kCos(0); // Optional: Cosine gravity gain for arms (Volts)
+        angleConfig.closedLoop.maxMotion.maxAcceleration(10000);
+        angleConfig.closedLoop.maxMotion.cruiseVelocity(9000);
         angleConfig.closedLoop.maxMotion.positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal);
         angleConfig.closedLoop.maxMotion.allowedProfileError(1);
         angleMotor.configure(angleConfig, com.revrobotics.ResetMode.kResetSafeParameters, com.revrobotics.PersistMode.kPersistParameters);
@@ -62,7 +67,7 @@ public class IntakeIOMotors implements IntakeIO {
         CANcoderConfiguration encoderConfig = new CANcoderConfiguration();
         encoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.5;
         encoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-        encoderConfig.MagnetSensor.MagnetOffset = -0.232910; // zero out to the retracted position
+        encoderConfig.MagnetSensor.MagnetOffset = -0.217285; // zero out to the retracted position
         intakeEncoder.getConfigurator().apply(encoderConfig);
         encoderPositionSignal = intakeEncoder.getPosition();
         encoderPositionSignal.waitForUpdate(0.2);
