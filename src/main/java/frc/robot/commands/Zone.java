@@ -4,6 +4,8 @@ import static frc.robot.subsystems.vision.VisionConstants.aprilTagLayout;
 
 import java.util.ArrayList;
 
+import javax.print.attribute.standard.Destination;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -27,6 +29,22 @@ public enum Zone {
         DestConsts.alliance_zone_length, DestConsts.field_height,
         0, DestConsts.field_height,
         false),
+
+    HOME_ALLIANCE_ZONE_SOUTH(
+        0, 0,
+        DestConsts.alliance_zone_length, 0,
+        DestConsts.alliance_zone_length, DestConsts.field_height/2,
+        0, DestConsts.field_height/2,
+        false
+    ),
+
+    HOME_ALLIANCE_ZONE_NORTH(
+        0, DestConsts.field_height/2,
+        DestConsts.alliance_zone_length, DestConsts.field_height/2,
+        DestConsts.alliance_zone_length, DestConsts.field_height,
+        0, DestConsts.field_height,
+        false
+    ),
 
     NEUTRAL_ZONE_SOUTH(
         DestConsts.alliance_zone_length, 0,

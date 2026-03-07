@@ -232,7 +232,7 @@ public class RobotContainer {
     Command startIntakeCommand = new StartIntakeCommand(hopper, intake);
     Command stopIntakeCommand = new StopIntakeCommand(hopper, intake);
     Command spitCommand = new SpitCommand(hopper, intake);
-    toggleIntakeCommand = new ToggleIntakeCommand(intake, climber);
+    Command autoToggleIntakeCommand = new ToggleIntakeCommand(intake, climber);
     
     
     // Register Auto commands
@@ -243,7 +243,7 @@ public class RobotContainer {
     NamedCommands.registerCommand("startIntake", startIntakeCommand);
     NamedCommands.registerCommand("stopIntake", stopIntakeCommand);
     NamedCommands.registerCommand("spit", spitCommand);
-    NamedCommands.registerCommand("toggleIntakeCommand", toggleIntakeCommand);
+    NamedCommands.registerCommand("toggleIntakeCommand", autoToggleIntakeCommand);
     // NamedCommands.registerCommand("performClimb", performClimbCommand);
 
     extendClimberL1Command = new ExtendClimberCommand(climber, intake, ClimberLevel.L1);
@@ -252,6 +252,7 @@ public class RobotContainer {
     climbL3Command = new ClimbCommand(climber, ClimberLevel.L3);
     descendCommand = new DescendCommand(climber);
     homeClimberCommand = new HomeClimberCommand(climber);
+    toggleIntakeCommand = new ToggleIntakeCommand(intake, climber);
 
     
     shootCommand = new ShootCommand(hopper, turret);
