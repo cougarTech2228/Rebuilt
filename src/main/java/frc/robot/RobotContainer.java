@@ -9,6 +9,8 @@ package frc.robot;
 
 import static frc.robot.subsystems.vision.VisionConstants.*;
 
+import java.util.Optional;
+
 import com.ctre.phoenix6.CANBus;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
@@ -17,6 +19,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -35,6 +38,7 @@ import frc.robot.commands.pathplanner.StopIntakeCommand;
 import frc.robot.commands.pathplanner.DeployIntakeCommand;
 import frc.robot.commands.pathplanner.RetractIntakeCommand;
 import frc.robot.commands.pathplanner.SpitCommand;
+import frc.robot.commands.AlignClimbCommand;
 import frc.robot.commands.ClimbCommand;
 import frc.robot.commands.DescendCommand;
 import frc.robot.commands.DriveCommands;
@@ -74,6 +78,9 @@ import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
+
 /**
  * This class is where the bulk of the robot should be declared. Since
  * Command-based is a
@@ -101,6 +108,10 @@ public class RobotContainer {
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
 
+  private double intakeAccelPercentage = 1;
+  private double currentAccelPercentage = 1;
+  private boolean currentlyIntaking = false;
+
   @AutoLogOutput(key = "ComponentPoses/Turret")
   public static Pose3d turretPose = new Pose3d(-0.11, 0.1241, 0.5, new Rotation3d());
 
@@ -124,9 +135,11 @@ public class RobotContainer {
   private final ClimbCommand climbL3Command;
   private final DescendCommand descendCommand;
   private final HomeClimberCommand homeClimberCommand;
+  private final AlignClimbCommand alignClimbCommand;
 
   private final ToggleIntakeCommand toggleIntakeCommand;
   private final ShootCommand shootCommand;
+
 
   /**
    * The container for the robot. Contains subsystems, IO devices, and commands.
@@ -253,7 +266,8 @@ public class RobotContainer {
     descendCommand = new DescendCommand(climber);
     homeClimberCommand = new HomeClimberCommand(climber);
 
-    
+    alignClimbCommand = new AlignClimbCommand(drive, climber);
+
     shootCommand = new ShootCommand(hopper, turret);
     // Configure the button bindings
     configureButtonBindings();
@@ -300,9 +314,20 @@ public class RobotContainer {
                             new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero)),
                     drive)
                 .ignoringDisable(true));
-
+    
+    controller.a().onTrue(alignClimbCommand);
     controller.rightBumper().onTrue(toggleIntakeCommand);
     controller.rightTrigger(0.5).whileTrue(shootCommand);
+    
+    controller.leftBumper()
+            .onTrue(new InstantCommand(() -> {
+                intakeAccelPercentage = 0.3;
+                currentlyIntaking = true;
+            }))
+            .onFalse(new InstantCommand(() -> {
+                intakeAccelPercentage = 1.0;
+                currentlyIntaking = false;
+            }));
 
 //    // Auto aim command example
 //     @SuppressWarnings("resource")
@@ -377,6 +402,12 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     return autoChooser.get();
+  }
+
+  public void calculateMaxAcceleration() {
+    if (currentlyIntaking) {
+
+    }
   }
 
   public void simulationPeriodic() {
