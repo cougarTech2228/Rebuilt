@@ -1,10 +1,10 @@
 {
   "hubs": [
     {
-      "x": 1411,
-      "y": 43,
-      "width": 1861,
-      "height": 1310,
+      "x": 1912,
+      "y": -8,
+      "width": 1936,
+      "height": 1096,
       "state": {
         "sidebar": {
           "width": 300,
@@ -32,7 +32,12 @@
             "/AdvantageKit/RealOutputs/ComponentPoses",
             "/AdvantageKit",
             "/AdvantageKit/RealOutputs",
-            "/AdvantageKit/Climber"
+            "/AdvantageKit/Climber",
+            "/RealOutputs",
+            "/RealOutputs/Odometry",
+            "/RealOutputs/ComponentPoses",
+            "/RealOutputs/ComponentPoses/Turret",
+            "/Turret"
           ]
         },
         "tabs": {
@@ -53,7 +58,7 @@
                 "sources": [
                   {
                     "type": "robot",
-                    "logKey": "NT:/AdvantageKit/RealOutputs/Odometry/Robot",
+                    "logKey": "/RealOutputs/Odometry/Robot",
                     "logType": "Pose2d",
                     "visible": true,
                     "options": {
@@ -62,21 +67,21 @@
                   },
                   {
                     "type": "component",
-                    "logKey": "NT:/AdvantageKit/RealOutputs/ComponentPoses/Turret",
+                    "logKey": "/RealOutputs/ComponentPoses/Turret",
                     "logType": "Pose3d",
                     "visible": true,
                     "options": {}
                   },
                   {
                     "type": "component",
-                    "logKey": "NT:/AdvantageKit/RealOutputs/ComponentPoses/Intake",
+                    "logKey": "/RealOutputs/ComponentPoses/Intake",
                     "logType": "Pose3d",
                     "visible": true,
                     "options": {}
                   },
                   {
                     "type": "component",
-                    "logKey": "NT:/AdvantageKit/RealOutputs/ComponentPoses/Climber",
+                    "logKey": "/RealOutputs/ComponentPoses/Climber",
                     "logType": "Pose3d",
                     "visible": true,
                     "options": {}
@@ -89,17 +94,52 @@
                 "cameraIndex": -1,
                 "orbitFov": 50,
                 "cameraPosition": [
-                  -9.43041100051696,
-                  1.648320885845589,
-                  4.722755860678859
+                  -6.688721358441825,
+                  3.4886532020801155,
+                  -3.4042409268348965
                 ],
                 "cameraTarget": [
-                  -8.703388076175028,
-                  0.3422369402767258,
-                  3.9777107532358036
+                  -6.580990173132665,
+                  1.4668880886510964,
+                  -1.2685225965821525
                 ]
               },
               "controlsHeight": 228
+            },
+            {
+              "type": 1,
+              "title": "Line Graph",
+              "controller": {
+                "leftSources": [
+                  {
+                    "type": "stepped",
+                    "logKey": "/Turret/TurretAngleDegrees",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#2b66a2",
+                      "size": "normal"
+                    }
+                  }
+                ],
+                "rightSources": [],
+                "discreteSources": [],
+                "leftLockedRange": null,
+                "rightLockedRange": null,
+                "leftUnitConversion": {
+                  "autoTarget": null,
+                  "preset": null
+                },
+                "rightUnitConversion": {
+                  "autoTarget": null,
+                  "preset": null
+                },
+                "leftFilter": 0,
+                "rightFilter": 0
+              },
+              "controllerUUID": "5w8v7ikyb3m9by7ze850nejat29ni231",
+              "renderer": null,
+              "controlsHeight": 200
             }
           ]
         }
