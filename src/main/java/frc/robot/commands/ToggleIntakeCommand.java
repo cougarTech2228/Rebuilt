@@ -26,7 +26,7 @@ public class ToggleIntakeCommand extends Command {
         // if the climber is extender, just ignore this request, and finish the command
         if (climber.isExtensionHome()) {
             intake.toggleIntake();
-        }
+        } 
         toggeled = true;
     }
 

@@ -204,6 +204,27 @@ public class RobotContainer {
         break;
     }
 
+    Command startFiringCommand = new StartFiringCommand(hopper, turret);
+    Command stopFiringCommand = new StopFiringCommand(hopper, turret);
+    Command deployIntakeCommand = new DeployIntakeCommand(hopper, intake);
+    Command retractIntakeCommand = new RetractIntakeCommand(hopper, intake);
+    Command startIntakeCommand = new StartIntakeCommand(hopper, intake);
+    Command stopIntakeCommand = new StopIntakeCommand(hopper, intake);
+    Command spitCommand = new SpitCommand(hopper, intake);
+    toggleIntakeCommand = new ToggleIntakeCommand(intake, climber);
+    
+    
+    // Register Auto commands
+    NamedCommands.registerCommand("startFiring", startFiringCommand);
+    NamedCommands.registerCommand("stopFiring", stopFiringCommand);
+    NamedCommands.registerCommand("deployIntake", deployIntakeCommand);
+    NamedCommands.registerCommand("retractIntake", retractIntakeCommand);
+    NamedCommands.registerCommand("startIntake", startIntakeCommand);
+    NamedCommands.registerCommand("stopIntake", stopIntakeCommand);
+    NamedCommands.registerCommand("spit", spitCommand);
+    NamedCommands.registerCommand("toggleIntakeCommand", toggleIntakeCommand);
+    // NamedCommands.registerCommand("performClimb", performClimbCommand);
+
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
 
@@ -225,34 +246,12 @@ public class RobotContainer {
     autoChooser.addOption(
         "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
-    Command startFiringCommand = new StartFiringCommand(hopper, turret);
-    Command stopFiringCommand = new StopFiringCommand(hopper, turret);
-    Command deployIntakeCommand = new DeployIntakeCommand(hopper, intake);
-    Command retractIntakeCommand = new RetractIntakeCommand(hopper, intake);
-    Command startIntakeCommand = new StartIntakeCommand(hopper, intake);
-    Command stopIntakeCommand = new StopIntakeCommand(hopper, intake);
-    Command spitCommand = new SpitCommand(hopper, intake);
-    Command autoToggleIntakeCommand = new ToggleIntakeCommand(intake, climber);
-    
-    
-    // Register Auto commands
-    NamedCommands.registerCommand("startFiring", startFiringCommand);
-    NamedCommands.registerCommand("stopFiring", stopFiringCommand);
-    NamedCommands.registerCommand("deployIntake", deployIntakeCommand);
-    NamedCommands.registerCommand("retractIntake", retractIntakeCommand);
-    NamedCommands.registerCommand("startIntake", startIntakeCommand);
-    NamedCommands.registerCommand("stopIntake", stopIntakeCommand);
-    NamedCommands.registerCommand("spit", spitCommand);
-    NamedCommands.registerCommand("toggleIntakeCommand", autoToggleIntakeCommand);
-    // NamedCommands.registerCommand("performClimb", performClimbCommand);
-
     extendClimberL1Command = new ExtendClimberCommand(climber, intake, ClimberLevel.L1);
     extendClimberL3Command = new ExtendClimberCommand(climber, intake, ClimberLevel.L3);
     climbL1Command = new ClimbCommand(climber, ClimberLevel.L1);
     climbL3Command = new ClimbCommand(climber, ClimberLevel.L3);
     descendCommand = new DescendCommand(climber);
     homeClimberCommand = new HomeClimberCommand(climber);
-    toggleIntakeCommand = new ToggleIntakeCommand(intake, climber);
 
     
     shootCommand = new ShootCommand(hopper, turret);
