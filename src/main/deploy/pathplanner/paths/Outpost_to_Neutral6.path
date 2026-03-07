@@ -8,7 +8,7 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.13,
+        "x": 1.63,
         "y": 6.0
       },
       "isLocked": false,
@@ -16,19 +16,44 @@
     },
     {
       "anchor": {
-        "x": 0.4,
-        "y": 0.67
+        "x": 4.631693181818182,
+        "y": 5.75
       },
       "prevControl": {
-        "x": 2.4,
-        "y": 0.6699999999999998
+        "x": 3.3317725372083182,
+        "y": 5.735636235971162
+      },
+      "nextControl": {
+        "x": 6.431583305124148,
+        "y": 5.769888288655314
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 7.8,
+        "y": 6.9
+      },
+      "prevControl": {
+        "x": 6.3,
+        "y": 6.9
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "DepotNorth"
+      "linkedName": "Neutral6"
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.7452830188679245,
+      "rotationDegrees": 180.0
+    },
+    {
+      "waypointRelativePos": 1.2358490566037714,
+      "rotationDegrees": 180.0
+    }
+  ],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],

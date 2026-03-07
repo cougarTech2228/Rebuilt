@@ -33,15 +33,15 @@
     {
       "anchor": {
         "x": 5.7,
-        "y": 5.1
+        "y": 5.3
       },
       "prevControl": {
         "x": 6.467113808763626,
-        "y": 5.1
+        "y": 5.3
       },
       "nextControl": {
         "x": 4.932886191236374,
-        "y": 5.1
+        "y": 5.3
       },
       "isLocked": false,
       "linkedName": null
@@ -66,11 +66,38 @@
       "rotationDegrees": -90.0
     },
     {
-      "waypointRelativePos": 2.2,
+      "waypointRelativePos": 2.0283018867924616,
       "rotationDegrees": 0.0
     }
   ],
-  "constraintZones": [],
+  "constraintZones": [
+    {
+      "name": "Balls",
+      "minWaypointRelativePos": 0,
+      "maxWaypointRelativePos": 1.25,
+      "constraints": {
+        "maxVelocity": 1.25,
+        "maxAcceleration": 3.0,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 720.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    },
+    {
+      "name": "Bump",
+      "minWaypointRelativePos": 2.0035906642728873,
+      "maxWaypointRelativePos": 3.0,
+      "constraints": {
+        "maxVelocity": 2.0,
+        "maxAcceleration": 3.0,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 720.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    }
+  ],
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {

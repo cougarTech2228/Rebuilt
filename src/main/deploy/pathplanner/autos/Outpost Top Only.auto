@@ -7,38 +7,7 @@
         {
           "type": "named",
           "data": {
-            "name": "DeployIntakeCommand"
-          }
-        },
-        {
-          "type": "parallel",
-          "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "OutpostOut_to_OutpostIn"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "StartIntakeCommand"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "StopIntakeCommand"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "OutpostIn_to_Neutral4"
+            "name": "toggleIntakeCommand"
           }
         },
         {
@@ -50,7 +19,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Neutral4_to_Neutral3"
+            "pathName": "Bump4_to_Outpost"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "StopIntakeCommand"
           }
         },
         {
@@ -58,9 +33,9 @@
           "data": {
             "commands": [
               {
-                "type": "path",
+                "type": "named",
                 "data": {
-                  "pathName": "Neutral3_to_LadderOut"
+                  "name": "StartFiringCommand"
                 }
               },
               {
@@ -70,13 +45,13 @@
                     {
                       "type": "wait",
                       "data": {
-                        "waitTime": 2.0
+                        "waitTime": 0.0
                       }
                     },
                     {
-                      "type": "named",
+                      "type": "path",
                       "data": {
-                        "name": "StartFiringCommand"
+                        "pathName": "Outpost_to_Neutral6"
                       }
                     }
                   ]
@@ -84,11 +59,29 @@
               }
             ]
           }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "StopFiringCommand"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Neutral6_to_Bump3 RoT"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "StartFiringCommand"
+          }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": null,
+  "folder": "Comp Autos",
   "choreoAuto": false
 }

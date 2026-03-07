@@ -13,6 +13,12 @@
         {
           "type": "named",
           "data": {
+            "name": "toggleIntakeCommand"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
             "name": "StartIntakeCommand"
           }
         },
@@ -76,6 +82,6 @@
     }
   },
   "resetOdom": true,
-  "folder": null,
+  "folder": "Comp Autos",
   "choreoAuto": false
 }
