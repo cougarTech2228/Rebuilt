@@ -74,7 +74,8 @@ public class TurretIOMotors implements TurretIO {
     private static final double TURRET_MOTOR_REVS_PER_DEGREE = (TURRET_GEAR_RATIO / 360);
 
     // How close the two encoders must match to be considered valid (in rotations)
-    private static final double MATCH_THRESHOLD = 0.05;
+    // Increased to 0.10 (36 degrees) to absorb physical belt/gear backlash of ~19 degrees
+    private static final double MATCH_THRESHOLD = 0.10;
 
     // degrees of error allowed for turret PID aiming
     private static final double ALLOWED_TURRET_ERROR_DEGREES = 5.0;
@@ -187,10 +188,10 @@ public class TurretIOMotors implements TurretIO {
         TalonFXConfiguration flywheelConfig = new TalonFXConfiguration();
         TalonFXConfiguration upperFlywheelConfig = new TalonFXConfiguration();
 
-        flywheelConfig.Slot0.kP = 0.5;
+        flywheelConfig.Slot0.kP = 0.1;
         flywheelConfig.Slot0.kI = 0.0;
         flywheelConfig.Slot0.kD = 0.0;
-        flywheelConfig.Slot0.kV = 0.1;
+        flywheelConfig.Slot0.kV = 0.111;
         flywheelConfig.Slot0.kA = 0.0;
 
         flywheelConfig.CurrentLimits.StatorCurrentLimit = 120.0; // Amps
@@ -203,7 +204,7 @@ public class TurretIOMotors implements TurretIO {
         flywheelMotorVoltageSignal = flywheelMotor.getMotorVoltage();
         flywheelMotorCurrentSignal = flywheelMotor.getStatorCurrent();
 
-        upperFlywheelConfig.Slot0.kP = 0.5;
+        upperFlywheelConfig.Slot0.kP = 0.3;
         upperFlywheelConfig.Slot0.kI = 0.0;
         upperFlywheelConfig.Slot0.kD = 0.0;
         upperFlywheelConfig.Slot0.kV = 0.1;
@@ -262,7 +263,7 @@ public class TurretIOMotors implements TurretIO {
         pos31Signal.refresh();
         pos37Signal.refresh();
 
-        // CRITICAL FIX: Normalize to 0..360 natively right away to prevent ANY negative modulo weirdness
+        // Normalize to 0..360 natively right away to prevent ANY negative modulo weirdness
         double deg1 = normalizeDegrees(pos31Signal.getValueAsDouble() * 360.0);
         double deg2 = normalizeDegrees(pos37Signal.getValueAsDouble() * 360.0);
 
@@ -274,7 +275,8 @@ public class TurretIOMotors implements TurretIO {
             // Unwrap enc31 by k full rotations, then back-calculate the implied turret angle.
             double candidateTurretDeg = (deg1 + (k * 360.0)) / RATIO_31;
 
-            if (candidateTurretDeg < -1000.0 || candidateTurretDeg > 1000.0) {
+            if (candidateTurretDeg < TurretConstants.TURRET_MIN_ROTATION - 40.0 ||
+                candidateTurretDeg > TurretConstants.TURRET_MAX_ROTATION + 40.0) {
                 continue;
             }
 
@@ -388,8 +390,8 @@ public class TurretIOMotors implements TurretIO {
         final double upperFlywheelT = targetUpperFlywheelVelocity; 
 
         return (targetFlywheelVelocity > 0 &&
-            (Math.abs(flywheelV - flywheelT) < (0.05 * targetFlywheelVelocity)) && ((targetUpperFlywheelVelocity > 0) 
-            && (Math.abs(upperFlywheelV - upperFlywheelT) < (0.05 * targetUpperFlywheelVelocity))));
+            (Math.abs(flywheelV - flywheelT) < (0.10 * targetFlywheelVelocity)) && ((targetUpperFlywheelVelocity > 0) 
+            && (Math.abs(upperFlywheelV - upperFlywheelT) < (0.10 * targetUpperFlywheelVelocity))));
     }
 
     private boolean isTurretAtTarget() {

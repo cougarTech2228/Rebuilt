@@ -20,8 +20,8 @@ public class TurretConstants {
     public static final double TURRET_MIN_ROTATION = -50;
     public static final double TURRET_MAX_ROTATION = 205.0;
 
-    public static final double ENCODER_31T_OFFSET = 0.342773;
-    public static final double ENCODER_37T_OFFSET = -0.053711;
+    public static final double ENCODER_31T_OFFSET = 0.422119;
+    public static final double ENCODER_37T_OFFSET = -0.040527;
     public static final double ENCODER_HOOD_MAGNET_OFFSET = -0.058105;
 
     public static final double HOOD_GEAR_RATIO = (85/12);

@@ -41,6 +41,8 @@ public class Turret extends SubsystemBase{
         SmartDashboard.putNumber("TurretTestFlywheelRatio", 1.0);
 
         SmartDashboard.putNumber("TurretAngle", 0.0);
+        SmartDashboard.putNumber("TurretTestX", 4.6129);
+        SmartDashboard.putNumber("TurretTestIntercept", 28);
     }
 
     private double getTargetDistance() {
@@ -133,15 +135,11 @@ public class Turret extends SubsystemBase{
         double angle;
 
         if (aimTarget == TurretAimTarget.Hub) {
-            // // y = 4E-11x4 - 8E-08x3 + 6E-05x2 - 0.0139x + 1.1316
-            // angle = (4E-11 * Math.pow(distance, 4)) -
-            //         (8E-08 * Math.pow(distance, 3)) +
-            //         (6E-05 * Math.pow(distance, 2)) -
-            //         (0.0139 * distance) + 1.1316;
+            // y = 0.0099x3 - 0.1406x2 + 0.6786x - 0.6695
 
-            // y = -0.0666x2 + 0.561x - 0.7949
-
-            angle = (-0.0666 * distance * distance) + (0.561 * distance) - 0.7949;
+            angle = (0.0099 * distance * distance * distance) -
+                    (0.1406 * distance * distance) +
+                    (0.6786 * distance) - 0.6695;
 
         } else {
             // FIX ME -- need real fomula
@@ -159,13 +157,13 @@ public class Turret extends SubsystemBase{
     //     // y = 5E-09x3 - 7E-06x2 + 0.0029x + 0.6728
     // }
 
-    private double getVelocityForTarget() {
+    private double getVelocityForTarget(boolean test) {
         double distance = 0;
 
-        double turretTestDistance = SmartDashboard.getNumber("TurretTestDistance", 0.0);
-        if (turretTestDistance > 0) {
+        if (test) {
+            double turretTestDistance = SmartDashboard.getNumber("TurretTestDistance", 0.0);
             distance = turretTestDistance;
-        } else {
+         } else {
             Pose2d robotPose = driveSubsystem.getPose();
             Pose2d targetPose = getTargetPoint(aimTarget);
             distance = robotPose.getTranslation().getDistance(targetPose.getTranslation());
@@ -174,10 +172,10 @@ public class Turret extends SubsystemBase{
         double velocity;
 
         if (aimTarget == TurretAimTarget.Hub) {
-            // // y = -4E-05x2 + 0.0706x + 24.273
-            // velocity = (-4E-05 * distance * distance) + (0.0706 * distance) + 24.273;
-            //y = 3.5535x + 21.142
-            velocity = (3.5535 * distance) + 21.142;
+            double turretTestX = SmartDashboard.getNumber("TurretTestX", 4.6129);
+            double TurretTestIntercept = SmartDashboard.getNumber("TurretTestIntercept", 28);
+            //y = 4.6129x + 29.763
+            velocity = (turretTestX * distance) + TurretTestIntercept;
 
         } else {
             // FIX ME -- need real fomula
@@ -221,7 +219,8 @@ public class Turret extends SubsystemBase{
             // intake.setIntakeVelocity(SmartDashboard.getNumber("IntakeVelocity", 1.0));
         } else {
             if (enable) {
-                setFlywheelVelocity(getVelocityForTarget(), getVelocityForTarget());
+                double vel = getVelocityForTarget(false);
+                setFlywheelVelocity(vel, vel * 1.2);
                 setHoodElevation(getAngleForTarget());
             } else {
                 setFlywheelVelocity(0, 0);
