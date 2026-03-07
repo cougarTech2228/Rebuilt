@@ -71,6 +71,10 @@ public class Module {
     turnEncoderDisconnectedAlert.set(!inputs.turnEncoderConnected);
   }
 
+  public void setAcceleration(double metersPerSecondPerSecond) {
+    io.setAcceleration(metersPerSecondPerSecond);
+  }
+
   /** Runs the module with the specified setpoint state. Mutates the state to optimize it. */
   public void runSetpoint(SwerveModuleState state) {
     // Optimize velocity setpoint

@@ -99,7 +99,7 @@ public class ClimberIOMotor implements ClimberIO {
         climberConfig.HardwareLimitSwitch.ReverseLimitEnable = true;
         climberConfig.HardwareLimitSwitch.ReverseLimitAutosetPositionEnable = true;
         climberConfig.HardwareLimitSwitch.ReverseLimitAutosetPositionValue = 0;
-        climberConfig.HardwareLimitSwitch.ReverseLimitType = ReverseLimitTypeValue.NormallyOpen;
+        climberConfig.HardwareLimitSwitch.ReverseLimitType = ReverseLimitTypeValue.NormallyClosed;
 
         climberConfig.MotionMagic.MotionMagicCruiseVelocity = 90.0;
         climberConfig.MotionMagic.MotionMagicAcceleration = 200;
@@ -122,7 +122,7 @@ public class ClimberIOMotor implements ClimberIO {
     }
 
     private boolean isClimberHome() {
-        return climberMotor.getReverseLimit().getValue() == ReverseLimitValue.ClosedToGround;
+        return climberMotor.getReverseLimit().getValue() == ReverseLimitValue.Open;
     }
 
     public void updateInputs(ClimberIOInputs inputs) {

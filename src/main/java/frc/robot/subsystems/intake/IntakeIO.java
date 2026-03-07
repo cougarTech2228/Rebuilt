@@ -19,6 +19,7 @@ public interface IntakeIO {
         public double angleMotorCurrent = 0.0;
         public double angleMotorPIDSetpoint = 0.0;
         public double intakeEncoder = 0.0;
+        public boolean isAngleMotorStalled = false;
 
         public boolean atHome = false;
         

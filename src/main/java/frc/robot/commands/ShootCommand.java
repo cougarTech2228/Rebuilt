@@ -14,13 +14,8 @@ public class ShootCommand extends Command {
     }
 
     @Override
-    public void initialize() {
-        turret.enableShooter(true);
-    }
-
-
-    @Override
     public void execute() {
+        turret.enableShooter(true);
         if (turret.canShoot()) {
             hopper.indexerOn(false);
             hopper.kickerOn(false);

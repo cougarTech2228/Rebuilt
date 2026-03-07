@@ -17,6 +17,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -97,6 +98,9 @@ public class RobotContainer {
 
   // Controller
   private final CommandXboxController controller = new CommandXboxController(0);
+
+  private double driverOverridePercentage = 1;
+  private double currentPercentage = 1;
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
@@ -304,6 +308,13 @@ public class RobotContainer {
     controller.rightBumper().onTrue(toggleIntakeCommand);
     controller.rightTrigger(0.5).whileTrue(shootCommand);
 
+    controller.leftBumper()
+        .onTrue(new InstantCommand(() -> {
+            driverOverridePercentage = 0.3;
+        }))
+        .onFalse(new InstantCommand(() -> {
+            driverOverridePercentage = 1.0;
+        }));
 //    // Auto aim command example
 //     @SuppressWarnings("resource")
 //     PIDController aimController = new PIDController(0.2, 0.0, 0.0);
@@ -386,13 +397,30 @@ public class RobotContainer {
   }
 
   public void teleopPeriodic() {
-    
     if (SmartDashboard.getBoolean("TestMode", false)) {
           intake.setIntakeAngle(SmartDashboard.getNumber("IntakePosition", 1.0));
     }
+    calculateMaxAcceleration();
   }
 
   public void autonomousPeriodic() {
+  }
+
+  public void calculateMaxAcceleration() {
+    if (!DriverStation.isAutonomous()) {
+      double percentage = 1; // default to full
+
+      double value = Math.min(percentage, driverOverridePercentage);
+      if (Math.abs(currentPercentage - value) > 0.05) {
+        currentPercentage = value;
+        drive.setAccelerationPercentage(value);
+      }
+    } else {
+      if (currentPercentage != 1) {
+        currentPercentage = 1;
+          drive.setAccelerationPercentage(currentPercentage);
+      }
+    }
   }
 
   private void startCommand(Command command) {

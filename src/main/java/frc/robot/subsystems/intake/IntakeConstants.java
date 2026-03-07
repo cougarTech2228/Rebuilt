@@ -2,11 +2,15 @@ package frc.robot.subsystems.intake;
 
 public class IntakeConstants {
     
-    public static final double idleVelocity = 0.0;
-    public static final double intakeVelocity = -8;
-    public static final double spitVelocity = -12;
+    public static final double INTAKE_MOTOR_IDLE_VOLTAGE = 0.0;
+    public static final double INTAKE_MOTOR_INTAKE_VOLTAGE = -10;
+    public static final double INTAKE_MOTOR_SPIT_VOLTAGE = -12;
 
-    public static final double homePosition = 0.0;
-    public static final double deployedPosition = 33.8;
+    public static final double ANGLE_MOTOR_HOME_POSITION = 0.0;
+    public static final double ANGLE_MOTOR_DEPLOYED_POSITION = 33.8;
     public static final double ANGLE_PID_THRESHOLD = 1;
+
+    public static final double ANGLE_MOTOR_STALL_CURRENT_THRESHOLD = 15;
+    public static final double ANGLE_MOTOR_STALL_VELOCITY_THRESHOLD = 100;
+    public static final double INTAKE_ENCODER_OFFSET = 0.454346;
 }

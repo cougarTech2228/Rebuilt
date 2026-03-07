@@ -86,8 +86,9 @@ public class Intake extends SubsystemBase{
     }
 
     public boolean isRetracted() {
-        return (intakeInputs.angleMotorPIDSetpoint == IntakeConstants.homePosition &&
-            (Math.abs (intakeInputs.angleMotorPosition - intakeInputs.angleMotorPIDSetpoint) < IntakeConstants.ANGLE_PID_THRESHOLD));
+        return true;
+        // return (intakeInputs.angleMotorPIDSetpoint == IntakeConstants.ANGLE_MOTOR_HOME_POSITION &&
+        //     (Math.abs (intakeInputs.angleMotorPosition - intakeInputs.angleMotorPIDSetpoint) < IntakeConstants.ANGLE_PID_THRESHOLD));
     }
 
     public void stop() {

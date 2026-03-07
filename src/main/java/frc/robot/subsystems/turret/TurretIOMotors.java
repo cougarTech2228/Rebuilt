@@ -390,7 +390,7 @@ public class TurretIOMotors implements TurretIO {
         final double upperFlywheelT = targetUpperFlywheelVelocity; 
 
         return (targetFlywheelVelocity > 0 &&
-            (Math.abs(flywheelV - flywheelT) < (0.10 * targetFlywheelVelocity)) && ((targetUpperFlywheelVelocity > 0) 
+            (Math.abs(flywheelV - flywheelT) < (0.10 * targetFlywheelVelocity)) && ((targetUpperFlywheelVelocity > 0)
             && (Math.abs(upperFlywheelV - upperFlywheelT) < (0.10 * targetUpperFlywheelVelocity))));
     }
 

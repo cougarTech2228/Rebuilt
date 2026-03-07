@@ -36,7 +36,7 @@ public class IntakeIOMotors implements IntakeIO {
         anglePID = angleMotor.getClosedLoopController();
 
         SparkMaxConfig angleConfig = new SparkMaxConfig();
-        angleConfig.idleMode(IdleMode.kBrake).smartCurrentLimit(40);
+        angleConfig.idleMode(IdleMode.kBrake).smartCurrentLimit(20);
         angleConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder)
             .p(1)
             .i(0)
@@ -62,9 +62,9 @@ public class IntakeIOMotors implements IntakeIO {
         CANcoderConfiguration encoderConfig = new CANcoderConfiguration();
         encoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.5;
         encoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-        encoderConfig.MagnetSensor.MagnetOffset = -0.217285; // zero out to the retracted position
+        encoderConfig.MagnetSensor.MagnetOffset = IntakeConstants.INTAKE_ENCODER_OFFSET; // zero out to the retracted position
         intakeEncoder.getConfigurator().apply(encoderConfig);
-        encoderPositionSignal = intakeEncoder.getPosition();
+        encoderPositionSignal = intakeEncoder.getAbsolutePosition();
         encoderPositionSignal.waitForUpdate(0.2);
 
         // seed the motor position based on the cancoder
@@ -86,15 +86,22 @@ public class IntakeIOMotors implements IntakeIO {
 
         inputs.intakeEncoder = encoderPositionSignal.getValueAsDouble();
 
+        if (inputs.angleMotorPIDSetpoint == IntakeConstants.ANGLE_MOTOR_HOME_POSITION &&
+            inputs.angleMotorCurrent > IntakeConstants.ANGLE_MOTOR_STALL_CURRENT_THRESHOLD && 
+            inputs.angleMotorVoltage < IntakeConstants.ANGLE_MOTOR_STALL_VELOCITY_THRESHOLD) {
+            inputs.isAngleMotorStalled = true;
+        } else {
+             inputs.isAngleMotorStalled = false;
+        }
     }
 
     public void setIntakeAngle(IntakeAngle angle) {
         switch (angle) {
             case HOME:
-                anglePID.setSetpoint(IntakeConstants.homePosition, ControlType.kMAXMotionPositionControl);
+                anglePID.setSetpoint(IntakeConstants.ANGLE_MOTOR_HOME_POSITION, ControlType.kMAXMotionPositionControl);
                 break;
             case DEPLOYED:
-                anglePID.setSetpoint(IntakeConstants.deployedPosition, ControlType.kMAXMotionPositionControl);
+                anglePID.setSetpoint(IntakeConstants.ANGLE_MOTOR_DEPLOYED_POSITION, ControlType.kMAXMotionPositionControl);
                 break;
         }
     }
@@ -104,15 +111,15 @@ public class IntakeIOMotors implements IntakeIO {
         switch (mode) {
             case INTAKE:
                 setIntakeAngle(IntakeAngle.DEPLOYED);
-                intakeMotorVoltage = IntakeConstants.intakeVelocity;
+                intakeMotorVoltage = IntakeConstants.INTAKE_MOTOR_INTAKE_VOLTAGE;
                 break;
             case SPIT:
                 setIntakeAngle(IntakeAngle.DEPLOYED);
-                intakeMotorVoltage = IntakeConstants.spitVelocity;
+                intakeMotorVoltage = IntakeConstants.INTAKE_MOTOR_SPIT_VOLTAGE;
                 break;
             case IDLE:
                 setIntakeAngle(IntakeAngle.HOME);
-                intakeMotorVoltage = IntakeConstants.idleVelocity;
+                intakeMotorVoltage = IntakeConstants.INTAKE_MOTOR_IDLE_VOLTAGE;
                 break;
         }
         intakeMotor.setVoltage(intakeMotorVoltage);

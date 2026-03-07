@@ -290,7 +290,7 @@ public class Drive extends SubsystemBase {
 
   /** Returns the measured chassis speeds of the robot. */
   @AutoLogOutput(key = "SwerveChassisSpeeds/Measured")
-  private ChassisSpeeds getChassisSpeeds() {
+  public ChassisSpeeds getChassisSpeeds() {
     return kinematics.toChassisSpeeds(getModuleStates());
   }
 
@@ -356,4 +356,13 @@ public class Drive extends SubsystemBase {
       new Translation2d(TunerConstants.BackRight.LocationX, TunerConstants.BackRight.LocationY)
     };
   }
+
+  /** Limit max acceleration */
+  public void setAccelerationPercentage(double percentage) {
+      // double acceleration = TunerConstants.kMaxLinearAcceleration.magnitude() * percentage;
+      for (int i = 0; i < 4; i++) {
+          modules[i].setAcceleration(percentage);
+      }
+  }
+
 }
