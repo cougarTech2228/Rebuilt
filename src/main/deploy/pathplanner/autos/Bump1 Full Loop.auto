@@ -24,22 +24,9 @@
           }
         },
         {
-          "type": "parallel",
+          "type": "path",
           "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "Neutral1_to_Neutral5"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "StartIntakeCommand"
-                }
-              }
-            ]
+            "pathName": "Neutral1_to_Neutral5"
           }
         },
         {
@@ -53,21 +40,28 @@
           "data": {
             "commands": [
               {
-                "type": "path",
-                "data": {
-                  "pathName": "Bump4_to_LadderIn"
-                }
-              },
-              {
                 "type": "sequential",
                 "data": {
                   "commands": [
                     {
                       "type": "wait",
                       "data": {
-                        "waitTime": 0.5
+                        "waitTime": 1.0
                       }
                     },
+                    {
+                      "type": "path",
+                      "data": {
+                        "pathName": "Bump4_to_LadderIn"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "sequential",
+                "data": {
+                  "commands": [
                     {
                       "type": "named",
                       "data": {
@@ -78,12 +72,6 @@
                 }
               }
             ]
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "toggleIntakeCommand"
           }
         },
         {

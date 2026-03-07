@@ -50,7 +50,7 @@ public class Turret extends SubsystemBase{
 
         // Shoot-on-the-move tuning parameter. Represents the average m/s of the fuel
         // across its entire flight path.
-        SmartDashboard.putNumber("TurretShotSpeedMpS", 15.0);
+        SmartDashboard.putNumber("TurretShotSpeedMpS", 1.9);
     }
 
     private double getTargetDistance() {

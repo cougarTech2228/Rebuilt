@@ -11,21 +11,9 @@
           }
         },
         {
-          "type": "named",
-          "data": {
-            "name": "StartIntakeCommand"
-          }
-        },
-        {
           "type": "path",
           "data": {
             "pathName": "Bump4_to_Outpost"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "StopIntakeCommand"
           }
         },
         {

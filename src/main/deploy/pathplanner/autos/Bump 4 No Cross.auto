@@ -9,37 +9,18 @@
           "data": {
             "commands": [
               {
-                "type": "sequential",
-                "data": {
-                  "commands": [
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "DeployIntakeCommand"
-                      }
-                    },
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "StartIntakeCommand"
-                      }
-                    }
-                  ]
-                }
-              },
-              {
                 "type": "path",
                 "data": {
                   "pathName": "Bump4_to_Outpost"
                 }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "toggleIntakeCommand"
+                }
               }
             ]
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "StopIntakeCommand"
           }
         },
         {

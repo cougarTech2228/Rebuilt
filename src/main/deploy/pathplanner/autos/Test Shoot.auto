@@ -7,13 +7,25 @@
         {
           "type": "path",
           "data": {
-            "pathName": "ClimbTest"
+            "pathName": "Test Shoot"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "toggleIntakeCommand"
+            "name": "StartFiringCommand"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 5.0
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "StopFiringCommand"
           }
         }
       ]

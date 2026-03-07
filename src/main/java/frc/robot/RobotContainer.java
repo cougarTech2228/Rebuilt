@@ -414,12 +414,6 @@ public class RobotContainer {
     return autoChooser.get();
   }
 
-  public void calculateMaxAcceleration() {
-    if (currentlyIntaking) {
-
-    }
-  }
-
   public void simulationPeriodic() {
   }
 
