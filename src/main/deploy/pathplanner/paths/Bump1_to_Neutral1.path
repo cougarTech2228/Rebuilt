@@ -4,12 +4,12 @@
     {
       "anchor": {
         "x": 3.6,
-        "y": 2.2
+        "y": 2.5
       },
       "prevControl": null,
       "nextControl": {
         "x": 4.099893516313421,
-        "y": 2.2103185438800166
+        "y": 2.5103185438800164
       },
       "isLocked": false,
       "linkedName": "Bump1"
@@ -17,15 +17,31 @@
     {
       "anchor": {
         "x": 5.7,
-        "y": 2.2
+        "y": 2.5
       },
       "prevControl": {
-        "x": 5.450000000000003,
-        "y": 2.2
+        "x": 5.450712631530417,
+        "y": 2.5188628715075945
       },
       "nextControl": {
-        "x": 6.9,
-        "y": 2.2
+        "x": 5.981886363636363,
+        "y": 2.478670454545455
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 6.115875,
+        "y": 0.8398863636363638
+      },
+      "prevControl": {
+        "x": 5.651934953035122,
+        "y": 1.0263257179106866
+      },
+      "nextControl": {
+        "x": 6.449295454545454,
+        "y": 0.7058977272727269
       },
       "isLocked": false,
       "linkedName": null
@@ -37,7 +53,7 @@
       },
       "prevControl": {
         "x": 7.8,
-        "y": -0.25
+        "y": 0.5
       },
       "nextControl": null,
       "isLocked": false,
@@ -53,10 +69,10 @@
   "constraintZones": [
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 0.0,
-      "maxWaypointRelativePos": 1.0,
+      "minWaypointRelativePos": 1.6427289048473934,
+      "maxWaypointRelativePos": 3.0,
       "constraints": {
-        "maxVelocity": 1.5,
+        "maxVelocity": 1.0,
         "maxAcceleration": 3.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,
@@ -68,7 +84,7 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 4.0,
+    "maxVelocity": 2.0,
     "maxAcceleration": 10.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
@@ -76,7 +92,7 @@
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 0,
+    "velocity": 0.0,
     "rotation": 90.0
   },
   "reversed": false,
@@ -85,5 +101,5 @@
     "velocity": 0.0,
     "rotation": 0.0
   },
-  "useDefaultConstraints": true
+  "useDefaultConstraints": false
 }

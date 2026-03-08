@@ -1,0 +1,38 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Test Straight"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "StartFiringCommand"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "StopFiringCommand"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": "Test Autos",
+  "choreoAuto": false
+}

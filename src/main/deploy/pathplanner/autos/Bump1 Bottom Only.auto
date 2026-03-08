@@ -29,29 +29,27 @@
           }
         },
         {
-          "type": "parallel",
+          "type": "named",
           "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "Bump2_to_LadderOut"
-                }
-              },
-              {
-                "type": "sequential",
-                "data": {
-                  "commands": [
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "StartFiringCommand"
-                      }
-                    }
-                  ]
-                }
-              }
-            ]
+            "name": "StartFiringCommand"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 8.0
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "StopFiringCommand"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Bump2_to_LadderOut"
           }
         },
         {

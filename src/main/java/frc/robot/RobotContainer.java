@@ -231,14 +231,14 @@ public class RobotContainer {
     
     
     // Register Auto commands
-    NamedCommands.registerCommand("startFiringCommand", startFiringCommand);
-    NamedCommands.registerCommand("stopFiringCommand", stopFiringCommand);
+    NamedCommands.registerCommand("StartFiringCommand", startFiringCommand);
+    NamedCommands.registerCommand("StopFiringCommand", stopFiringCommand);
     // NamedCommands.registerCommand("deployIntakeCommand", deployIntakeCommand);
     // NamedCommands.registerCommand("retractIntakeCommand", retractIntakeCommand);
     // NamedCommands.registerCommand("startIntakeCommand", startIntakeCommand);
     // NamedCommands.registerCommand("stopIntakeCommand", stopIntakeCommand);
-    NamedCommands.registerCommand("spitCommand", spitCommand);
-    NamedCommands.registerCommand("toggleIntakeCommand", toggleIntakeCommand);
+    NamedCommands.registerCommand("SpitCommand", spitCommand);
+    NamedCommands.registerCommand("ToggleIntakeCommand", toggleIntakeCommand);
     // NamedCommands.registerCommand("performClimb", performClimbCommand);
 
     // Set up auto routines

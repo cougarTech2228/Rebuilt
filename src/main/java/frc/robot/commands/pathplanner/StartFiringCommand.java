@@ -23,8 +23,10 @@ public class StartFiringCommand extends Command {
 
 	@Override
 	public void execute() {
+
 		if (turret.canShoot() && isIndexerOn == false) {
 			hopper.indexerOn(false);
+			hopper.kickerOn(false);
 			isIndexerOn = true;
 		}
 	}
@@ -34,12 +36,14 @@ public class StartFiringCommand extends Command {
 		if(interrupted) {
 			turret.enableShooter(false);
 			hopper.indexerOff();
+			hopper.kickerOff();
 		}
 		isIndexerOn = false;
 	}
 
 	@Override
 	public boolean isFinished() {
-		return turret.canShoot();
+		return isIndexerOn;
 	}
+
 }

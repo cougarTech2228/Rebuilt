@@ -13,26 +13,17 @@ public class StopFiringCommand extends Command {
 		this.turret = turret;
 	}
 
-	private boolean initialized = false;
 
 	@Override
 	public void initialize() {
 		turret.enableShooter(false);
 		hopper.indexerOff();
+		hopper.kickerOff();
 	}
 
-	@Override
-	public void execute() {
-
-	}
-
-	@Override
-	public void end(boolean interrupted) {
-
-	}
 
 	@Override
 	public boolean isFinished() {
-		return turret.canShoot();
+		return true;
 	}
 }
