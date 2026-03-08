@@ -224,6 +224,9 @@ public class ClimberIOMotor implements ClimberIO {
 
     @Override
     public boolean isExtended(Climber.ClimberLevel level) {
+        if (!climberReadyDIO.get()) {
+            return true;
+        }
         double target = 0;
         switch (level) {
             case L1:

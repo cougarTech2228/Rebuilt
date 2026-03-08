@@ -94,6 +94,10 @@ public class Climber extends SubsystemBase {
             RobotContainer.climberPose.getY(),
             RobotContainer.climberPose.getZ(),
             new Rotation3d(-Units.degreesToRadians(ClimberConstants.CLIMBER_ROATATION_DEG_PER_MOTOR_ROTATION * climberInputs.climberMotorPosition) , 0, 0));
+
+        if (climberInputs.isClimberReady) {
+            climberIO.stopExtension();
+        }
     }
 
     public boolean isClimbComplete() {

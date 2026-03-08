@@ -31,9 +31,9 @@ public class AlignClimbCommand extends Command {
 
     private DriverStation.Alliance alliance;
     // 0.970
-    private static final Pose2d BLUE_TOWER_NORTH = new Pose2d(0.970, 4.550, Rotation2d.fromDegrees(0)); // +0.5
+    private static final Pose2d BLUE_TOWER_NORTH = new Pose2d(0.970, 4.560, Rotation2d.fromDegrees(0)); // +0.5
     // Blue tower south needs readjusting
-    private static final Pose2d BLUE_TOWER_SOUTH = new Pose2d(1.05, 2.780, Rotation2d.fromDegrees(0)); // +0.5
+    private static final Pose2d BLUE_TOWER_SOUTH = new Pose2d(1.198, 2.852, Rotation2d.fromDegrees(0)); // +0.5
     private static final Pose2d RED_TOWER_NORTH = new Pose2d(15.318, 5.336, Rotation2d.fromDegrees(0)); // -0.5
     private static final Pose2d RED_TOWER_SOUTH = new Pose2d(15.635, 3.357, Rotation2d.fromDegrees(0)); // -0.5
 
@@ -81,8 +81,8 @@ public class AlignClimbCommand extends Command {
         } else if (Zone.HOME_ALLIANCE_ZONE_SOUTH.inZone(currentPose, alliance)) {
              targetPose = (alliance == Alliance.Blue) ? BLUE_TOWER_SOUTH : RED_TOWER_SOUTH;
              finalRotation = (alliance == Alliance.Blue) ? BLUE_SOUTH_ROTATION : RED_SOUTH_ROTATION;
-             approachYOffset = -1.5;
-             approachXOffset = (alliance == Alliance.Blue) ? 1.0 : -1.0;
+            //  approachYOffset = -1.5;
+             approachXOffset = (alliance == Alliance.Blue) ? -0.60 : 0.60;
         } else {
             this.cancel();
             return;
@@ -103,15 +103,6 @@ public class AlignClimbCommand extends Command {
 
         // Make path
         PathPlannerPath path = new PathPlannerPath(
-            // waypoints,
-            // new ArrayList<>(), // No specific rotation targets needed as we use GoalEndState
-            // new ArrayList<>(), 
-            // listCZones,        // Your constraint zones from the constructor
-            // new ArrayList<>(), 
-            // globalConstraints,
-            // null,              // Starting state (null for on-the-fly)
-            // new GoalEndState(0.0, targetPose.getRotation()),
-            // false
             waypoints,
             new ArrayList<>(), 
             new ArrayList<>(), 
