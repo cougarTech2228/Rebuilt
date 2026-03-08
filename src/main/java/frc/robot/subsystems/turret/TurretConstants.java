@@ -22,7 +22,7 @@ public class TurretConstants {
 
     public static final double ENCODER_31T_OFFSET = 0.304443;
     public static final double ENCODER_37T_OFFSET = 0.338623;
-    public static final double ENCODER_HOOD_MAGNET_OFFSET = -0.058105;
+    public static final double ENCODER_HOOD_MAGNET_OFFSET = -0.041504;
 
     public static final double HOOD_GEAR_RATIO = (85/12);
 }

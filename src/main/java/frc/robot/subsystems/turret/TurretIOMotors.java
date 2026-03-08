@@ -138,7 +138,8 @@ public class TurretIOMotors implements TurretIO {
         hoodConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder)
             .p(0.5)
             .i(0)
-            .d(0);
+            .d(0)
+            .feedForward.kV(0.000);
         hoodConfig.closedLoop.maxMotion.maxAcceleration(3000);
         hoodConfig.closedLoop.maxMotion.cruiseVelocity(2000);
         hoodConfig.closedLoop.maxMotion.positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal);

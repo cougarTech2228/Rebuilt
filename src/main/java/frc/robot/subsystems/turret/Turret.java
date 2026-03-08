@@ -36,6 +36,8 @@ public class Turret extends SubsystemBase{
     // Store the compensated target each loop
     private Pose2d virtualTargetPose = new Pose2d();
 
+    private double currentHoodAngle = 0;
+
     public Turret(TurretIO turretIO, Drive driveSubsystem) {
         this.turretIO = turretIO;
         this.driveSubsystem = driveSubsystem;
@@ -48,7 +50,11 @@ public class Turret extends SubsystemBase{
         SmartDashboard.putNumber("TurretAngle", 0.0);
         SmartDashboard.putNumber("TurretTestX", 4.6129);
         SmartDashboard.putNumber("TurretTestIntercept", 28);
+        SmartDashboard.putNumber("TurretTestAngleIntercept", 0.7);
 
+        SmartDashboard.setPersistent("TurretTestX");
+        SmartDashboard.setPersistent("TurretTestIntercept");
+        SmartDashboard.setPersistent("TurretTestAngleIntercept");
         // Shoot-on-the-move tuning parameter. Represents the average m/s of the fuel
         // across its entire flight path.
         SmartDashboard.putNumber("TurretShotSpeedMpS", 1.9);
@@ -178,10 +184,11 @@ public class Turret extends SubsystemBase{
 
         if (aimTarget == TurretAimTarget.Hub) {
             // y = 0.0099x3 - 0.1406x2 + 0.6786x - 0.6695
+            double turretTestAngleX = SmartDashboard.getNumber("TurretTestAngleIntercept", 0.7);
 
             angle = (0.0099 * distance * distance * distance) -
                     (0.1406 * distance * distance) +
-                    (0.6786 * distance) - 0.6695;
+                    (0.6786 * distance) - turretTestAngleX;
 
         } else {
             angle = 1.3;
@@ -191,6 +198,7 @@ public class Turret extends SubsystemBase{
         angle = Math.min(angle, TurretConstants.HOOD_MAX_ANGLE);
         angle = Math.max(angle, TurretConstants.HOOD_MIN_ANGLE);
 
+         Logger.recordOutput("Turret/RealAngle", angle);
         return angle;
     }
 
@@ -211,8 +219,8 @@ public class Turret extends SubsystemBase{
         double velocity;
 
         if (aimTarget == TurretAimTarget.Hub) {
-            double turretTestX = SmartDashboard.getNumber("TurretTestX", 4.6129);
-            double TurretTestIntercept = SmartDashboard.getNumber("TurretTestIntercept", 28);
+            double turretTestX = SmartDashboard.getNumber("TurretTestX", 4.85);
+            double TurretTestIntercept = SmartDashboard.getNumber("TurretTestIntercept", 28.5);
             //y = 4.6129x + 29.763
             velocity = (turretTestX * distance) + TurretTestIntercept;
 
@@ -260,7 +268,11 @@ public class Turret extends SubsystemBase{
             if (enable) {
                 double vel = getVelocityForTarget(false);
                 setFlywheelVelocity(vel, vel * 1.2);
-                setHoodElevation(getAngleForTarget());
+                double angle = getAngleForTarget();
+                if (Math.abs(angle - currentHoodAngle) > 0.01) {
+                    currentHoodAngle = angle;
+                    setHoodElevation(getAngleForTarget());
+                }
             } else {
                 setFlywheelVelocity(0, 0);
                 // no need to move the hood on disable
