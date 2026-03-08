@@ -31,6 +31,7 @@ public class Turret extends SubsystemBase{
     private Drive driveSubsystem;
 
     private TurretAimTarget aimTarget = TurretAimTarget.Hub;
+    private boolean climbModeEnabled = false;
 
     // Store the compensated target each loop
     private Pose2d virtualTargetPose = new Pose2d();
@@ -105,6 +106,10 @@ public class Turret extends SubsystemBase{
     }
 
     public void setAimTarget(TurretAimTarget target) {
+        if (climbModeEnabled) {
+            turretIO.setTurretAngle(180);
+            return;
+        }
         aimTarget = target;
         Pose2d robotPose = driveSubsystem.getPose();
         // Point the turret at the compensated virtual target
@@ -179,8 +184,7 @@ public class Turret extends SubsystemBase{
                     (0.6786 * distance) - 0.6695;
 
         } else {
-            // FIX ME -- need real fomula
-            angle = 0.4;
+            angle = 1.3;
         }
 
         // sanity check the values
@@ -213,8 +217,8 @@ public class Turret extends SubsystemBase{
             velocity = (turretTestX * distance) + TurretTestIntercept;
 
         } else {
-            // FIX ME -- need real fomula
-            velocity = (distance + 1.2833) / 0.187;
+            //y = 5.2631x + 18.264
+            velocity = (5.2631 * distance) + 18.264;
         }
 
         // cap the speed to an achievable value
@@ -310,5 +314,9 @@ public class Turret extends SubsystemBase{
             }
         }
         return pose;
+    }
+
+    public void climbMode(boolean enable) {
+        this.climbModeEnabled = enable;
     }
 }

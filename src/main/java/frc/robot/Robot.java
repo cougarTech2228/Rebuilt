@@ -137,6 +137,8 @@ public class Robot extends LoggedRobot {
 
     // Start a new auto aim command that is always running
     CommandScheduler.getInstance().schedule(autoAimCommand);
+
+    robotContainer.teleopInit();
   }
 
   /** This function is called periodically during operator control. */

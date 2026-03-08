@@ -249,12 +249,7 @@ public class ClimberIOMotor implements ClimberIO {
         if (isExtensionHome()) {
             extensionMotor.set(0);
         } else {
-            if (hasExtensionHomed) {
-                extensionSetpoint = 0;
-                extensionMotorPIDController.setSetpoint(extensionSetpoint, SparkMax.ControlType.kMAXMotionPositionControl);
-            } else {
-                extensionMotor.set(ClimberConstants.EXTENSION_HOME_SPEED);
-            }
+            extensionMotor.set(ClimberConstants.EXTENSION_HOME_SPEED);
         }
     }
 

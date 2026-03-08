@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.climber.Climber;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.turret.Turret;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -26,6 +27,8 @@ public class AlignClimbCommand extends Command {
     
     private final Drive driveSubsystem;
     private final Climber climberSubsystem;
+    private final Turret turretSubsystem;
+
     private DriverStation.Alliance alliance;
     // 0.970
     private static final Pose2d BLUE_TOWER_NORTH = new Pose2d(0.970, 4.550, Rotation2d.fromDegrees(0)); // +0.5
@@ -47,9 +50,10 @@ public class AlignClimbCommand extends Command {
     private PathConstraints endConstraints = new PathConstraints(0.5, 0.75, Math.PI, Math.PI);
     private ArrayList<ConstraintsZone> listCZones;
 
-    public AlignClimbCommand(Drive driveSubsystem, Climber climberSubsystem) {
+    public AlignClimbCommand(Drive driveSubsystem, Climber climberSubsystem, Turret turretSubsystem) {
         this.driveSubsystem = driveSubsystem;
         this.climberSubsystem = climberSubsystem;
+        this.turretSubsystem = turretSubsystem;
 
         listCZones = new ArrayList<>();
         listCZones.add(new ConstraintsZone(0, 0, endConstraints));
@@ -84,6 +88,7 @@ public class AlignClimbCommand extends Command {
             return;
         } 
 
+        turretSubsystem.climbMode(true);
         // Create approach point, via same x-axis and y-axis offset
         Pose2d approachPose = new Pose2d(targetPose.getX() + approachXOffset, targetPose.getY() + approachYOffset, targetPose.getRotation());
 

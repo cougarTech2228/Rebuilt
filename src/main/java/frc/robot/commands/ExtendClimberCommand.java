@@ -4,18 +4,26 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.climber.Climber;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.Intake.IntakeAngle;
+import frc.robot.subsystems.turret.Turret;
 
 public class ExtendClimberCommand extends Command {
     private final Climber climber;
     private final Intake intake;
     private final Climber.ClimberLevel level;
+    private final Turret turret;
 
-    public ExtendClimberCommand(Climber climber, Intake intake, Climber.ClimberLevel level) {
+    public ExtendClimberCommand(Climber climber, Intake intake, Climber.ClimberLevel level, Turret turret) {
         this.climber = climber;
         this.intake = intake;
         this.level = level;
+        this.turret = turret;
 
         addRequirements(climber, intake);
+    }
+
+    @Override
+    public void initialize() {
+        turret.climbMode(true);
     }
 
     @Override

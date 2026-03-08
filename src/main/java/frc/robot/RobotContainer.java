@@ -262,14 +262,14 @@ public class RobotContainer {
     autoChooser.addOption(
         "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
-    extendClimberL1Command = new ExtendClimberCommand(climber, intake, ClimberLevel.L1);
-    extendClimberL3Command = new ExtendClimberCommand(climber, intake, ClimberLevel.L3);
+    extendClimberL1Command = new ExtendClimberCommand(climber, intake, ClimberLevel.L1, turret);
+    extendClimberL3Command = new ExtendClimberCommand(climber, intake, ClimberLevel.L3, turret);
     climbL1Command = new ClimbCommand(climber, ClimberLevel.L1);
     climbL3Command = new ClimbCommand(climber, ClimberLevel.L3);
     descendCommand = new DescendCommand(climber);
-    homeClimberCommand = new HomeClimberCommand(climber);
+    homeClimberCommand = new HomeClimberCommand(climber, turret);
 
-    alignClimbCommand = new AlignClimbCommand(drive, climber);
+    alignClimbCommand = new AlignClimbCommand(drive, climber, turret);
 
     shootCommand = new ShootCommand(hopper, turret);
     // Configure the button bindings
@@ -418,6 +418,10 @@ public class RobotContainer {
   }
 
   public void testPeriodic() {
+  }
+
+  public void teleopInit() {
+    turret.climbMode(false);
   }
 
   public void teleopPeriodic() {
