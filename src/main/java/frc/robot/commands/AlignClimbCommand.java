@@ -81,8 +81,8 @@ public class AlignClimbCommand extends Command {
         } else if (Zone.HOME_ALLIANCE_ZONE_SOUTH.inZone(currentPose, alliance)) {
              targetPose = (alliance == Alliance.Blue) ? BLUE_TOWER_SOUTH : RED_TOWER_SOUTH;
              finalRotation = (alliance == Alliance.Blue) ? BLUE_SOUTH_ROTATION : RED_SOUTH_ROTATION;
-            //  approachYOffset = -1.5;
-             approachXOffset = (alliance == Alliance.Blue) ? -0.60 : 0.60;
+             approachYOffset = -1.0;
+             approachXOffset = (alliance == Alliance.Blue) ? -0.35 : 0.35;
         } else {
             this.cancel();
             return;
@@ -90,17 +90,28 @@ public class AlignClimbCommand extends Command {
 
         turretSubsystem.climbMode(true);
         // Create approach point, via same x-axis and y-axis offset
-        Pose2d approachPose = new Pose2d(targetPose.getX() + approachXOffset, targetPose.getY() + approachYOffset, targetPose.getRotation());
+        Pose2d approachPose = new Pose2d(targetPose.getX() + approachXOffset, targetPose.getY(), targetPose.getRotation());
+        Pose2d southApproachPose = new Pose2d(targetPose.getX() + approachXOffset, targetPose.getY() + approachYOffset, targetPose.getRotation());
 
         // Gen waypoints, get direction of travel
         Rotation2d travelDirection = (alliance == Alliance.Blue) ? Rotation2d.fromDegrees(180) : Rotation2d.fromDegrees(0);
 
-        List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(
+        List<Waypoint> waypoints;
+        if (Zone.HOME_ALLIANCE_ZONE_SOUTH.inZone(currentPose, alliance)) {
+            waypoints = PathPlannerPath.waypointsFromPoses(
+            new Pose2d(currentPose.getTranslation(), travelDirection),
+            new Pose2d(southApproachPose.getTranslation(), travelDirection),
+            new Pose2d(approachPose.getTranslation(), travelDirection),
+            new Pose2d(targetPose.getTranslation(), travelDirection)
+            );
+        } else {
+            waypoints = PathPlannerPath.waypointsFromPoses(
             new Pose2d(currentPose.getTranslation(), travelDirection),
             new Pose2d(approachPose.getTranslation(), travelDirection),
             new Pose2d(targetPose.getTranslation(), travelDirection)
-        );
-
+            );
+        }
+        
         // Make path
         PathPlannerPath path = new PathPlannerPath(
             waypoints,

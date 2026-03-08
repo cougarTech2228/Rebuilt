@@ -39,6 +39,7 @@ import frc.robot.commands.pathplanner.DeployIntakeCommand;
 import frc.robot.commands.pathplanner.RetractIntakeCommand;
 import frc.robot.commands.pathplanner.SpitCommand;
 import frc.robot.commands.AlignClimbCommand;
+import frc.robot.commands.AutoClimbL1Command;
 import frc.robot.commands.ClimbCommand;
 import frc.robot.commands.DescendCommand;
 import frc.robot.commands.DriveCommands;
@@ -134,6 +135,7 @@ public class RobotContainer {
   private final DescendCommand descendCommand;
   private final HomeClimberCommand homeClimberCommand;
   private final AlignClimbCommand alignClimbCommand;
+  private final AutoClimbL1Command autoClimbL1Command;
 
   private final ToggleIntakeCommand toggleIntakeCommand;
   private final ShootCommand shootCommand;
@@ -223,7 +225,7 @@ public class RobotContainer {
     Command stopIntakeCommand = new StopIntakeCommand(hopper, intake);
     Command spitCommand = new SpitCommand(hopper, intake);
     toggleIntakeCommand = new ToggleIntakeCommand(intake, climber);
-    
+    autoClimbL1Command = new AutoClimbL1Command(drive, climber, turret, intake);
     
     // Register Auto commands
     NamedCommands.registerCommand("StartFiringCommand", startFiringCommand);
@@ -265,7 +267,7 @@ public class RobotContainer {
     homeClimberCommand = new HomeClimberCommand(climber, turret);
 
     alignClimbCommand = new AlignClimbCommand(drive, climber, turret);
-
+    
     shootCommand = new ShootCommand(hopper, turret);
     // Configure the button bindings
     configureButtonBindings();
@@ -304,6 +306,7 @@ public class RobotContainer {
                 .ignoringDisable(true));
     
     controller.a().onTrue(alignClimbCommand);
+    controller.x().onTrue(autoClimbL1Command);
     controller.rightBumper().onTrue(toggleIntakeCommand);
     controller.rightTrigger(0.5).whileTrue(shootCommand);
     
