@@ -83,8 +83,6 @@ public class ModuleIOTalonFX implements ModuleIO {
   private final StatusSignal<Current> turnCurrent;
   private final BaseStatusSignal[] allSignals;
 
-  private double currentLimitPercent = 1;
-
   // Connection debouncers
   private final Debouncer driveConnectedDebounce =
       new Debouncer(0.5, Debouncer.DebounceType.kFalling);
@@ -211,7 +209,6 @@ public class ModuleIOTalonFX implements ModuleIO {
     inputs.driveVelocityRadPerSec = Units.rotationsToRadians(driveVelocity.getValueAsDouble());
     inputs.driveAppliedVolts = driveAppliedVolts.getValueAsDouble();
     inputs.driveCurrentAmps = driveCurrent.getValueAsDouble();
-    inputs.driveAccelerationLimit = currentLimitPercent;
 
     // Update turn inputs
     inputs.turnAbsolutePosition = Rotation2d.fromRotations(turnAbsolutePosition.getValueAsDouble());
@@ -256,7 +253,7 @@ public class ModuleIOTalonFX implements ModuleIO {
     driveTalon.setControl(
         switch (constants.DriveMotorClosedLoopOutput) {
           case Voltage -> velocityVoltageRequest.withVelocity(velocityRotPerSec);
-          case TorqueCurrentFOC -> velocityTorqueCurrentRequest.withVelocity(velocityRotPerSec * currentLimitPercent);
+          case TorqueCurrentFOC -> velocityTorqueCurrentRequest.withVelocity(velocityRotPerSec);
         });
   }
 
@@ -268,13 +265,5 @@ public class ModuleIOTalonFX implements ModuleIO {
           case TorqueCurrentFOC ->
               positionTorqueCurrentRequest.withPosition(rotation.getRotations());
         });
-  }
-
-  @Override
-  public void setAcceleration(double percentage){
-    currentLimitPercent = percentage;
-    System.out.println("setAccelleration: " + percentage);
-    driveTalon.getConfigurator().apply(
-        new ClosedLoopRampsConfigs().withVoltageClosedLoopRampPeriod((1 - (1* percentage)) + 0.1));
   }
 }

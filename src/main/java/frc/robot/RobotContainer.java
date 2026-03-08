@@ -105,15 +105,10 @@ public class RobotContainer {
   // Controller
   private final CommandXboxController controller = new CommandXboxController(0);
 
-  private double driverOverridePercentage = 1;
-  private double currentPercentage = 1;
+  private double driverOverridePercentage = 1.0;
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
-
-  private double intakeAccelPercentage = 1;
-  private double currentAccelPercentage = 1;
-  private boolean currentlyIntaking = false;
 
   @AutoLogOutput(key = "ComponentPoses/Turret")
   public static Pose3d turretPose = new Pose3d(-0.11, 0.1241, 0.5, new Rotation3d());
@@ -290,19 +285,9 @@ public class RobotContainer {
     drive.setDefaultCommand(
         DriveCommands.joystickDrive(
             drive,
-            () -> -controller.getLeftY(),
-            () -> -controller.getLeftX(),
-            () -> -controller.getRightX()));
-
-    // // Lock to 0° when A button is held
-    // controller
-    //     .a()
-    //     .whileTrue(
-    //         DriveCommands.joystickDriveAtAngle(
-    //             drive,
-    //             () -> -controller.getLeftY(),
-    //             () -> -controller.getLeftX(),
-    //             () -> Rotation2d.kZero));
+            () -> -controller.getLeftY() * driverOverridePercentage,
+            () -> -controller.getLeftX() * driverOverridePercentage,
+            () -> -controller.getRightX() * driverOverridePercentage));
 
     // Switch to X pattern when X button is pressed
     controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
@@ -323,37 +308,12 @@ public class RobotContainer {
     controller.rightTrigger(0.5).whileTrue(shootCommand);
     
     controller.leftBumper()
-            .onTrue(new InstantCommand(() -> {
-                intakeAccelPercentage = 0.3;
-                currentlyIntaking = true;
-            }))
-            .onFalse(new InstantCommand(() -> {
-                intakeAccelPercentage = 1.0;
-                currentlyIntaking = false;
-            }));
-
-    controller.leftBumper()
         .onTrue(new InstantCommand(() -> {
-            driverOverridePercentage = 0.3;
+            driverOverridePercentage = 0.5;
         }))
         .onFalse(new InstantCommand(() -> {
             driverOverridePercentage = 1.0;
         }));
-//    // Auto aim command example
-//     @SuppressWarnings("resource")
-//     PIDController aimController = new PIDController(0.2, 0.0, 0.0);
-//     aimController.enableContinuousInput(-Math.PI, Math.PI);
-//     controller
-//         .rightBumper()
-//         .whileTrue(
-//             Commands.startRun(
-//                 () -> {
-//                   aimController.reset();
-//                 },
-//                 () -> {
-//                   drive.run(0.0, aimController.calculate(vision.getTargetX(0).getRadians()));
-//                 },
-//                 drive));
 
     SmartDashboard.putBoolean(HOME_CLIMBER_KEY, false);
     SmartDashboard.putBoolean(EXTEND_CLIMBER_L1_KEY, false);
@@ -428,27 +388,9 @@ public class RobotContainer {
     if (SmartDashboard.getBoolean("TestMode", false)) {
           intake.setIntakeAngle(SmartDashboard.getNumber("IntakePosition", 1.0));
     }
-    calculateMaxAcceleration();
   }
 
   public void autonomousPeriodic() {
-  }
-
-  public void calculateMaxAcceleration() {
-    if (!DriverStation.isAutonomous()) {
-      double percentage = 1; // default to full
-
-      double value = Math.min(percentage, driverOverridePercentage);
-      if (Math.abs(currentPercentage - value) > 0.05) {
-        currentPercentage = value;
-        drive.setAccelerationPercentage(value);
-      }
-    } else {
-      if (currentPercentage != 1) {
-        currentPercentage = 1;
-          drive.setAccelerationPercentage(currentPercentage);
-      }
-    }
   }
 
   private void startCommand(Command command) {
