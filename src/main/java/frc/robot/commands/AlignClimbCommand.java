@@ -27,9 +27,10 @@ public class AlignClimbCommand extends Command {
     private final Drive driveSubsystem;
     private final Climber climberSubsystem;
     private DriverStation.Alliance alliance;
-
-    private static final Pose2d BLUE_TOWER_NORTH = new Pose2d(0.912, 4.740, Rotation2d.fromDegrees(0)); // +0.5
-    private static final Pose2d BLUE_TOWER_SOUTH = new Pose2d(1.204, 2.780, Rotation2d.fromDegrees(0)); // +0.5
+    // 0.970
+    private static final Pose2d BLUE_TOWER_NORTH = new Pose2d(0.970, 4.550, Rotation2d.fromDegrees(0)); // +0.5
+    // Blue tower south needs readjusting
+    private static final Pose2d BLUE_TOWER_SOUTH = new Pose2d(1.05, 2.780, Rotation2d.fromDegrees(0)); // +0.5
     private static final Pose2d RED_TOWER_NORTH = new Pose2d(15.318, 5.336, Rotation2d.fromDegrees(0)); // -0.5
     private static final Pose2d RED_TOWER_SOUTH = new Pose2d(15.635, 3.357, Rotation2d.fromDegrees(0)); // -0.5
 
@@ -42,8 +43,8 @@ public class AlignClimbCommand extends Command {
     private Command subCommand;
     // private final boolean useApproachPoint;
 
-    private PathConstraints globalConstraints = new PathConstraints(3, 2, Math.PI, Math.PI);
-    private PathConstraints endConstraints = new PathConstraints(1.5, 1, Math.PI, Math.PI);
+    private PathConstraints globalConstraints = new PathConstraints(1, 1.5, Math.PI, Math.PI);
+    private PathConstraints endConstraints = new PathConstraints(0.5, 0.75, Math.PI, Math.PI);
     private ArrayList<ConstraintsZone> listCZones;
 
     public AlignClimbCommand(Drive driveSubsystem, Climber climberSubsystem) {
@@ -51,7 +52,7 @@ public class AlignClimbCommand extends Command {
         this.climberSubsystem = climberSubsystem;
 
         listCZones = new ArrayList<>();
-        // listCZones.add(new ConstraintsZone(0, 0, endConstraints));
+        listCZones.add(new ConstraintsZone(0, 0, endConstraints));
     }
 
     @Override
@@ -71,13 +72,13 @@ public class AlignClimbCommand extends Command {
         if (Zone.HOME_ALLIANCE_ZONE_NORTH.inZone(currentPose, alliance)) {
             targetPose = (alliance == Alliance.Blue) ? BLUE_TOWER_NORTH : RED_TOWER_NORTH;
             finalRotation = (alliance == Alliance.Blue) ? BLUE_NORTH_ROTATION : RED_NORTH_ROTATION;
-            approachYOffset = 1.2;
-            approachXOffset = (alliance == Alliance.Blue) ? 0.65 : -0.65;
+            // approachYOffset = 1.5;
+            approachXOffset = (alliance == Alliance.Blue) ? 1.0 : -1.0;
         } else if (Zone.HOME_ALLIANCE_ZONE_SOUTH.inZone(currentPose, alliance)) {
              targetPose = (alliance == Alliance.Blue) ? BLUE_TOWER_SOUTH : RED_TOWER_SOUTH;
              finalRotation = (alliance == Alliance.Blue) ? BLUE_SOUTH_ROTATION : RED_SOUTH_ROTATION;
-             approachYOffset = -1.2;
-             approachXOffset = (alliance == Alliance.Blue) ? 0.65 : -0.65;
+             approachYOffset = -1.5;
+             approachXOffset = (alliance == Alliance.Blue) ? 1.0 : -1.0;
         } else {
             this.cancel();
             return;
