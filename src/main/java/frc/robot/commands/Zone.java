@@ -25,8 +25,8 @@ public enum Zone {
 
     HOME_ALLIANCE_ZONE(
         0, 0,
-        (DestConsts.alliance_zone_length + 2), 0,
-        (DestConsts.alliance_zone_length + 2), DestConsts.field_height,
+        (DestConsts.alliance_zone_length + 1), 0,
+        (DestConsts.alliance_zone_length + 1), DestConsts.field_height,
         0, DestConsts.field_height,
         false),
 

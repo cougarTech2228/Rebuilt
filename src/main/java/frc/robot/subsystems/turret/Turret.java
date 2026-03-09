@@ -284,7 +284,7 @@ public class Turret extends SubsystemBase{
     }
 
     public boolean canShoot() {
-        return turretInputs.areFlywheelsAtVelocity && turretInputs.isTurretAtTarget;
+        return turretInputs.areFlywheelsAtVelocity && turretInputs.isTurretAtTarget && !turretInputs.isTargetInKeepOut;
     }
 
     private Pose2d getTargetPoint(TurretAimTarget target) {

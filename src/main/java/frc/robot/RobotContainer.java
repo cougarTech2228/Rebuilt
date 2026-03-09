@@ -219,10 +219,6 @@ public class RobotContainer {
 
     Command startFiringCommand = new StartFiringCommand(hopper, turret);
     Command stopFiringCommand = new StopFiringCommand(hopper, turret);
-    Command deployIntakeCommand = new DeployIntakeCommand(hopper, intake);
-    Command retractIntakeCommand = new RetractIntakeCommand(hopper, intake);
-    Command startIntakeCommand = new StartIntakeCommand(hopper, intake);
-    Command stopIntakeCommand = new StopIntakeCommand(hopper, intake);
     Command spitCommand = new SpitCommand(hopper, intake);
     toggleIntakeCommand = new ToggleIntakeCommand(intake, climber);
     autoClimbL1Command = new AutoClimbL1Command(drive, climber, turret, intake);
