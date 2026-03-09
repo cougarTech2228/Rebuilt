@@ -67,13 +67,14 @@ public class ClimberIOMotor implements ClimberIO {
         };
 
         extensionMotorPIDController = extensionMotor.getClosedLoopController();
-        SparkMaxConfig extenstionConfig = new SparkMaxConfig();
-        extenstionConfig.limitSwitch.reverseLimitSwitchPosition(0);
-        extenstionConfig.limitSwitch.reverseLimitSwitchTriggerBehavior(Behavior.kStopMovingMotorAndSetPosition);
-        extenstionConfig.limitSwitch.reverseLimitSwitchType(Type.kNormallyOpen);
+        SparkMaxConfig extensionConfig = new SparkMaxConfig();
+        extensionConfig.smartCurrentLimit(20);
+        extensionConfig.limitSwitch.reverseLimitSwitchPosition(0);
+        extensionConfig.limitSwitch.reverseLimitSwitchTriggerBehavior(Behavior.kStopMovingMotorAndSetPosition);
+        extensionConfig.limitSwitch.reverseLimitSwitchType(Type.kNormallyOpen);
 
-        extenstionConfig.closedLoop
-            .p(1)
+        extensionConfig.closedLoop
+            .p(0.1)
             .i(0)
             .d(0)
             .outputRange(-1, 1)
@@ -81,16 +82,18 @@ public class ClimberIOMotor implements ClimberIO {
                 .cruiseVelocity(9000)
                 .maxAcceleration(20000)
                 .allowedProfileError(1);
-        extensionMotor.configure(extenstionConfig, 
+        extensionConfig.closedLoop.feedForward.kV(Constants.NEO_550_KV); // 1 / 11000 (free RPM)
+        extensionMotor.configure(extensionConfig,
                     com.revrobotics.ResetMode.kResetSafeParameters, 
                     com.revrobotics.PersistMode.kPersistParameters);
 
         climberPIDController = new MotionMagicVoltage(0);
         TalonFXConfiguration climberConfig = new TalonFXConfiguration();
 
-        climberConfig.Slot0.kP = 1;
+        climberConfig.Slot0.kP = 0.1;
         climberConfig.Slot0.kI = 0.0;
         climberConfig.Slot0.kD = 0.0;
+        climberConfig.Slot0.kV = Constants.FALCON_500_KV;
 
         climberConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         climberConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
@@ -106,13 +109,6 @@ public class ClimberIOMotor implements ClimberIO {
         climberConfig.MotionMagic.MotionMagicJerk = 0.0;
 
         climberConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
-        // climberConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-
-        // climberConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 0.53;
-        // climberConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-
-        // climberConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0;
-        // climberConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
 
         climberMotor.getConfigurator().apply(climberConfig);
     }

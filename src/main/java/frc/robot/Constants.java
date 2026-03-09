@@ -6,6 +6,14 @@ public final class Constants {
   public static final Mode simMode = Mode.SIM;
   public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
 
+  public static final double NEO_550_FREE_SPEED = 11000;
+  public static final double FALCON_500_FREE_SPEED = 6380;
+  public static final double KRAKEN_X44_FREE_SPEED = 7758;
+
+  public static final double NEO_550_KV = 1 / NEO_550_FREE_SPEED;
+  public static final double FALCON_500_KV = 1 / FALCON_500_FREE_SPEED;
+  public static final double KRAKEN_X44_KV = 1 / KRAKEN_X44_FREE_SPEED;
+
   public static enum Mode {
     /** Running on a real robot. */
     REAL,
