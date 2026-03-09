@@ -5,15 +5,15 @@
     "data": {
       "commands": [
         {
-          "type": "named",
-          "data": {
-            "name": "toggleIntakeCommand"
-          }
-        },
-        {
           "type": "path",
           "data": {
             "pathName": "Bump1_to_Neutral1"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ToggleIntakeCommand"
           }
         },
         {
@@ -37,7 +37,7 @@
         {
           "type": "wait",
           "data": {
-            "waitTime": 8.0
+            "waitTime": 6.0
           }
         },
         {

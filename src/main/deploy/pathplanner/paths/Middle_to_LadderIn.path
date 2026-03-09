@@ -4,15 +4,15 @@
     {
       "anchor": {
         "x": 3.6,
-        "y": 5.75
+        "y": 4.0
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.6000000000000005,
-        "y": 5.75
+        "x": 3.1895758280091977,
+        "y": 5.12763114494309
       },
       "isLocked": false,
-      "linkedName": "Bump4"
+      "linkedName": null
     },
     {
       "anchor": {
@@ -20,8 +20,8 @@
         "y": 4.95
       },
       "prevControl": {
-        "x": 2.1168295895055405,
-        "y": 4.943542253748652
+        "x": 1.653022727272727,
+        "y": 5.16875
       },
       "nextControl": null,
       "isLocked": false,
@@ -45,10 +45,10 @@
     "rotation": 90.0
   },
   "reversed": false,
-  "folder": "BumpPaths",
+  "folder": "MiddlePaths",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -45.0
+    "rotation": 0.0
   },
   "useDefaultConstraints": true
 }

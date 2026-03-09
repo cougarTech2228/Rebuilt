@@ -12,26 +12,30 @@ public class AutoAimCommand extends Command {
 
     private final Drive driveSubsystem;
     private final Turret turretSubsystem;
+    public static boolean autoAim;
 
     public AutoAimCommand(Drive driveSubsystem, Turret turretSubsystem) {
         this.driveSubsystem = driveSubsystem;
         this.turretSubsystem = turretSubsystem;
+        
     }
 
 
     @Override
     public void execute() {
-        Pose2d currentPose = driveSubsystem.getPose();
-        Alliance currentAlliance = Alliance.Blue;
-        if (DriverStation.getAlliance().isPresent()) {
-            currentAlliance = DriverStation.getAlliance().get();
-        }
-        if (Zone.HOME_ALLIANCE_ZONE.inZone(currentPose, currentAlliance)){
-            turretSubsystem.setAimTarget(TurretAimTarget.Hub);
-        } else if (Zone.NEUTRAL_ZONE_NORTH.inZone(currentPose, currentAlliance)){
-            turretSubsystem.setAimTarget(TurretAimTarget.LobUpper);
-        } else if (Zone.NEUTRAL_ZONE_SOUTH.inZone(currentPose, currentAlliance)){
-            turretSubsystem.setAimTarget(TurretAimTarget.LobLower);
+        if (autoAim == true) {
+            Pose2d currentPose = driveSubsystem.getPose();
+            Alliance currentAlliance = Alliance.Blue;
+            if (DriverStation.getAlliance().isPresent()) {
+                currentAlliance = DriverStation.getAlliance().get();
+            }
+            if (Zone.HOME_ALLIANCE_ZONE.inZone(currentPose, currentAlliance)){
+                turretSubsystem.setAimTarget(TurretAimTarget.Hub);
+            } else if (Zone.NEUTRAL_ZONE_NORTH.inZone(currentPose, currentAlliance)){
+                turretSubsystem.setAimTarget(TurretAimTarget.LobUpper);
+            } else if (Zone.NEUTRAL_ZONE_SOUTH.inZone(currentPose, currentAlliance)){
+                turretSubsystem.setAimTarget(TurretAimTarget.LobLower);
+            }
         }
     }
 

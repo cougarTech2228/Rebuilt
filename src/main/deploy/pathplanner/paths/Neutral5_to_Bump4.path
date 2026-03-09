@@ -33,11 +33,11 @@
     {
       "anchor": {
         "x": 3.6,
-        "y": 5.9
+        "y": 5.75
       },
       "prevControl": {
         "x": 4.1472727272727266,
-        "y": 5.869613636363637
+        "y": 5.719613636363636
       },
       "nextControl": null,
       "isLocked": false,
@@ -77,7 +77,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0.001
+    "rotation": -45.0
   },
   "reversed": false,
   "folder": "NeutralPaths",

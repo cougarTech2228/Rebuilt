@@ -6,8 +6,9 @@
     "BumpPaths",
     "DepotPaths",
     "NeutralPaths",
-    "TestPaths",
+    "MiddlePaths",
     "OutpostPaths",
+    "TestPaths",
     "TrenchPaths"
   ],
   "autoFolders": [

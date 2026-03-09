@@ -7,6 +7,7 @@ import frc.robot.subsystems.turret.Turret;
 public class ShootCommand extends Command {
     private final Hopper hopper;
     private final Turret turret;
+    
 
     public ShootCommand(Hopper hopper, Turret turret) {
         this.hopper = hopper;
@@ -15,6 +16,7 @@ public class ShootCommand extends Command {
 
     @Override
     public void execute() {
+        AutoAimCommand.autoAim = true;
         turret.enableShooter(true);
         if (turret.canShoot()) {
             hopper.indexerOn(false);
@@ -30,6 +32,7 @@ public class ShootCommand extends Command {
         turret.enableShooter(false);
         hopper.indexerOff();
         hopper.kickerOff();
+        AutoAimCommand.autoAim = false;
     }
 
     @Override

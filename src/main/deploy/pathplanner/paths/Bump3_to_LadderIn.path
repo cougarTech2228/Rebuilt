@@ -4,12 +4,12 @@
     {
       "anchor": {
         "x": 3.6,
-        "y": 5.3
+        "y": 5.4
       },
       "prevControl": null,
       "nextControl": {
         "x": 2.6000000000000005,
-        "y": 5.3
+        "y": 5.4
       },
       "isLocked": false,
       "linkedName": "Bump3 West"
@@ -20,8 +20,8 @@
         "y": 4.95
       },
       "prevControl": {
-        "x": 1.8265514554708298,
-        "y": 5.47397507711952
+        "x": 1.919,
+        "y": 4.95
       },
       "nextControl": null,
       "isLocked": false,

@@ -7,7 +7,7 @@
         {
           "type": "named",
           "data": {
-            "name": "toggleIntakeCommand"
+            "name": "ToggleIntakeCommand"
           }
         },
         {
@@ -20,6 +20,18 @@
           "type": "named",
           "data": {
             "name": "StartFiringCommand"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 5.0
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "StopFiringCommand"
           }
         }
       ]

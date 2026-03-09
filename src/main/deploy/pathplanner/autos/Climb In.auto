@@ -5,24 +5,6 @@
     "data": {
       "commands": [
         {
-          "type": "path",
-          "data": {
-            "pathName": "Bump4_to_Neutral6"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "ToggleIntakeCommand"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Neutral6_to_Bump3 RoT"
-          }
-        },
-        {
           "type": "named",
           "data": {
             "name": "StartFiringCommand"
@@ -35,15 +17,15 @@
           }
         },
         {
-          "type": "path",
-          "data": {
-            "pathName": "Bump3_to_LadderIn"
-          }
-        },
-        {
           "type": "named",
           "data": {
             "name": "StopFiringCommand"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Middle_to_LadderIn"
           }
         }
       ]
