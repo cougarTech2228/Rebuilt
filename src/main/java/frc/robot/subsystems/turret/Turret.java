@@ -52,7 +52,7 @@ public class Turret extends SubsystemBase{
 
         SmartDashboard.putNumber("TurretAngle", 0.0);
         SmartDashboard.putNumber("TurretTestX", 4.6129);
-        SmartDashboard.putNumber("TurretTestIntercept", 28);
+        SmartDashboard.putNumber("TurretTestIntercept", 29);
         SmartDashboard.putNumber("TurretTestAngleIntercept", 0.7);
 
         SmartDashboard.setPersistent("TurretTestX");
@@ -227,7 +227,7 @@ public class Turret extends SubsystemBase{
 
         if (aimTarget == TurretAimTarget.Hub) {
             double turretTestX = SmartDashboard.getNumber("TurretTestX", 4.85);
-            double TurretTestIntercept = SmartDashboard.getNumber("TurretTestIntercept", 28.5);
+            double TurretTestIntercept = SmartDashboard.getNumber("TurretTestIntercept", 29);
             //y = 4.6129x + 29.763
             velocity = (turretTestX * distance) + TurretTestIntercept;
 
