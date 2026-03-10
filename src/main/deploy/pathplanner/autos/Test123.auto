@@ -13,13 +13,13 @@
         {
           "type": "named",
           "data": {
-            "name": null
+            "name": "DeployIntakeCommand"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": null
+            "name": "StartIntakeCommand"
           }
         },
         {

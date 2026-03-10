@@ -15,6 +15,10 @@ public class AutoClimbL1Command extends CTSequentialCommandGroup {
     public AutoClimbL1Command(Drive drive, Climber climber, Turret turret, Intake intake) {
         this.addCommands(
             new AlignClimbCommand(drive, climber, turret),
+            
+            new ToggleIntakeCommand(intake, climber)
+                .onlyIf(() -> !intake.isRetracted()), 
+
             new ExtendClimberCommand(climber, intake, ClimberLevel.L3, turret),
             new ClimbCommand(climber, ClimberLevel.L1)
         );

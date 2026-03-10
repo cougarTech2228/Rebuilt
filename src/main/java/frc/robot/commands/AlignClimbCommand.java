@@ -31,7 +31,7 @@ public class AlignClimbCommand extends Command {
 
     private DriverStation.Alliance alliance;
     // 0.970
-    private static final Pose2d BLUE_TOWER_NORTH = new Pose2d(0.970, 4.560, Rotation2d.fromDegrees(0)); // +0.5
+    private static final Pose2d BLUE_TOWER_NORTH = new Pose2d(0.990, 4.560, Rotation2d.fromDegrees(0)); // +0.5
     // Blue tower south needs readjusting
     private static final Pose2d BLUE_TOWER_SOUTH = new Pose2d(1.198, 2.852, Rotation2d.fromDegrees(0)); // +0.5
     private static final Pose2d RED_TOWER_NORTH = new Pose2d(15.318, 5.336, Rotation2d.fromDegrees(0)); // -0.5

@@ -5,35 +5,15 @@
     "data": {
       "commands": [
         {
-          "type": "parallel",
+          "type": "path",
           "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "Bump4_to_Neutral6"
-                }
-              },
-              {
-                "type": "sequential",
-                "data": {
-                  "commands": [
-                    {
-                      "type": "wait",
-                      "data": {
-                        "waitTime": 1.25
-                      }
-                    },
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "ToggleIntakeCommand"
-                      }
-                    }
-                  ]
-                }
-              }
-            ]
+            "pathName": "Bump4_to_Neutral6"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ToggleIntakeCommand"
           }
         },
         {
@@ -51,7 +31,7 @@
         {
           "type": "wait",
           "data": {
-            "waitTime": 4.0
+            "waitTime": 5.0
           }
         },
         {

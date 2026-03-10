@@ -74,7 +74,7 @@ public class ClimberIOMotor implements ClimberIO {
         extensionConfig.limitSwitch.reverseLimitSwitchType(Type.kNormallyOpen);
 
         extensionConfig.closedLoop
-            .p(0.1)
+            .p(1.0)
             .i(0)
             .d(0)
             .outputRange(-1, 1)
@@ -82,7 +82,7 @@ public class ClimberIOMotor implements ClimberIO {
                 .cruiseVelocity(9000)
                 .maxAcceleration(20000)
                 .allowedProfileError(1);
-        extensionConfig.closedLoop.feedForward.kV(Constants.NEO_550_KV); // 1 / 11000 (free RPM)
+        // extensionConfig.closedLoop.feedForward.kV(Constants.NEO_550_KV); // 1 / 11000 (free RPM)
         extensionMotor.configure(extensionConfig,
                     com.revrobotics.ResetMode.kResetSafeParameters, 
                     com.revrobotics.PersistMode.kPersistParameters);
@@ -90,10 +90,9 @@ public class ClimberIOMotor implements ClimberIO {
         climberPIDController = new MotionMagicVoltage(0);
         TalonFXConfiguration climberConfig = new TalonFXConfiguration();
 
-        climberConfig.Slot0.kP = 0.1;
+        climberConfig.Slot0.kP = 1.0;
         climberConfig.Slot0.kI = 0.0;
         climberConfig.Slot0.kD = 0.0;
-        climberConfig.Slot0.kV = Constants.FALCON_500_KV;
 
         climberConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         climberConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;

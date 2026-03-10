@@ -302,7 +302,7 @@ public class RobotContainer {
                 .ignoringDisable(true));
     
     controller.a().onTrue(alignClimbCommand);
-    controller.x().onTrue(autoClimbL1Command);
+    // controller.x().onTrue(autoClimbL1Command);
     controller.rightBumper().onTrue(toggleIntakeCommand);
     controller.rightTrigger(0.5).whileTrue(shootCommand);
     

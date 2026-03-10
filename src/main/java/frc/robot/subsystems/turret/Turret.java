@@ -108,6 +108,10 @@ public class Turret extends SubsystemBase{
             RobotContainer.turretPose.getY(),
             RobotContainer.turretPose.getZ(),
             new Rotation3d(turretInputs.turretAngle));
+        
+        if (climbModeEnabled) {
+            turretIO.setTurretAngle(180);
+        }
     }
 
     public void setAimTarget(double turretAngle) {
