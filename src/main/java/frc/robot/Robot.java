@@ -7,8 +7,13 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -29,6 +34,14 @@ public class Robot extends LoggedRobot {
   private Command autonomousCommand;
   private Command autoAimCommand;
   private RobotContainer robotContainer;
+
+  @AutoLogOutput(key = "Shift Timer/Time Remaining")
+  public static double shiftTimeRemaining;
+  @AutoLogOutput(key = "Shift Timer/Shift")
+  public static String shiftLabel;
+  @AutoLogOutput(key = "Shift Timer/Hub Active")
+  public static boolean hubActive;
+  private double shiftStartTime;
 
   public Robot() {
     // Record metadata
@@ -68,6 +81,8 @@ public class Robot extends LoggedRobot {
     }
 
     // Start AdvantageKit logger
+    SignalLogger.setPath("/u/logs");
+    SignalLogger.start();
     Logger.start();
 
     // Instantiate our RobotContainer. This will perform all our button bindings,
@@ -93,6 +108,8 @@ public class Robot extends LoggedRobot {
 
     // Return to non-RT thread priority (do not modify the first argument)
     // Threads.setCurrentThreadPriority(false, 10);
+
+    calculateShiftTime();
   }
 
   /** This function is called once when the robot is disabled. */
@@ -108,6 +125,7 @@ public class Robot extends LoggedRobot {
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
+    shiftStartTime = Timer.getFPGATimestamp();
     autonomousCommand = robotContainer.getAutonomousCommand();
 
     // schedule the autonomous command (example)
@@ -126,8 +144,8 @@ public class Robot extends LoggedRobot {
   /** This function is called once when teleop is enabled. */
   @Override
   public void teleopInit() {
-    SignalLogger.setPath("/u/logs");
-    SignalLogger.start();
+    shiftStartTime = Timer.getFPGATimestamp();
+
     // This makes sure that the autonomous stops running when
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove
@@ -172,5 +190,72 @@ public class Robot extends LoggedRobot {
   @Override
   public void simulationPeriodic() {
     robotContainer.simulationPeriodic();
+  }
+
+  private void calculateShiftTime() {
+    // Game specific message format from the manual:
+    // The alliance will be provided as a single character representing
+    // the color of the alliance whose goal will go inactive first
+    // (i.e. 'R' = red, 'B' = blue). This alliance’s goal will be active in Shifts 2 and 4.
+
+    if (!DriverStation.getAlliance().isPresent() || !DriverStation.isEnabled()) {
+      hubActive = false;
+      return;
+    }
+    Alliance currentAlliance = DriverStation.getAlliance().get();
+
+    double elapsedTime = Timer.getFPGATimestamp() - shiftStartTime;
+
+    if (DriverStation.isAutonomous()) {
+      shiftLabel = "Autonomous";
+      hubActive = true;
+      shiftTimeRemaining = 20 - elapsedTime;
+    } else if (DriverStation.isTeleop()) {
+      if (elapsedTime <= 10) {
+        shiftLabel = "Transition";
+        hubActive = true;
+        shiftTimeRemaining = 10 - elapsedTime;
+      }
+      else if (elapsedTime <= 35) {
+        shiftLabel = "Shift 1/4";
+        shiftTimeRemaining = 35 - elapsedTime;
+        String gsm = DriverStation.getGameSpecificMessage();
+        if (!gsm.isEmpty()) {
+          hubActive = (currentAlliance == Alliance.Blue && gsm.startsWith("R")) ||
+                      (currentAlliance == Alliance.Red && gsm.startsWith("B"));
+        }
+      }
+      else if (elapsedTime <= 60) {
+        shiftLabel = "Shift 2/4";
+        shiftTimeRemaining = 60 - elapsedTime;
+        String gsm = DriverStation.getGameSpecificMessage();
+        if (!gsm.isEmpty()) {
+          hubActive = (currentAlliance == Alliance.Blue && gsm.startsWith("B")) ||
+                      (currentAlliance == Alliance.Red && gsm.startsWith("R"));
+        }
+      }
+      else if (elapsedTime <= 85) {
+        shiftLabel = "Shift 3/4";
+        shiftTimeRemaining = 85 - elapsedTime;
+        String gsm = DriverStation.getGameSpecificMessage();
+        if (!gsm.isEmpty()) {
+          hubActive = (currentAlliance == Alliance.Blue && gsm.startsWith("R")) ||
+                      (currentAlliance == Alliance.Red && gsm.startsWith("B"));
+        }
+      }
+      else if (elapsedTime <= 110) {
+        shiftLabel = "Shift 4/4";
+        shiftTimeRemaining = 110 - elapsedTime;
+        String gsm = DriverStation.getGameSpecificMessage();
+        if (!gsm.isEmpty()) {
+          hubActive = (currentAlliance == Alliance.Blue && gsm.startsWith("B")) ||
+                      (currentAlliance == Alliance.Red && gsm.startsWith("R"));
+        }
+      } else {
+        shiftLabel = "Endgame";
+        hubActive = true;
+        shiftTimeRemaining = 140 - elapsedTime;
+      }
+    }
   }
 }
