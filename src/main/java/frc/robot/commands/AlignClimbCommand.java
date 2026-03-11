@@ -33,7 +33,7 @@ public class AlignClimbCommand extends Command {
     private DriverStation.Alliance alliance;
 
     // Only Blue Alliance poses and rotations are needed now
-    private static final Pose2d BLUE_TOWER_NORTH = new Pose2d(0.990, 4.560, Rotation2d.fromDegrees(0)); 
+    private static final Pose2d BLUE_TOWER_NORTH = new Pose2d(1.015, 4.520, Rotation2d.fromDegrees(0)); 
     private static final Pose2d BLUE_TOWER_SOUTH = new Pose2d(1.198, 2.852, Rotation2d.fromDegrees(0)); 
 
     private static final Rotation2d BLUE_NORTH_ROTATION = Rotation2d.fromDegrees(90); 

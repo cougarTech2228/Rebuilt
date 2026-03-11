@@ -12,6 +12,7 @@ public interface IntakeIO {
         public double intakeMotorVoltage = 0.0;
         public double intakeMotorVelocity = 0.0;
         public double intakeMotorCurrent = 0.0;
+        public double intakeMotorTemp = 0.0;
 
         public double angleMotorPosition = 0.0;
         public double angleMotorVoltage = 0.0;

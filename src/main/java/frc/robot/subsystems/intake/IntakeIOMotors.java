@@ -77,6 +77,7 @@ public class IntakeIOMotors implements IntakeIO {
         inputs.intakeMotorVoltage = intakeMotor.getAppliedOutput() * intakeMotor.getBusVoltage();
         inputs.intakeMotorVelocity = intakeMotor.getEncoder().getVelocity();
         inputs.intakeMotorCurrent = intakeMotor.getOutputCurrent();
+        inputs.intakeMotorTemp = intakeMotor.getMotorTemperature();
         
         inputs.angleMotorPosition = angleMotor.getEncoder().getPosition();
         inputs.angleMotorVoltage = angleMotor.getAppliedOutput() * angleMotor.getBusVoltage();

@@ -231,6 +231,7 @@ public class RobotContainer {
     // NamedCommands.registerCommand("stopIntakeCommand", stopIntakeCommand);
     NamedCommands.registerCommand("SpitCommand", spitCommand);
     NamedCommands.registerCommand("ToggleIntakeCommand", toggleIntakeCommand);
+    NamedCommands.registerCommand("AutoClimbL1Command", autoClimbL1Command);
     // NamedCommands.registerCommand("performClimb", performClimbCommand);
 
     // Set up auto routines

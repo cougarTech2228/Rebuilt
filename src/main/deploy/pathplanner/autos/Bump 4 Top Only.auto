@@ -37,16 +37,9 @@
           }
         },
         {
-          "type": "parallel",
+          "type": "path",
           "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "Neutral6_to_Bump3 RoT"
-                }
-              }
-            ]
+            "pathName": "Neutral6_to_Bump3 RoT"
           }
         },
         {
@@ -58,7 +51,7 @@
         {
           "type": "wait",
           "data": {
-            "waitTime": 4.0
+            "waitTime": 4.5
           }
         },
         {
@@ -70,7 +63,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Bump3_to_LadderIn"
+            "pathName": "Bump3 Turn For Climb"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "AutoClimbL1Command"
           }
         }
       ]
