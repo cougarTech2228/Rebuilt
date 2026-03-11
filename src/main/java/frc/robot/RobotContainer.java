@@ -265,7 +265,7 @@ public class RobotContainer {
     climbL3Command = new ClimbCommand(climber, ClimberLevel.L3);
     descendCommand = new DescendCommand(climber);
     homeClimberCommand = new HomeClimberCommand(climber, turret);
-    
+
     shootCommand = new ShootCommand(hopper, turret);
     // Configure the button bindings
     configureButtonBindings();
@@ -302,7 +302,7 @@ public class RobotContainer {
                             new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero)),
                     drive)
                 .ignoringDisable(true));
-
+    
     controller.a().onTrue(alignL3ClimbCommand);
 
     controller.rightBumper().onTrue(toggleIntakeCommand);

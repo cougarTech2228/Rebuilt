@@ -11,47 +11,45 @@
           }
         },
         {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.5
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "Bump4_to_Outpost"
           }
         },
         {
-          "type": "parallel",
+          "type": "path",
           "data": {
-            "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": "StartFiringCommand"
-                }
-              },
-              {
-                "type": "sequential",
-                "data": {
-                  "commands": [
-                    {
-                      "type": "wait",
-                      "data": {
-                        "waitTime": 0.0
-                      }
-                    },
-                    {
-                      "type": "path",
-                      "data": {
-                        "pathName": "Outpost_to_Neutral6"
-                      }
-                    }
-                  ]
-                }
-              }
-            ]
+            "pathName": "Outpost_to_Bump4"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "StartFiringCommand"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 4.0
           }
         },
         {
           "type": "named",
           "data": {
             "name": "StopFiringCommand"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Bump4East_to_Neutral6"
           }
         },
         {
@@ -70,6 +68,6 @@
     }
   },
   "resetOdom": true,
-  "folder": null,
+  "folder": "Comp Autos",
   "choreoAuto": false
 }
