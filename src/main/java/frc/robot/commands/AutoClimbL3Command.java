@@ -9,18 +9,18 @@ import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.turret.Turret;
 import frc.robot.util.CTSequentialCommandGroup;
 
-public class AutoClimbL1Command extends CTSequentialCommandGroup {
-    // Extend to L3 w/ limit switch, climb to L1
+public class AutoClimbL3Command extends CTSequentialCommandGroup {
+    // Extend to L3 w/ limit switch, climb to L3
 
-    public AutoClimbL1Command(Drive drive, Climber climber, Turret turret, Intake intake) {
+    public AutoClimbL3Command(Drive drive, Climber climber, Turret turret, Intake intake) {
         this.addCommands(
-            new AlignL1ClimbCommand(drive, climber, turret),
+            new AlignL3ClimbCommand(drive, climber, turret),
             
             new ToggleIntakeCommand(intake, climber)
                 .onlyIf(() -> !intake.isRetracted()), 
 
             new ExtendClimberCommand(climber, intake, ClimberLevel.L3, turret),
-            new ClimbCommand(climber, ClimberLevel.L1)
+            new ClimbCommand(climber, ClimberLevel.L3)
         );
     }
 }

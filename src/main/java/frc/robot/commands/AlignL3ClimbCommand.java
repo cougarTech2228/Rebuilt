@@ -24,7 +24,7 @@ import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.path.Waypoint;
 import com.pathplanner.lib.util.FlippingUtil;
 
-public class AlignClimbCommand extends Command {
+public class AlignL3ClimbCommand extends Command {
     
     private final Drive driveSubsystem;
     private final Climber climberSubsystem;
@@ -33,6 +33,7 @@ public class AlignClimbCommand extends Command {
     private DriverStation.Alliance alliance;
 
     // Only Blue Alliance poses and rotations are needed now
+    // NEED CALIBRATION BEFORE USE
     private static final Pose2d BLUE_TOWER_NORTH = new Pose2d(1.015, 4.520, Rotation2d.fromDegrees(0)); 
     private static final Pose2d BLUE_TOWER_SOUTH = new Pose2d(1.198, 2.852, Rotation2d.fromDegrees(0)); 
 
@@ -45,7 +46,7 @@ public class AlignClimbCommand extends Command {
     private PathConstraints endConstraints = new PathConstraints(0.5, 0.75, Math.PI, Math.PI);
     private ArrayList<ConstraintsZone> listCZones;
 
-    public AlignClimbCommand(Drive driveSubsystem, Climber climberSubsystem, Turret turretSubsystem) {
+    public AlignL3ClimbCommand(Drive driveSubsystem, Climber climberSubsystem, Turret turretSubsystem) {
         this.driveSubsystem = driveSubsystem;
         this.climberSubsystem = climberSubsystem;
         this.turretSubsystem = turretSubsystem;

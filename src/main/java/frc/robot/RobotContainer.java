@@ -32,13 +32,13 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 
 import frc.robot.commands.pathplanner.StartFiringCommand;
-import frc.robot.commands.pathplanner.StartIntakeCommand;
 import frc.robot.commands.pathplanner.StopFiringCommand;
-import frc.robot.commands.pathplanner.StopIntakeCommand;
 
 import frc.robot.commands.pathplanner.SpitCommand;
-import frc.robot.commands.AlignClimbCommand;
+import frc.robot.commands.AlignL1ClimbCommand;
+import frc.robot.commands.AlignL3ClimbCommand;
 import frc.robot.commands.AutoClimbL1Command;
+import frc.robot.commands.AutoClimbL3Command;
 import frc.robot.commands.ClimbCommand;
 import frc.robot.commands.DescendCommand;
 import frc.robot.commands.DriveCommands;
@@ -133,8 +133,12 @@ public class RobotContainer {
   private final ClimbCommand climbL3Command;
   private final DescendCommand descendCommand;
   private final HomeClimberCommand homeClimberCommand;
-  private final AlignClimbCommand alignClimbCommand;
+
+  private final AlignL1ClimbCommand alignL1ClimbCommand;
+  private final AlignL3ClimbCommand alignL3ClimbCommand;
+
   private final AutoClimbL1Command autoClimbL1Command;
+  private final AutoClimbL3Command autoClimbL3Command;
 
   private final ToggleIntakeCommand toggleIntakeCommand;
   private final ShootCommand shootCommand;
@@ -220,19 +224,19 @@ public class RobotContainer {
     Command stopFiringCommand = new StopFiringCommand(hopper, turret);
     Command spitCommand = new SpitCommand(hopper, intake);
     toggleIntakeCommand = new ToggleIntakeCommand(intake, climber);
+
     autoClimbL1Command = new AutoClimbL1Command(drive, climber, turret, intake);
+    autoClimbL3Command = new AutoClimbL3Command(drive, climber, turret, intake);
+
+    alignL1ClimbCommand = new AlignL1ClimbCommand(drive, climber, turret);
+    alignL3ClimbCommand = new AlignL3ClimbCommand(drive, climber, turret);
     
     // Register Auto commands
     NamedCommands.registerCommand("StartFiringCommand", startFiringCommand);
     NamedCommands.registerCommand("StopFiringCommand", stopFiringCommand);
-    // NamedCommands.registerCommand("deployIntakeCommand", deployIntakeCommand);
-    // NamedCommands.registerCommand("retractIntakeCommand", retractIntakeCommand);
-    // NamedCommands.registerCommand("startIntakeCommand", startIntakeCommand);
-    // NamedCommands.registerCommand("stopIntakeCommand", stopIntakeCommand);
     NamedCommands.registerCommand("SpitCommand", spitCommand);
     NamedCommands.registerCommand("ToggleIntakeCommand", toggleIntakeCommand);
     NamedCommands.registerCommand("AutoClimbL1Command", autoClimbL1Command);
-    // NamedCommands.registerCommand("performClimb", performClimbCommand);
 
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
@@ -261,8 +265,6 @@ public class RobotContainer {
     climbL3Command = new ClimbCommand(climber, ClimberLevel.L3);
     descendCommand = new DescendCommand(climber);
     homeClimberCommand = new HomeClimberCommand(climber, turret);
-
-    alignClimbCommand = new AlignClimbCommand(drive, climber, turret);
     
     shootCommand = new ShootCommand(hopper, turret);
     // Configure the button bindings
@@ -300,9 +302,9 @@ public class RobotContainer {
                             new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero)),
                     drive)
                 .ignoringDisable(true));
-    
-    controller.a().onTrue(alignClimbCommand);
-    // controller.x().onTrue(autoClimbL1Command);
+
+    controller.a().onTrue(alignL3ClimbCommand);
+
     controller.rightBumper().onTrue(toggleIntakeCommand);
     controller.rightTrigger(0.5).whileTrue(shootCommand);
     
