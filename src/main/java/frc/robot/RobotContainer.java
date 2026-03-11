@@ -35,8 +35,7 @@ import frc.robot.commands.pathplanner.StartFiringCommand;
 import frc.robot.commands.pathplanner.StartIntakeCommand;
 import frc.robot.commands.pathplanner.StopFiringCommand;
 import frc.robot.commands.pathplanner.StopIntakeCommand;
-import frc.robot.commands.pathplanner.DeployIntakeCommand;
-import frc.robot.commands.pathplanner.RetractIntakeCommand;
+
 import frc.robot.commands.pathplanner.SpitCommand;
 import frc.robot.commands.AlignClimbCommand;
 import frc.robot.commands.AutoClimbL1Command;

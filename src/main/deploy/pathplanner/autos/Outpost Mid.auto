@@ -5,25 +5,13 @@
     "data": {
       "commands": [
         {
-          "type": "named",
-          "data": {
-            "name": "ToggleIntakeCommand"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Bump4_to_Outpost"
-          }
-        },
-        {
           "type": "parallel",
           "data": {
             "commands": [
               {
-                "type": "named",
+                "type": "path",
                 "data": {
-                  "name": "StartFiringCommand"
+                  "pathName": "Middle_to_Outpost"
                 }
               },
               {
@@ -33,13 +21,13 @@
                     {
                       "type": "wait",
                       "data": {
-                        "waitTime": 0.0
+                        "waitTime": 0.5
                       }
                     },
                     {
-                      "type": "path",
+                      "type": "named",
                       "data": {
-                        "pathName": "Outpost_to_Neutral6"
+                        "name": "ToggleIntakeCommand"
                       }
                     }
                   ]
@@ -49,15 +37,15 @@
           }
         },
         {
-          "type": "named",
+          "type": "wait",
           "data": {
-            "name": "StopFiringCommand"
+            "waitTime": 2.0
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Neutral6_to_Bump3 RoT"
+            "pathName": "Depot_to_MidTarget"
           }
         },
         {
@@ -65,11 +53,29 @@
           "data": {
             "name": "StartFiringCommand"
           }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 5.0
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "StopFiringCommand"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ToggleIntakeCommand"
+          }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": null,
+  "folder": "Comp Autos",
   "choreoAuto": false
 }
