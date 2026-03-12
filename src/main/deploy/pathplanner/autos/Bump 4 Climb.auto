@@ -70,6 +70,18 @@
         {
           "type": "named",
           "data": {
+            "name": "ToggleIntakeCommand"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Bump3 Turn For Climb"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
             "name": "AutoClimbL1Command"
           }
         }

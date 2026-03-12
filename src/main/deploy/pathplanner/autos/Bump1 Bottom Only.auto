@@ -37,7 +37,7 @@
         {
           "type": "wait",
           "data": {
-            "waitTime": 6.0
+            "waitTime": 5.0
           }
         },
         {
@@ -47,15 +47,21 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "ToggleIntakeCommand"
+          }
+        },
+        {
           "type": "path",
           "data": {
-            "pathName": "Bump2_to_LadderOut"
+            "pathName": "Bump2 turn for climb"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "PerformClimbCommand"
+            "name": "AutoClimbL1Command"
           }
         }
       ]

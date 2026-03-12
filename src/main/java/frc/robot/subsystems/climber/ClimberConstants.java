@@ -4,7 +4,7 @@ public class ClimberConstants {
     public static final double EXTENSION_HOME_POSITION = 0;
     public static final double EXTENSION_METERS_PER_ROTATION = 0.0004;
     public static final double EXTENSION_EXTENDED_L1_POSITION = 46 * 4.8;
-    public static final double EXTENSION_EXTENDED_L3_POSITION = 46 * 7;
+    public static final double EXTENSION_EXTENDED_L3_POSITION = 46 * 7.1;
     // threshold in motor rotations to consider extension done
     public static final double EXTENSION_PID_THRESHOLD = 2;
 
