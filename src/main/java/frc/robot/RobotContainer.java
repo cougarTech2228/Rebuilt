@@ -44,6 +44,7 @@ import frc.robot.commands.DescendCommand;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.ExtendClimberCommand;
 import frc.robot.commands.HomeClimberCommand;
+import frc.robot.commands.OscillateIntakeCommand;
 import frc.robot.commands.ShootCommand;
 import frc.robot.commands.ToggleIntakeCommand;
 import frc.robot.generated.TunerConstants;
@@ -143,6 +144,8 @@ public class RobotContainer {
   private final ToggleIntakeCommand toggleIntakeCommand;
   private final ShootCommand shootCommand;
 
+  private final OscillateIntakeCommand oscillateIntakeCommand;
+
 
   /**
    * The container for the robot. Contains subsystems, IO devices, and commands.
@@ -230,6 +233,8 @@ public class RobotContainer {
 
     alignL1ClimbCommand = new AlignL1ClimbCommand(drive, climber, turret);
     alignL3ClimbCommand = new AlignL3ClimbCommand(drive, climber, turret);
+
+    oscillateIntakeCommand = new OscillateIntakeCommand(climber, intake);
     
     // Register Auto commands
     NamedCommands.registerCommand("StartFiringCommand", startFiringCommand);
@@ -307,6 +312,7 @@ public class RobotContainer {
 
     controller.rightBumper().onTrue(toggleIntakeCommand);
     controller.rightTrigger(0.5).whileTrue(shootCommand);
+    controller.leftTrigger(0.5).whileTrue(oscillateIntakeCommand.repeatedly());
     
     controller.leftBumper()
         .onTrue(new InstantCommand(() -> {

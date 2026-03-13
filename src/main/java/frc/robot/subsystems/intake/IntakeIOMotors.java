@@ -104,6 +104,8 @@ public class IntakeIOMotors implements IntakeIO {
             case DEPLOYED:
                 anglePID.setSetpoint(IntakeConstants.ANGLE_MOTOR_DEPLOYED_POSITION, ControlType.kMAXMotionPositionControl);
                 break;
+            case BUMPED:
+                anglePID.setSetpoint(IntakeConstants.ANGLE_MOTOR_BUMPED_POSITION, ControlType.kMAXMotionPositionControl);
         }
     }
 
@@ -126,6 +128,28 @@ public class IntakeIOMotors implements IntakeIO {
         intakeMotor.setVoltage(intakeMotorVoltage);
     }
 
+    // public void bumpIntake(IntakeMode mode) {
+    //     intakeMotor.setVoltage(0.0);
+    //     switch (mode) {
+    //         case INTAKE:
+    //             break;
+    //         case SPIT:
+    //             break;
+    //         case IDLE:
+    //             break;
+    //         case OSCILLATING:
+    //             if (getIntakeAngle() == IntakeConstants.ANGLE_MOTOR_DEPLOYED_POSITION) {
+    //                 setIntakeAngle(IntakeAngle.BUMPED);
+    //                 break;
+    //             } else if (getIntakeAngle() == IntakeConstants.ANGLE_MOTOR_BUMPED_POSITION) {
+    //                 setIntakeAngle(IntakeAngle.DEPLOYED);
+    //                 break;
+    //             } else {
+    //                 break;
+    //             }
+    //     }
+    // }
+
     public void manualSetIntakeVelocity(double voltage) {
         intakeMotor.setVoltage(voltage);
     }   
@@ -133,6 +157,7 @@ public class IntakeIOMotors implements IntakeIO {
     public void manualSetIntakeAngle(double angle) {
         anglePID.setSetpoint(angle, ControlType.kMAXMotionPositionControl);
     }
+
 
     @Override
     public void stop() {

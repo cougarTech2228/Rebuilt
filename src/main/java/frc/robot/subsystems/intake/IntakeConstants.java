@@ -8,6 +8,7 @@ public class IntakeConstants {
 
     public static final double ANGLE_MOTOR_HOME_POSITION = 0.0;
     public static final double ANGLE_MOTOR_DEPLOYED_POSITION = 35.3;
+    public static final double ANGLE_MOTOR_BUMPED_POSITION = 5.0;
     public static final double ANGLE_PID_THRESHOLD = 2;
 
     public static final double ANGLE_MOTOR_STALL_CURRENT_THRESHOLD = 15;

@@ -18,7 +18,8 @@ public class Intake extends SubsystemBase{
 
     public enum IntakeAngle {
         HOME,
-        DEPLOYED
+        DEPLOYED,
+        BUMPED
     }
 
     public enum IntakeMode {

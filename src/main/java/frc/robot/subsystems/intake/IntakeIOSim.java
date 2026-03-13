@@ -94,6 +94,29 @@ public class IntakeIOSim implements IntakeIO {
         }
     }
 
+    // @Override
+    // public void bumpIntake(IntakeMode mode) {
+    //     manualSetIntakeVelocity(0.0);
+    //     switch (mode) {
+    //         case INTAKE:
+    //             break;
+    //         case SPIT:
+    //             break;
+    //         case IDLE:
+    //             break;
+    //         case OSCILLATING:
+    //             if (getIntakeAngle() == IntakeConstants.ANGLE_MOTOR_DEPLOYED_POSITION) {
+    //                 setIntakeAngle(IntakeAngle.BUMPED);
+    //                 break;
+    //             } else if (getIntakeAngle() == IntakeConstants.ANGLE_MOTOR_BUMPED_POSITION) {
+    //                 setIntakeAngle(IntakeAngle.DEPLOYED);
+    //                 break;
+    //             } else {
+    //                 break;
+    //             }
+    //     }
+    // }
+
     @Override
     public void manualSetIntakeVelocity(double voltage) {
         this.intakeAppliedVolts = voltage;

@@ -35,5 +35,6 @@ public interface IntakeIO {
     public default void manualSetIntakeVelocity(double velocity) {};
 
     public default void manualSetIntakeAngle(double angle) {};
+
     public default void stop() {};
 }
