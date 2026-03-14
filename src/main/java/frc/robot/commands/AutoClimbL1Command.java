@@ -19,7 +19,7 @@ public class AutoClimbL1Command extends CTSequentialCommandGroup {
             new ToggleIntakeCommand(intake, climber)
                 .onlyIf(() -> !intake.isRetracted()), 
 
-            new ExtendClimberCommand(climber, intake, ClimberLevel.L3, turret),
+            new ExtendClimberCommand(climber, intake, ClimberLevel.L1, turret),
             new ClimbCommand(climber, ClimberLevel.L1)
         );
     }

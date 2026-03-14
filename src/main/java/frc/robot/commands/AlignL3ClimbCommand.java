@@ -35,7 +35,7 @@ public class AlignL3ClimbCommand extends Command {
     // Only Blue Alliance poses and rotations are needed now
     // NEED CALIBRATION BEFORE USE
     private static final Pose2d BLUE_TOWER_NORTH = new Pose2d(1.015, 4.683, Rotation2d.fromDegrees(0)); 
-    private static final Pose2d BLUE_TOWER_SOUTH = new Pose2d(1.201, 2.856, Rotation2d.fromDegrees(0)); 
+    private static final Pose2d BLUE_TOWER_SOUTH = new Pose2d(1.205, 2.868, Rotation2d.fromDegrees(0)); 
 
     private static final Rotation2d BLUE_NORTH_ROTATION = Rotation2d.fromDegrees(90); 
     private static final Rotation2d BLUE_SOUTH_ROTATION = Rotation2d.fromDegrees(270); 

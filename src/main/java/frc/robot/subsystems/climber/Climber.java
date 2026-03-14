@@ -117,4 +117,8 @@ public class Climber extends SubsystemBase {
     public boolean isExtended(ClimberLevel level) {
         return climberIO.isExtended(level);
     }
+
+    public boolean isReadyToClimb() {
+        return climberInputs.isClimberReady;
+    }
 }

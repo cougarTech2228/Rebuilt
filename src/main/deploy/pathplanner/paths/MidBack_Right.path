@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.55,
+        "x": 3.0,
         "y": 4.0
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.5499999999999998,
-        "y": 4.0
+        "x": 3.0,
+        "y": 3.75
       },
       "isLocked": false,
-      "linkedName": "MidHome"
+      "linkedName": "MidBack"
     },
     {
       "anchor": {
-        "x": 0.4,
-        "y": 0.67
+        "x": 3.0,
+        "y": 3.0
       },
       "prevControl": {
-        "x": 2.4,
-        "y": 0.6699999999999997
+        "x": 3.0,
+        "y": 3.25
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Depot"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
@@ -42,7 +42,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 90.0
+    "rotation": -90.0
   },
   "reversed": false,
   "folder": "MiddlePaths",

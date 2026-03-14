@@ -81,15 +81,15 @@ public class IntakeIOSim implements IntakeIO {
         switch (mode) {
             case INTAKE:
                 setIntakeAngle(IntakeAngle.DEPLOYED);
-                manualSetIntakeVelocity(IntakeConstants.INTAKE_MOTOR_INTAKE_VOLTAGE);
+                manualSetIntakeVoltage(IntakeConstants.INTAKE_MOTOR_INTAKE_VOLTAGE);
                 break;
             case SPIT:
                 setIntakeAngle(IntakeAngle.DEPLOYED);
-                manualSetIntakeVelocity(IntakeConstants.INTAKE_MOTOR_SPIT_VOLTAGE);
+                manualSetIntakeVoltage(IntakeConstants.INTAKE_MOTOR_SPIT_VOLTAGE);
                 break;
             case IDLE:
                 setIntakeAngle(IntakeAngle.HOME);
-                manualSetIntakeVelocity(IntakeConstants.INTAKE_MOTOR_IDLE_VOLTAGE);
+                manualSetIntakeVoltage(IntakeConstants.INTAKE_MOTOR_IDLE_VOLTAGE);
                 break;
         }
     }
@@ -118,7 +118,7 @@ public class IntakeIOSim implements IntakeIO {
     // }
 
     @Override
-    public void manualSetIntakeVelocity(double voltage) {
+    public void manualSetIntakeVoltage(double voltage) {
         this.intakeAppliedVolts = voltage;
     }
 

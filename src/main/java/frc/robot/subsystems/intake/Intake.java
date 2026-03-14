@@ -42,8 +42,8 @@ public class Intake extends SubsystemBase{
         io.manualSetIntakeAngle(angle);
     }
 
-    public void setIntakeVelocity(double rpm) {
-        io.manualSetIntakeVelocity(rpm);
+    public void setIntakeVoltage(double voltage) {
+        io.manualSetIntakeVoltage(voltage);
     }
     
     /**

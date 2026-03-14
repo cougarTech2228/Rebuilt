@@ -44,6 +44,7 @@ import frc.robot.commands.DescendCommand;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.ExtendClimberCommand;
 import frc.robot.commands.HomeClimberCommand;
+import frc.robot.commands.IntakeSpitCommand;
 import frc.robot.commands.OscillateIntakeCommand;
 import frc.robot.commands.ShootCommand;
 import frc.robot.commands.ToggleIntakeCommand;
@@ -142,10 +143,11 @@ public class RobotContainer {
   private final AutoClimbL3Command autoClimbL3Command;
 
   private final ToggleIntakeCommand toggleIntakeCommand;
+  private final IntakeSpitCommand intakeSpitCommand;
+
   private final ShootCommand shootCommand;
 
   private final OscillateIntakeCommand oscillateIntakeCommand;
-
 
   /**
    * The container for the robot. Contains subsystems, IO devices, and commands.
@@ -242,6 +244,7 @@ public class RobotContainer {
     NamedCommands.registerCommand("SpitCommand", spitCommand);
     NamedCommands.registerCommand("ToggleIntakeCommand", toggleIntakeCommand);
     NamedCommands.registerCommand("AutoClimbL1Command", autoClimbL1Command);
+    NamedCommands.registerCommand("OscillateIntakeCommand", oscillateIntakeCommand);
 
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
@@ -271,7 +274,10 @@ public class RobotContainer {
     descendCommand = new DescendCommand(climber);
     homeClimberCommand = new HomeClimberCommand(climber, turret);
 
+    intakeSpitCommand = new IntakeSpitCommand(intake, climber);
+
     shootCommand = new ShootCommand(hopper, turret);
+
     // Configure the button bindings
     configureButtonBindings();
 
@@ -309,6 +315,7 @@ public class RobotContainer {
                 .ignoringDisable(true));
     
     controller.a().onTrue(alignL3ClimbCommand);
+    controller.y().whileTrue(intakeSpitCommand.repeatedly());
 
     controller.rightBumper().onTrue(toggleIntakeCommand);
     controller.rightTrigger(0.5).whileTrue(shootCommand);

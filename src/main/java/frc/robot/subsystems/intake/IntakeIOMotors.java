@@ -150,7 +150,7 @@ public class IntakeIOMotors implements IntakeIO {
     //     }
     // }
 
-    public void manualSetIntakeVelocity(double voltage) {
+    public void manualSetIntakeVoltage(double voltage) {
         intakeMotor.setVoltage(voltage);
     }   
 

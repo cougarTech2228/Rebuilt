@@ -269,4 +269,6 @@ public class ClimberIOMotor implements ClimberIO {
     public void stopExtension() {
         extensionMotor.set(0);
     }
+
+
 }
