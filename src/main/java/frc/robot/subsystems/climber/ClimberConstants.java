@@ -16,6 +16,6 @@ public class ClimberConstants {
     // threshold in motor rotations to consider climb done
     public static final double CLIMBER_PID_THRESHOLD = 2;
     
-    public static final double EXTENSION_HOME_SPEED = -0.35;
-    public static final double CLIMBER_HOME_SPEED = -0.35;
+    public static final double EXTENSION_HOME_SPEED = -0.2;
+    public static final double CLIMBER_HOME_SPEED = -0.2;
 }

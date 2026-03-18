@@ -24,6 +24,8 @@ public interface HopperIO {
     public default void kickerOn(boolean test) {}
 
     public default void kickerOff() {}
+
+    public default void kickerSpit() {}
 }
 
 

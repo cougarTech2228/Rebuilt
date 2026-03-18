@@ -274,10 +274,10 @@ public class RobotContainer {
     descendCommand = new DescendCommand(climber);
     homeClimberCommand = new HomeClimberCommand(climber, turret);
 
-    intakeSpitCommand = new IntakeSpitCommand(intake, climber);
+    intakeSpitCommand = new IntakeSpitCommand(intake, climber, hopper);
+
 
     shootCommand = new ShootCommand(hopper, turret);
-
     // Configure the button bindings
     configureButtonBindings();
 

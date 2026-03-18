@@ -15,7 +15,7 @@ public class Hopper extends SubsystemBase {
 
 	public enum HopperMode {
 		ON,
-		OFF
+		OFF,
 	}
 	
 	public Hopper(HopperIO io) {
@@ -57,6 +57,11 @@ public class Hopper extends SubsystemBase {
 	public void kickerOff() {
 		this.onKicker = false;
 		this.io.kickerOff();
+	}
+
+	public void kickerSpit() {
+		this.onKicker = true;
+		this.io.kickerSpit();
 	}
 
 }

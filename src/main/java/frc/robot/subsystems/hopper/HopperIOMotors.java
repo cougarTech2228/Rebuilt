@@ -84,5 +84,9 @@ public class HopperIOMotors implements HopperIO {
         kickerPID.setSetpoint(0, ControlType.kVoltage);
     }
 
+    public void kickerSpit() {
+        kickerPID.setSetpoint(HopperConstants.kickerSpitVoltage, ControlType.kVoltage);
+    }
+
 }
 

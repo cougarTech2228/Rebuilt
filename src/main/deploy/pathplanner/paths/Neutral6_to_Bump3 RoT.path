@@ -33,15 +33,15 @@
     {
       "anchor": {
         "x": 5.7,
-        "y": 5.4
+        "y": 5.6
       },
       "prevControl": {
         "x": 6.467113808763626,
-        "y": 5.4
+        "y": 5.6
       },
       "nextControl": {
         "x": 4.932886191236374,
-        "y": 5.4
+        "y": 5.6
       },
       "isLocked": false,
       "linkedName": null
@@ -49,15 +49,15 @@
     {
       "anchor": {
         "x": 3.6,
-        "y": 5.4
+        "y": 5.6
       },
       "prevControl": {
         "x": 4.6,
-        "y": 5.4
+        "y": 5.6
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Bump3 West"
+      "linkedName": "Bump3.5"
     }
   ],
   "rotationTargets": [

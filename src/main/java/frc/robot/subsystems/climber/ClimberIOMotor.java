@@ -74,7 +74,8 @@ public class ClimberIOMotor implements ClimberIO {
         extensionConfig.limitSwitch.reverseLimitSwitchType(Type.kNormallyOpen);
 
         extensionConfig.closedLoop
-            .p(1.0)
+            .p(1.0
+            )
             .i(0)
             .d(0)
             .outputRange(-1, 1)
