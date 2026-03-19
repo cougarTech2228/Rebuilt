@@ -1,21 +1,20 @@
 package frc.robot.subsystems.turret;
 
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 
 public class TurretConstants {
     public static final double flywheelVoltage = 3.0;
 
-    public static Transform3d TurretOffset =
-        new Transform3d(0.18, -0.19, 0.72, new Rotation3d());
-
+    public static Transform2d TurretOffset =
+        new Transform2d(-0.112, 0.125, new Rotation2d());
     public static final double MAX_FLYWHEEL_SPEED = 100;
     public static final double MIN_FLYWHEEL_SPEED = 10;
 
     public static final double HOOD_MIN_ANGLE = 0;
     public static final double HOOD_MAX_ANGLE = 1.4;
 
-    public static final double turretTestIntercept = 27;
+    public static final double turretTestIntercept = 34.298;
 
     // These are are safe rotation angles for the turret
     // beyond those would cause physical interference

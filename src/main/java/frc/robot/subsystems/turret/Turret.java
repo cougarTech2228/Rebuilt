@@ -66,7 +66,9 @@ public class Turret extends SubsystemBase{
     private double getTargetDistance() {
         Pose2d robotPose = driveSubsystem.getPose();
         // Return distance to the virtual compensated target, not the physical hub
-        return robotPose.getTranslation().getDistance(virtualTargetPose.getTranslation());
+        return robotPose.getTranslation().plus(
+            TurretConstants.TurretOffset.getTranslation().rotateBy(robotPose.getRotation()))
+            .getDistance(virtualTargetPose.getTranslation());
     }
 
     @Override
@@ -85,7 +87,7 @@ public class Turret extends SubsystemBase{
         ).rotateBy(robotPose.getRotation());
 
         // Estimate time of flight
-        double realDistance = robotPose.getTranslation().getDistance(realTargetPose.getTranslation());
+        double realDistance = robotPose.getTranslation().plus(TurretConstants.TurretOffset.getTranslation()).getDistance(realTargetPose.getTranslation());
         double shotVelocity = SmartDashboard.getNumber("TurretShotSpeedMpS", 15.0);
         double timeOfFlight = realDistance / shotVelocity;
 
@@ -131,11 +133,14 @@ public class Turret extends SubsystemBase{
         turretInputs.turretTargetPoint = targetPose;
 
         // Get the Translation (X, Y) of both poses
-        Translation2d robotXY = robotPose.getTranslation().plus(TurretConstants.TurretOffset.getTranslation().toTranslation2d());
+        // Translation2d robotXY = robotPose.getTranslation().plus(TurretConstants.TurretOffset.getTranslation());
+        Translation2d turretXY = robotPose.getTranslation().plus(
+            TurretConstants.TurretOffset.getTranslation().rotateBy(robotPose.getRotation()));
+
         Translation2d targetXY = targetPose.getTranslation();
 
         // Calculate the difference vector (Vector from Robot -> Target)
-        Translation2d difference = targetXY.minus(robotXY);
+        Translation2d difference = targetXY.minus(turretXY);
 
         // Get the angle of that vector relative to the field
         Rotation2d angleToTargetFieldRelative = difference.getAngle();
@@ -190,12 +195,10 @@ public class Turret extends SubsystemBase{
         double angle;
 
         if (aimTarget == TurretAimTarget.Hub) {
-            // y = 0.0099x3 - 0.1406x2 + 0.6786x - 0.6695
-            double turretTestAngleX = SmartDashboard.getNumber("TurretTestAngleIntercept", 0.7);
-
-            angle = (0.0099 * distance * distance * distance) -
-                    (0.1406 * distance * distance) +
-                    (0.6786 * distance) - turretTestAngleX;
+            // y = 0.0327x2 - 0.0147x + 0.0518
+            // double turretTestAngleX = SmartDashboard.getNumber("TurretTestAngleIntercept", 0.7);
+            angle = (0.0327 * distance * distance) -
+                    (0.0147 * distance) + 0.0518;
 
         } else {
             angle = 1.3;
@@ -226,10 +229,11 @@ public class Turret extends SubsystemBase{
         double velocity;
 
         if (aimTarget == TurretAimTarget.Hub) {
-            double turretTestX = SmartDashboard.getNumber("TurretTestX", 4.85);
-            double TurretTestIntercept = SmartDashboard.getNumber("TurretTestIntercept", TurretConstants.turretTestIntercept);
-            //y = 4.6129x + 29.763
-            velocity = (turretTestX * distance) + TurretTestIntercept;
+            // double turretTestX = SmartDashboard.getNumber("TurretTestX", 4.8834);
+            // double TurretTestIntercept = SmartDashboard.getNumber("TurretTestIntercept", TurretConstants.turretTestIntercept);
+            // //y = 4.6129x + 29.763
+            velocity = (4.8834 * distance) + 30.298;
+            //y = 4.8834x + 34.298
 
         } else {
             //y = 5.2631x + 18.264
@@ -288,7 +292,7 @@ public class Turret extends SubsystemBase{
     }
 
     public boolean canShoot() {
-        return true;
+        return turretInputs.areFlywheelsAtVelocity && turretInputs.isTurretAtTarget && !turretInputs.isTargetInKeepOut;
     }
 
     private Pose2d getTargetPoint(TurretAimTarget target) {
