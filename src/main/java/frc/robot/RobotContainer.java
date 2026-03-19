@@ -39,6 +39,7 @@ import frc.robot.commands.AlignL1ClimbCommand;
 import frc.robot.commands.AlignL3ClimbCommand;
 import frc.robot.commands.AutoClimbL1Command;
 import frc.robot.commands.AutoClimbL3Command;
+import frc.robot.commands.AutoDriveTestCommand;
 import frc.robot.commands.ClimbCommand;
 import frc.robot.commands.DescendCommand;
 import frc.robot.commands.DriveCommands;
@@ -145,6 +146,8 @@ public class RobotContainer {
   private final ToggleIntakeCommand toggleIntakeCommand;
   private final IntakeSpitCommand intakeSpitCommand;
 
+  private final AutoDriveTestCommand autoDriveTestCommand;
+
   private final ShootCommand shootCommand;
 
   private final OscillateIntakeCommand oscillateIntakeCommand;
@@ -236,6 +239,8 @@ public class RobotContainer {
     alignL1ClimbCommand = new AlignL1ClimbCommand(drive, climber, turret);
     alignL3ClimbCommand = new AlignL3ClimbCommand(drive, climber, turret);
 
+    autoDriveTestCommand = new AutoDriveTestCommand(drive, climber, turret, intake);
+
     oscillateIntakeCommand = new OscillateIntakeCommand(climber, intake);
     
     // Register Auto commands
@@ -314,7 +319,7 @@ public class RobotContainer {
                     drive)
                 .ignoringDisable(true));
     
-    controller.a().onTrue(alignL3ClimbCommand);
+    controller.a().onTrue(autoClimbL1Command);
     controller.y().whileTrue(intakeSpitCommand.repeatedly());
 
     controller.rightBumper().onTrue(toggleIntakeCommand);
