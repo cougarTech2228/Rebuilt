@@ -3,7 +3,7 @@ package frc.robot.subsystems.intake;
 public class IntakeConstants {
     
     public static final double INTAKE_MOTOR_IDLE_VOLTAGE = 0.0;
-    public static final double INTAKE_MOTOR_INTAKE_VOLTAGE = -10;
+    public static final double INTAKE_MOTOR_INTAKE_VOLTAGE = -12;
     public static final double INTAKE_MOTOR_SPIT_VOLTAGE = 10;
 
     public static final double ANGLE_MOTOR_HOME_POSITION = 0.0;
