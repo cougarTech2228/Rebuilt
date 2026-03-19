@@ -25,9 +25,6 @@ public class Turret extends SubsystemBase{
         LobUpper
     };
 
-    
-
-
     private TurretIO turretIO;
     private final TurretIOInputsAutoLogged turretInputs = new TurretIOInputsAutoLogged();
 
@@ -58,17 +55,32 @@ public class Turret extends SubsystemBase{
         SmartDashboard.setPersistent("TurretTestX");
         SmartDashboard.setPersistent("TurretTestIntercept");
         SmartDashboard.setPersistent("TurretTestAngleIntercept");
-        // Shoot-on-the-move tuning parameter. Represents the average m/s of the fuel
-        // across its entire flight path.
-        SmartDashboard.putNumber("TurretShotSpeedMpS", 1.9);
+
+        // Shoot-on-the-move tuning parameter. Represents the average horizontal m/s of the fuel.
+        SmartDashboard.putNumber("TurretShotSpeedMpS", 15.0);
     }
 
     private double getTargetDistance() {
         Pose2d robotPose = driveSubsystem.getPose();
-        // Return distance to the virtual compensated target, not the physical hub
+
+        // Return distance to the virtual compensated target from the physical turret offset
         return robotPose.getTranslation().plus(
             TurretConstants.TurretOffset.getTranslation().rotateBy(robotPose.getRotation()))
             .getDistance(virtualTargetPose.getTranslation());
+    }
+
+    /**
+     * Calculates the estimated time of flight for the game piece to reach the target.
+     */
+    private double estimateTimeOfFlight(double distance) {
+        // TODO: replace this with emperical measurements!
+
+        // Basic Average (Currently active)
+        double averageHorizontalSpeed = SmartDashboard.getNumber("TurretShotSpeedMpS", 15.0);
+        double timeOfFlightSeconds = distance / averageHorizontalSpeed;
+
+        // sanity check
+        return MathUtil.clamp(timeOfFlightSeconds, 0.1, 2.0);
     }
 
     @Override
@@ -79,28 +91,39 @@ public class Turret extends SubsystemBase{
         Pose2d robotPose = driveSubsystem.getPose();
         Pose2d realTargetPose = getTargetPoint(aimTarget);
 
-        // Get the robot's velocity and make it field-relative
+        // 1. Get the robot's velocity
         ChassisSpeeds speeds = driveSubsystem.getChassisSpeeds();
-        Translation2d fieldRelativeVelocity = new Translation2d(
-            speeds.vxMetersPerSecond,
-            speeds.vyMetersPerSecond
-        ).rotateBy(robotPose.getRotation());
+        Translation2d robotVelocityRR = new Translation2d(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond);
 
-        // Estimate time of flight
-        double realDistance = robotPose.getTranslation().plus(TurretConstants.TurretOffset.getTranslation()).getDistance(realTargetPose.getTranslation());
-        double shotVelocity = SmartDashboard.getNumber("TurretShotSpeedMpS", 15.0);
-        double timeOfFlight = realDistance / shotVelocity;
-
-        // Offset the target point by the velocity we will impart during the time of flight
-        Translation2d movingOffset = fieldRelativeVelocity.times(timeOfFlight);
-        virtualTargetPose = new Pose2d(
-            realTargetPose.getTranslation().minus(movingOffset),
-            realTargetPose.getRotation()
+        // 2. Add the "whip" velocity of the turret swinging around the robot's center of rotation
+        Translation2d turretOffset = TurretConstants.TurretOffset.getTranslation();
+        Translation2d spinVelocityRR = new Translation2d(
+            -speeds.omegaRadiansPerSecond * turretOffset.getY(),
+            speeds.omegaRadiansPerSecond * turretOffset.getX()
         );
+        Translation2d totalTurretVelocityRR = robotVelocityRR.plus(spinVelocityRR);
 
+        // 3. Convert the true physical turret velocity to Field Relative
+        Translation2d fieldRelativeVelocity = totalTurretVelocityRR.rotateBy(robotPose.getRotation());
+
+        // 4. Iterative Solver for Time of Flight (ToF)
+        Translation2d virtualTargetTrans = realTargetPose.getTranslation();
+        Translation2d absoluteTurretPosition = robotPose.getTranslation().plus(turretOffset.rotateBy(robotPose.getRotation()));
+
+        for (int i = 0; i < 3; i++) {
+            // Distance from the physical turret to the virtual target
+            double virtualDistance = absoluteTurretPosition.getDistance(virtualTargetTrans);
+            double timeOfFlight = estimateTimeOfFlight(virtualDistance);
+
+            // Offset the target point by the velocity we will impart during the time of flight
+            Translation2d movingOffset = fieldRelativeVelocity.times(timeOfFlight);
+            virtualTargetTrans = realTargetPose.getTranslation().minus(movingOffset);
+        }
+
+        virtualTargetPose = new Pose2d(virtualTargetTrans, realTargetPose.getRotation());
         turretInputs.targetDistance = getTargetDistance();
 
-        // Log the real target vs the virtual aim target for easy debugging in AdvantageScope
+        // Log the real target vs the virtual aim target
         Logger.recordOutput("Turret/RealTargetPose", realTargetPose);
         Logger.recordOutput("Turret/VirtualTargetPose", virtualTargetPose);
         Logger.processInputs("Turret", turretInputs);
@@ -127,13 +150,10 @@ public class Turret extends SubsystemBase{
         }
         aimTarget = target;
         Pose2d robotPose = driveSubsystem.getPose();
-        // Point the turret at the compensated virtual target
         Pose2d targetPose = virtualTargetPose;
 
         turretInputs.turretTargetPoint = targetPose;
 
-        // Get the Translation (X, Y) of both poses
-        // Translation2d robotXY = robotPose.getTranslation().plus(TurretConstants.TurretOffset.getTranslation());
         Translation2d turretXY = robotPose.getTranslation().plus(
             TurretConstants.TurretOffset.getTranslation().rotateBy(robotPose.getRotation()));
 
@@ -182,21 +202,11 @@ public class Turret extends SubsystemBase{
         turretIO.setHoodAngle(elevation);
     }
 
-    private double getAngleForTarget() {
-        double distance = 0;
-
-        double turretTestDistance = SmartDashboard.getNumber("TurretTestDistance", 0.0);
-        if (turretTestDistance > 0) {
-            distance = turretTestDistance;
-        } else {
-            distance = getTargetDistance();
-        }
-
+    private double getAngleForTarget(double distance) {
         double angle;
 
         if (aimTarget == TurretAimTarget.Hub) {
             // y = 0.0327x2 - 0.0147x + 0.0518
-            // double turretTestAngleX = SmartDashboard.getNumber("TurretTestAngleIntercept", 0.7);
             angle = (0.0327 * distance * distance) -
                     (0.0147 * distance) + 0.0518;
 
@@ -208,32 +218,20 @@ public class Turret extends SubsystemBase{
         angle = Math.min(angle, TurretConstants.HOOD_MAX_ANGLE);
         angle = Math.max(angle, TurretConstants.HOOD_MIN_ANGLE);
 
-         Logger.recordOutput("Turret/RealAngle", angle);
+        Logger.recordOutput("Turret/RealAngle", angle);
         return angle;
     }
 
-    // private double getRatioForTarget() {
-    //     // y = 5E-09x3 - 7E-06x2 + 0.0029x + 0.6728
-    // }
-
-    private double getVelocityForTarget(boolean test) {
-        double distance = 0;
-
-        if (test) {
-            double turretTestDistance = SmartDashboard.getNumber("TurretTestDistance", 0.0);
-            distance = turretTestDistance;
-         } else {
-            distance = getTargetDistance();
-        }
-
+    private double getVelocityForTarget(double distance, boolean test) {
         double velocity;
 
+        if (test) {
+            distance = SmartDashboard.getNumber("TurretTestDistance", 0.0);
+        }
+
         if (aimTarget == TurretAimTarget.Hub) {
-            // double turretTestX = SmartDashboard.getNumber("TurretTestX", 4.8834);
-            // double TurretTestIntercept = SmartDashboard.getNumber("TurretTestIntercept", TurretConstants.turretTestIntercept);
-            // //y = 4.6129x + 29.763
+            //y = 4.8834x + 30.298
             velocity = (4.8834 * distance) + 30.298;
-            //y = 4.8834x + 34.298
 
         } else {
             //y = 5.2631x + 18.264
@@ -265,24 +263,16 @@ public class Turret extends SubsystemBase{
             } else {
                 setFlywheelVelocity(0, 0);
             }
-            // boolean indexerTest = SmartDashboard.getBoolean("IndexerTest", false);
-            // if (indexerTest) {
-            //   hopper.indexerOn(true);
-            //   hopper.kickerOn(true);
-            // } else {
-            //   hopper.indexerOff();
-            //   hopper.kickerOff();
-            // }
-            // intake.setIntakeAngle(SmartDashboard.getNumber("IntakePosition", 1.0));
-            // intake.setIntakeVelocity(SmartDashboard.getNumber("IntakeVelocity", 1.0));
         } else {
             if (enable) {
-                double vel = getVelocityForTarget(false);
+                double dist = getTargetDistance();
+                double vel = getVelocityForTarget(dist, false);
                 setFlywheelVelocity(vel, vel * 1.2);
-                double angle = getAngleForTarget();
+
+                double angle = getAngleForTarget(dist);
                 if (Math.abs(angle - currentHoodAngle) > 0.01) {
                     currentHoodAngle = angle;
-                    setHoodElevation(getAngleForTarget());
+                    setHoodElevation(angle);
                 }
             } else {
                 setFlywheelVelocity(0, 0);
