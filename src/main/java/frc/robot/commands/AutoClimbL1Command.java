@@ -35,15 +35,15 @@ public class AutoClimbL1Command extends CTSequentialCommandGroup {
             // Commands.runOnce(() -> drive.runVelocity(new ChassisSpeeds(0, 0, 0)), drive),
 
             // // 5. Climb!
-            // new ClimbCommand(climber, ClimberLevel.L1)
+            // new ClimbCommand(climber, ClimberLevel.
 
             // 4. Slow drive until flush with ladder and latched
             // .asProxy() prevents the requirement conflict with the Align command!
-            drive.run(() -> drive.runVelocity(new ChassisSpeeds(-0.25, 0, 0)))
+            drive.run(() -> drive.runVelocity(new ChassisSpeeds(-0.35, 0, 0)))
                  .withTimeout(1.0)
                  .asProxy(),
                  
-            drive.run(() -> drive.runVelocity(new ChassisSpeeds(0.0, 0.25, 0)))
+            drive.run(() -> drive.runVelocity(new ChassisSpeeds(0.0, 0.15, 0)))
                  .until(climber::isReadyToClimb)
                  .asProxy(),
                  

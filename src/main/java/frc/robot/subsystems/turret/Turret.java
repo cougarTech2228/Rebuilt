@@ -307,7 +307,7 @@ public class Turret extends SubsystemBase{
             }
             case LobLower: {
                 double x = 2;
-                double y = 1;
+                double y = 2;
                 if (currentAlliance == Alliance.Blue) {
                     pose = new Pose2d(x, y, new Rotation2d());
                 } else {
@@ -317,7 +317,7 @@ public class Turret extends SubsystemBase{
             }
             case LobUpper: {
                 double x = 2;
-                double y = aprilTagLayout.getFieldWidth() - 1;
+                double y = aprilTagLayout.getFieldWidth() - 2;
                 if (currentAlliance == Alliance.Blue) {
                     pose = new Pose2d(x, y, new Rotation2d());
                 } else {

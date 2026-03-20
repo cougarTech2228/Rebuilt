@@ -18,12 +18,12 @@ public class TurretConstants {
 
     // These are are safe rotation angles for the turret
     // beyond those would cause physical interference
-    public static final double TURRET_MIN_ROTATION = -50;
-    public static final double TURRET_MAX_ROTATION = 205.0;
+    public static final double TURRET_MIN_ROTATION = -37;
+    public static final double TURRET_MAX_ROTATION = 203;
 
     public static final double ENCODER_31T_OFFSET = 0.139404;
     public static final double ENCODER_37T_OFFSET = -0.163574;
-    public static final double ENCODER_HOOD_MAGNET_OFFSET = -0.041504;
+    public static final double ENCODER_HOOD_MAGNET_OFFSET = -0.115479;
 
     public static final double HOOD_GEAR_RATIO = (85/12);
 }
