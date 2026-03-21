@@ -18,6 +18,7 @@ public class Climber extends SubsystemBase {
     }
     private final ClimberIO climberIO;
     private final ClimberIOInputsAutoLogged climberInputs = new ClimberIOInputsAutoLogged();
+    public boolean isDescending = false;
 
     Alert climberNotHomedAlert = new Alert("Climber has not been homed", AlertType.kError);
     Alert extensionNotHomedAlert = new Alert("Climber extension has not been homed", AlertType.kError);
@@ -46,7 +47,8 @@ public class Climber extends SubsystemBase {
     }
 
     public void descend() {
-        climberIO.descend();
+        climberIO.homeClimber();
+        isDescending = true;
     }
 
     public boolean isClimberHome() {
@@ -98,6 +100,16 @@ public class Climber extends SubsystemBase {
         if (climberInputs.isClimberReady) {
             climberIO.stopExtension();
         }
+
+        // if (isDescending) {
+        //     if (climberInputs.isClimberHome) {
+        //         isDescending = false;
+        //     } else {
+        //         if (climberInputs.climberMotorPosition <= 0) {
+        //             climberIO.homeClimber();
+        //         }
+        //     }
+        // }
     }
 
     public boolean isClimbComplete() {

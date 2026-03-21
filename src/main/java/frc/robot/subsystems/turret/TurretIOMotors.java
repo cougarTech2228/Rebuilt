@@ -251,7 +251,7 @@ public class TurretIOMotors implements TurretIO {
     }
 
     private void seedHoodAngle() {
-        double angle = hoodEncoderPositionSignal.getValueAsDouble();
+        double angle = hoodEncoderPositionSignal.waitForUpdate(0.5).getValueAsDouble();
         double val = angle * TurretConstants.HOOD_GEAR_RATIO;
         hoodMotor.getEncoder().setPosition(val);
     }

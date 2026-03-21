@@ -206,10 +206,8 @@ public class Turret extends SubsystemBase{
         double angle;
 
         if (aimTarget == TurretAimTarget.Hub) {
-            // y = 0.0327x2 - 0.0147x + 0.0518
-            angle = (0.0327 * distance * distance) -
-                    (0.0147 * distance) + 0.0518;
-
+            // y = 0.1933x - 0.1842
+            angle = (0.1933 * distance) - 0.1842;
         } else {
             angle = 1.3;
         }
@@ -230,9 +228,11 @@ public class Turret extends SubsystemBase{
         }
 
         if (aimTarget == TurretAimTarget.Hub) {
-            //y = 4.8834x + 30.298
-            velocity = (4.8834 * distance) + 30.298;
-
+            // y = -0.3884x3 + 3.5657x2 - 5.4995x + 37.699
+            velocity = (-0.3884 * distance * distance * distance)
+                + (3.5657 * distance * distance)
+                - (5.4995 * distance)
+                + 38;
         } else {
             //y = 5.2631x + 18.264
             velocity = (5.2631 * distance) + 18.264;
