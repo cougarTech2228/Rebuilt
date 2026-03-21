@@ -231,10 +231,10 @@ public class RobotContainer {
     Command startFiringCommand = new StartFiringCommand(hopper, turret);
     Command stopFiringCommand = new StopFiringCommand(hopper, turret);
     Command spitCommand = new SpitCommand(hopper, intake);
-    toggleIntakeCommand = new ToggleIntakeCommand(intake, climber);
+    toggleIntakeCommand = new ToggleIntakeCommand(intake, climber, hopper);
 
     autoClimbL1Command = new AutoClimbL1Command(drive, climber, turret, intake);
-    autoClimbL3Command = new AutoClimbL3Command(drive, climber, turret, intake);
+    autoClimbL3Command = new AutoClimbL3Command(drive, climber, turret, intake, hopper);
 
     alignL1ClimbCommand = new AlignL1ClimbCommand(drive, climber, turret);
     alignL3ClimbCommand = new AlignL3ClimbCommand(drive, climber, turret);
@@ -320,9 +320,11 @@ public class RobotContainer {
                 .ignoringDisable(true));
     
     controller.a().onTrue(autoClimbL1Command);
+
     controller.y().whileTrue(intakeSpitCommand.repeatedly());
 
     controller.rightBumper().onTrue(toggleIntakeCommand);
+
     controller.rightTrigger(0.5).whileTrue(shootCommand);
     controller.leftTrigger(0.5).whileTrue(oscillateIntakeCommand.repeatedly());
     

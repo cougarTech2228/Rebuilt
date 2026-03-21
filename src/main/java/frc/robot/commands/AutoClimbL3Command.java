@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.subsystems.climber.Climber;
 import frc.robot.subsystems.climber.Climber.ClimberLevel;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.hopper.Hopper;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.turret.Turret;
 import frc.robot.util.CTSequentialCommandGroup;
@@ -12,11 +13,11 @@ import frc.robot.util.CTSequentialCommandGroup;
 public class AutoClimbL3Command extends CTSequentialCommandGroup {
     // Extend to L3 w/ limit switch, climb to L3
 
-    public AutoClimbL3Command(Drive drive, Climber climber, Turret turret, Intake intake) {
+    public AutoClimbL3Command(Drive drive, Climber climber, Turret turret, Intake intake, Hopper hopper) {
         this.addCommands(
             new AlignL3ClimbCommand(drive, climber, turret),
             
-            new ToggleIntakeCommand(intake, climber)
+            new ToggleIntakeCommand(intake, climber, hopper)
                 .onlyIf(() -> !intake.isRetracted()), 
 
             new ExtendClimberCommand(climber, intake, ClimberLevel.L3, turret),

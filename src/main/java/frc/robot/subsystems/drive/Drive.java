@@ -98,6 +98,13 @@ public class Drive extends SubsystemBase {
   private SwerveDrivePoseEstimator poseEstimator =
       new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, Pose2d.kZero);
 
+  // For slowing down
+  private boolean slowingDown = false;
+  // State tracking for deceleration
+  private double lastSpeedMetersPerSec = 0.0;
+  // Threshold to prevent sensor noise from triggering the boolean (in m/s^2)
+  private static final double DECELERATION_THRESHOLD = -0.5;
+
   public Drive(
       GyroIO gyroIO,
       ModuleIO flModuleIO,
@@ -242,6 +249,10 @@ public class Drive extends SubsystemBase {
   /** Stops the drive. */
   public void stop() {
     runVelocity(new ChassisSpeeds());
+  }
+
+  public boolean slowingDown() {
+    return slowingDown;
   }
 
   /**

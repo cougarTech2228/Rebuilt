@@ -15,10 +15,8 @@ public class OscillateIntakeCommand extends CTSequentialCommandGroup {
 
     public OscillateIntakeCommand(Climber climber, Intake intake) {
         this.addCommands(
-            new InstantCommand((() -> intake.setIntakeAngle(IntakeAngle.BUMPED)), intake),
-            new WaitCommand(0.75),
-            new InstantCommand((() -> intake.setIntakeAngle(IntakeAngle.DEPLOYED)), intake),
-            new WaitCommand(0.75)
+            new OscillateIntakeOnce(intake, climber),
+            new WaitCommand(0.25)
         );
     }
 }
