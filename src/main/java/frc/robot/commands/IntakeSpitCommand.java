@@ -17,7 +17,7 @@ public class IntakeSpitCommand extends Command {
         this.climber = climber;
         this.hopper = hopper;
         // only require intake, climber is only used for reading status
-        addRequirements(intake);
+        addRequirements(intake, hopper);
     }
 
     @Override
@@ -29,6 +29,13 @@ public class IntakeSpitCommand extends Command {
     public void execute() {
         intake.setIntakeVoltage(IntakeConstants.INTAKE_MOTOR_SPIT_VOLTAGE);
         hopper.kickerSpit();
+    }
+
+    @Override
+    public void end(boolean interrupted) {
+        intake.setIntakeVoltage(IntakeConstants.INTAKE_MOTOR_INTAKE_VOLTAGE);
+        hopper.kickerOff();
+        // Optional: set intake back to default voltage
     }
 
 }

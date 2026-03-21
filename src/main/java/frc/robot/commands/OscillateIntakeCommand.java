@@ -19,4 +19,6 @@ public class OscillateIntakeCommand extends CTSequentialCommandGroup {
             new WaitCommand(0.25)
         );
     }
+
+
 }

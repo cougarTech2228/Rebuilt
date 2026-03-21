@@ -72,7 +72,7 @@ public class AlignL1ClimbCommand extends Command {
         Pose2d southApproachPose = null;
         boolean isSouthZone = false;
 
-        // 1: Define the path in "Blue Terms" 
+        // Define the path in "Blue Terms" 
         // If we are Red North, we use Blue South geometry as our base.
         if (Zone.HOME_ALLIANCE_ZONE_NORTH.inZone(currentPose, alliance)) {
             // This is Blue North or Red North (via symmetry)
@@ -102,7 +102,7 @@ public class AlignL1ClimbCommand extends Command {
             return;
         }
 
-        // 2: Flip poses
+        // Flip poses
         Rotation2d travelDirection = Rotation2d.fromDegrees(180);
         
         if (alliance == Alliance.Red) {
@@ -115,7 +115,7 @@ public class AlignL1ClimbCommand extends Command {
             travelDirection = FlippingUtil.flipFieldRotation(travelDirection);
         }
 
-        // 3: Waypoint Generation (Uses the flipped poses)
+        // Waypoint Generation (Uses the flipped poses)
         turretSubsystem.climbMode(true);
         List<Waypoint> waypoints;
         if (isSouthZone && southApproachPose != null) {

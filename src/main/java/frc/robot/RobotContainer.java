@@ -321,7 +321,7 @@ public class RobotContainer {
     
     controller.a().onTrue(autoClimbL1Command);
 
-    controller.y().whileTrue(intakeSpitCommand.repeatedly());
+    controller.y().whileTrue(intakeSpitCommand);
 
     controller.rightBumper().onTrue(toggleIntakeCommand);
 
@@ -335,7 +335,8 @@ public class RobotContainer {
         .onFalse(new InstantCommand(() -> {
             driverOverridePercentage = 1.0;
         }));
-
+    
+    SmartDashboard.putData(CommandScheduler.getInstance());
     SmartDashboard.putBoolean(HOME_CLIMBER_KEY, false);
     SmartDashboard.putBoolean(EXTEND_CLIMBER_L1_KEY, false);
     SmartDashboard.putBoolean(EXTEND_CLIMBER_L3_KEY, false);

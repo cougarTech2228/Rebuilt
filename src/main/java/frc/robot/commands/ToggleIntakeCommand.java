@@ -17,7 +17,7 @@ public class ToggleIntakeCommand extends Command {
         this.climber = climber;
         this.hopper = hopper;
         // only require intake, climber is only used for reading status
-        addRequirements(intake);
+        addRequirements(intake, hopper);
     }
 
     @Override
@@ -27,25 +27,46 @@ public class ToggleIntakeCommand extends Command {
 
     @Override
     public void execute() {
-        // if the climber is extender, just ignore this request, and finish the command
+        // // if the climber is extender, just ignore this request, and finish the command
+        // if (climber.isExtensionHome()) {
+        //     if (!intake.isRetracted()) {
+        //         // Intake is already out
+        //         if (intake.isSpitting()) {
+        //             // If its spitting, you want to intake again
+        //             // Case 1 -> 2: If it's spitting, switch back to intaking and turn kicker off
+        //             intake.setIntakeVoltage(IntakeConstants.INTAKE_MOTOR_INTAKE_VOLTAGE);
+        //         } else {
+        //             // Off or currently intaking: toggle it and ensure kicker is off
+        //             intake.toggleIntake();
+        //         }
+                
+        //     } else {
+        //         // Intake is idol, toggle it like normal
+        //         // Case 3: Intake is idle/retracted, toggle it out and turn kicker off
+        //         intake.toggleIntake();
+        //     }
+        //     hopper.kickerOff();
+        // } 
+        // toggeled = true;
+
+        // if the climber is extended, just ignore this request, and finish the command
         if (climber.isExtensionHome()) {
-            if (!intake.isRetracted()) {
-                // Intake is already out
+            if (intake.isDeployed()) {
+                // Intake is deployed out
                 if (intake.isSpitting()) {
-                    // If its spitting, you want to intake again
-                    // Case 1 -> 2: If it's spitting, switch back to intaking and turn kicker off
+                    // Simply change the intake motor back into intake voltage
                     intake.setIntakeVoltage(IntakeConstants.INTAKE_MOTOR_INTAKE_VOLTAGE);
                 } else {
-                    // Off or currently intaking: toggle it and ensure kicker is off
+                    // Normal case where we idle mode the intake and home it
                     intake.toggleIntake();
                 }
-                
             } else {
-                // Intake is idol, toggle it like normal
-                // Case 3: Intake is idle/retracted, toggle it out and turn kicker off
+                // Intake is not deployed out: toggle it to deploy and set intake voltage
                 intake.toggleIntake();
             }
-            hopper.kickerOff();
+            
+            // Turn kicker off once, satisfying the rule for all toggle scenarios
+            // hopper.kickerOff();
         } 
         toggeled = true;
     }

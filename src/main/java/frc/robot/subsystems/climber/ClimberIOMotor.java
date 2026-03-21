@@ -74,13 +74,12 @@ public class ClimberIOMotor implements ClimberIO {
         extensionConfig.limitSwitch.reverseLimitSwitchType(Type.kNormallyOpen);
 
         extensionConfig.closedLoop
-            .p(1.0
-            )
+            .p(1.0)
             .i(0)
             .d(0)
             .outputRange(-1, 1)
             .maxMotion
-                .cruiseVelocity(9000)
+                .cruiseVelocity(3000)
                 .maxAcceleration(20000)
                 .allowedProfileError(1);
         // extensionConfig.closedLoop.feedForward.kV(Constants.NEO_550_KV); // 1 / 11000 (free RPM)
@@ -142,7 +141,7 @@ public class ClimberIOMotor implements ClimberIO {
         inputs.isClimberExtended = isExtended(extensionSetpoint);
         inputs.climberMotorPIDTarget = climberSetpoint;
         inputs.extendMotorPIDTarget = extensionSetpoint;
-        inputs.isClimberReady = !climberReadyDIO.get();
+        inputs.isClimberReady = climberReadyDIO.get();
 
         if (!hasExtensionHomed && inputs.isExtensionHome) {
             hasExtensionHomed = true;

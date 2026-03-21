@@ -91,6 +91,11 @@ public class Intake extends SubsystemBase{
             (Math.abs (intakeInputs.angleMotorPosition - intakeInputs.angleMotorPIDSetpoint) < IntakeConstants.ANGLE_PID_THRESHOLD));
     }
 
+    public boolean isDeployed() {
+        return ((intakeInputs.angleMotorPIDSetpoint == IntakeConstants.ANGLE_MOTOR_DEPLOYED_POSITION) && 
+            (Math.abs (intakeInputs.angleMotorPosition - intakeInputs.angleMotorPIDSetpoint) < IntakeConstants.ANGLE_PID_THRESHOLD));
+    }
+
     public boolean isSpitting() {
         return intakeInputs.intakeMotorVoltage == IntakeConstants.INTAKE_MOTOR_SPIT_VOLTAGE;
     }

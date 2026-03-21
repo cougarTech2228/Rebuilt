@@ -57,4 +57,11 @@ public class HopperIOSim implements HopperIO {
     public void kickerOff() {
         kickerAppliedVolts = 0.0;
     }
+
+    @Override
+    public void kickerSpit() {
+        kickerAppliedVolts = HopperConstants.kickerSpitVoltage;
+    }
+
+
 }
