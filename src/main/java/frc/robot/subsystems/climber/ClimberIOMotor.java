@@ -12,7 +12,8 @@ import com.ctre.phoenix6.signals.ReverseLimitTypeValue;
 import com.ctre.phoenix6.signals.ReverseLimitValue;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
-
+import frc.robot.Constants.*;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
@@ -74,14 +75,17 @@ public class ClimberIOMotor implements ClimberIO {
         extensionConfig.limitSwitch.reverseLimitSwitchType(Type.kNormallyOpen);
 
         extensionConfig.closedLoop
-            .p(1.0)
+            .p(0.1)
             .i(0)
-            .d(0)
+            .d(0.1)
             .outputRange(-1, 1)
             .maxMotion
                 .cruiseVelocity(3000)
                 .maxAcceleration(20000)
                 .allowedProfileError(1);
+        extensionConfig.closedLoop.feedForward.kA(0.00004);
+        extensionConfig.closedLoop.feedForward.kV(Constants.NEO_550_KV * 10);
+        
         // extensionConfig.closedLoop.feedForward.kV(Constants.NEO_550_KV); // 1 / 11000 (free RPM)
         extensionMotor.configure(extensionConfig,
                     com.revrobotics.ResetMode.kResetSafeParameters, 

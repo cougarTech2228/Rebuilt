@@ -1,0 +1,67 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Bump1_to_Neutral1"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ToggleIntakeCommand"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Neutral1_to_NeutralBottomMid"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "NeutralBottomMid_to_Bump2"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "StartFiringCommand"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 2.0
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "OscillateIntakeCommand"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 2.0
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "StopFiringCommand"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": "Comp Autos",
+  "choreoAuto": false
+}

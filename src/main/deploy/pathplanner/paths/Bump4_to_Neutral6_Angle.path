@@ -12,20 +12,20 @@
         "y": 5.6
       },
       "isLocked": false,
-      "linkedName": "Bump4East"
+      "linkedName": "Bump4"
     },
     {
       "anchor": {
         "x": 6.0,
-        "y": 5.7
+        "y": 5.6
       },
       "prevControl": {
         "x": 6.004312585883873,
-        "y": 5.367930886941861
+        "y": 5.26793088694186
       },
       "nextControl": {
         "x": 5.989693181818181,
-        "y": 6.493625
+        "y": 6.393624999999999
       },
       "isLocked": false,
       "linkedName": null
@@ -57,7 +57,7 @@
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Neutral6"
+      "linkedName": "Neutral6Angle"
     }
   ],
   "rotationTargets": [],
@@ -87,14 +87,14 @@
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 0.1,
-    "rotation": -90.0
+    "velocity": 1.0,
+    "rotation": -135.0
   },
   "reversed": false,
   "folder": "BumpPaths",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": -45.0
   },
   "useDefaultConstraints": false
 }

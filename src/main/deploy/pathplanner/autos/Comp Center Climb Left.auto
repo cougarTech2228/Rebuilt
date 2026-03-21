@@ -5,6 +5,48 @@
     "data": {
       "commands": [
         {
+          "type": "path",
+          "data": {
+            "pathName": "Middle_back"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ToggleIntakeCommand"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "StartFiringCommand"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 2.0
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "OscillateIntakeCommand"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 2.0
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "StopFiringCommand"
+          }
+        },
+        {
           "type": "named",
           "data": {
             "name": "ToggleIntakeCommand"
@@ -13,61 +55,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Bump4_to_Neutral6"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Neutral6_to_Bump3 RoT"
+            "pathName": "MidBack_Left"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "StartFiringCommand"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 3.0
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "StopFiringCommand"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Bump3.5_to_Outpost"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Outpost_to_Outpost3.5"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "StartFiringCommand"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 3.0
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "StopFiringCommand"
+            "name": "AutoClimbL1Command"
           }
         }
       ]
