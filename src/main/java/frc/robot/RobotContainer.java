@@ -40,6 +40,7 @@ import frc.robot.commands.AlignL3ClimbCommand;
 import frc.robot.commands.AutoClimbL1Command;
 import frc.robot.commands.AutoClimbL3Command;
 import frc.robot.commands.AutoDriveTestCommand;
+import frc.robot.commands.CancelCommand;
 import frc.robot.commands.ClimbCommand;
 import frc.robot.commands.DescendCommand;
 import frc.robot.commands.DriveCommands;
@@ -130,6 +131,7 @@ public class RobotContainer {
   private static final String CLIMB_L3_KEY = "ClimbL3";
   private static final String UNCLIMB_KEY = "Unclimb";
   private static final String HOME_CLIMBER_KEY = "HomeClimber";
+  private static final String CANCEL_AUTO_CLIMB_KEY = "Cancel Auto Climb";
 
   private final ExtendClimberCommand extendClimberL1Command;
   private final ExtendClimberCommand extendClimberL3Command;
@@ -156,6 +158,8 @@ public class RobotContainer {
   private final PathplannerClimbCommand compBump4Climb;
 
   private final OscillateIntakeCommand oscillateIntakeCommand;
+
+  private final CancelCommand cancelAutoClimbCommand;
 
   /**
    * The container for the robot. Contains subsystems, IO devices, and commands.
@@ -293,8 +297,10 @@ public class RobotContainer {
 
     intakeSpitCommand = new IntakeSpitCommand(intake, climber, hopper);
 
-
     shootCommand = new ShootCommand(hopper, turret);
+
+    cancelAutoClimbCommand = new CancelCommand(autoClimbL3Command);
+
     // Configure the button bindings
     configureButtonBindings();
 
@@ -331,7 +337,7 @@ public class RobotContainer {
                     drive)
                 .ignoringDisable(true));
     
-    controller.a().onTrue(autoClimbL1Command);
+    controller.a().onTrue(autoClimbL3Command);
 
     controller.y().whileTrue(intakeSpitCommand);
 
@@ -355,6 +361,7 @@ public class RobotContainer {
     SmartDashboard.putBoolean(CLIMB_L1_KEY, false);
     SmartDashboard.putBoolean(CLIMB_L3_KEY, false);
     SmartDashboard.putBoolean(UNCLIMB_KEY, false);
+    SmartDashboard.putBoolean(CANCEL_AUTO_CLIMB_KEY, false);
 
     new Trigger(() -> SmartDashboard.getBoolean(EXTEND_CLIMBER_L1_KEY, false))
         .whileTrue( extendClimberL1Command
@@ -388,7 +395,7 @@ public class RobotContainer {
                 .whileTrue( descendCommand
                     .andThen(new InstantCommand(() -> {
                         SmartDashboard.putBoolean(UNCLIMB_KEY, false);
-                    }))
+            }))
         );
 
     new Trigger(() -> SmartDashboard.getBoolean(HOME_CLIMBER_KEY, false))
@@ -397,6 +404,14 @@ public class RobotContainer {
                 SmartDashboard.putBoolean(HOME_CLIMBER_KEY, false);
             }))
         );
+
+    new Trigger(() -> SmartDashboard.getBoolean(CANCEL_AUTO_CLIMB_KEY, false))
+        .whileTrue( cancelAutoClimbCommand
+            .andThen(new InstantCommand(() -> {
+                SmartDashboard.putBoolean(CANCEL_AUTO_CLIMB_KEY, false);
+            }))
+        );
+
   }
 
   /**

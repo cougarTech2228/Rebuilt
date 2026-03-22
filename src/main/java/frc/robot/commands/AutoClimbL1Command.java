@@ -18,30 +18,13 @@ public class AutoClimbL1Command extends CTSequentialCommandGroup {
         this.addCommands(
             // Safely retract intake if needed
             new ToggleIntakeCommand(intake, climber, hopper)
-                .onlyIf(() -> !intake.isRetracted()),
+                .onlyIf(() -> intake.isDeployed()),
 
             // PathPlanner to localized position near the ladder
             new AlignL1ClimbCommand(drive, climber, turret)
                 .alongWith(new ExtendClimberCommand(climber, intake, ClimberLevel.L1, turret)),
-            
-            // 3. Extend climber out to L1
-            // new ExtendClimberCommand(climber, intake, ClimberLevel.L1, turret),
-            
-            // // 4. Slow drive until flush with ladder and latched
-            // // (Uses the speed parameters you had in your original Align command)
-            // drive.run(() -> drive.runVelocity(new ChassisSpeeds(-0.5, 0, 0)))
-            //      .withTimeout(1.0),
-                 
-            // drive.run(() -> drive.runVelocity(new ChassisSpeeds(-0.1, 0.5, 0)))
-            //      .until(climber::isReadyToClimb),
-                 
-            // // CRITICAL: Stop the drivebase once we are latched!
-            // Commands.runOnce(() -> drive.runVelocity(new ChassisSpeeds(0, 0, 0)), drive),
 
-            // // 5. Climb!
-            // new ClimbCommand(climber, ClimberLevel.
-
-            // 4. Slow drive until flush with ladder and latched
+            // Slow drive until flush with ladder and latched
             // .asProxy() prevents the requirement conflict with the Align command!
             drive.run(() -> drive.runVelocity(new ChassisSpeeds(-0.1, 0, 0)))
                  .withTimeout(1.5)
@@ -56,11 +39,11 @@ public class AutoClimbL1Command extends CTSequentialCommandGroup {
                  .withTimeout(0.1)
                  .asProxy(),   
                  
-            // CRITICAL: Stop the drivebase once we are latched!
+            // Stop the drivebase once we are latched
             Commands.runOnce(() -> drive.runVelocity(new ChassisSpeeds(0, 0, 0)), drive)
                  .asProxy(),
 
-            // // 5. Climb!
+            // Climb
             new ClimbCommand(climber, ClimberLevel.L1)
         );
     }

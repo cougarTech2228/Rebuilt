@@ -30,7 +30,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "OutpostIn_to_OutpostOut"
+                  "pathName": "OutpostOut_to_OutpostIn"
                 }
               },
               {
@@ -52,6 +52,12 @@
           "type": "named",
           "data": {
             "name": "StopFiringCommand"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "AutoClimbL1Command"
           }
         }
       ]

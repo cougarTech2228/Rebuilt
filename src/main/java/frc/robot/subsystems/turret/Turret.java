@@ -73,10 +73,14 @@ public class Turret extends SubsystemBase{
      * Calculates the estimated time of flight for the game piece to reach the target.
      */
     private double estimateTimeOfFlight(double distance) {
-        // TODO: replace this with emperical measurements!
 
-        // Basic Average (Currently active)
-        double averageHorizontalSpeed = SmartDashboard.getNumber("TurretShotSpeedMpS", 15.0);
+        // Basic Average (not currently active)
+        // double averageHorizontalSpeed = SmartDashboard.getNumber("TurretShotSpeedMpS", 15.0);
+
+
+
+        // = -0.1343x2 + 1.163x + 0.1467
+        double averageHorizontalSpeed = (-0.1343 * distance * distance) + (1.163 * distance) + 0.1467;
         double timeOfFlightSeconds = distance / averageHorizontalSpeed;
 
         // sanity check
