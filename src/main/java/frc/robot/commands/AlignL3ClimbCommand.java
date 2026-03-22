@@ -141,7 +141,7 @@ public class AlignL3ClimbCommand extends Command {
        
         path.preventFlipping = true;
         Command cmd = AutoBuilder.followPath(path);
-        cmd.addRequirements(driveSubsystem);
+        // cmd.addRequirements(driveSubsystem);
 
         subCommand = Commands.sequence(
             cmd,

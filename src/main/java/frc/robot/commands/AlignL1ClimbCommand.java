@@ -141,7 +141,7 @@ public class AlignL1ClimbCommand extends Command {
         
         path.preventFlipping = true;
         subCommand = AutoBuilder.followPath(path);
-        subCommand.addRequirements(driveSubsystem);
+        // subCommand.addRequirements(driveSubsystem);
         CommandScheduler.getInstance().schedule(subCommand);
     }
      

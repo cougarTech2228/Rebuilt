@@ -47,6 +47,7 @@ import frc.robot.commands.ExtendClimberCommand;
 import frc.robot.commands.HomeClimberCommand;
 import frc.robot.commands.IntakeSpitCommand;
 import frc.robot.commands.OscillateIntakeCommand;
+import frc.robot.commands.PathplannerClimbCommand;
 import frc.robot.commands.ShootCommand;
 import frc.robot.commands.ToggleIntakeCommand;
 import frc.robot.generated.TunerConstants;
@@ -150,6 +151,10 @@ public class RobotContainer {
 
   private final ShootCommand shootCommand;
 
+  private final PathplannerClimbCommand pathplannerClimbCommand;
+
+  private final PathplannerClimbCommand compBump4Climb;
+
   private final OscillateIntakeCommand oscillateIntakeCommand;
 
   /**
@@ -242,9 +247,13 @@ public class RobotContainer {
     autoDriveTestCommand = new AutoDriveTestCommand(drive, climber, turret, intake);
 
     oscillateIntakeCommand = new OscillateIntakeCommand(climber, intake);
+
+    pathplannerClimbCommand = new PathplannerClimbCommand("Climb In", new AutoClimbL1Command(drive, climber, turret, intake, hopper));
+
+    compBump4Climb = new PathplannerClimbCommand("Comp Bump 4 Climb", new AutoClimbL1Command(drive, climber, turret, intake, hopper));
+    
     
     // Register Auto commands
-    NamedCommands.registerCommand("StartFiringCommand", startFiringCommand);
     NamedCommands.registerCommand("StopFiringCommand", stopFiringCommand);
     NamedCommands.registerCommand("SpitCommand", spitCommand);
     NamedCommands.registerCommand("ToggleIntakeCommand", toggleIntakeCommand);
@@ -257,20 +266,23 @@ public class RobotContainer {
     // Set up SysId routines
 
     //Commented out default options remove clutter :)
-    autoChooser.addOption(
-        "Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(drive));
-    autoChooser.addOption(
-        "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive));
-    autoChooser.addOption(
-        "Drive SysId (Quasistatic Forward)",
-        drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-    autoChooser.addOption(
-        "Drive SysId (Quasistatic Reverse)",
-        drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-    autoChooser.addOption(
-        "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
-    autoChooser.addOption(
-        "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    // autoChooser.addOption(
+    //     "Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(drive));
+    // autoChooser.addOption(
+    //     "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive));
+    // autoChooser.addOption(
+    //     "Drive SysId (Quasistatic Forward)",
+    //     drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    // autoChooser.addOption(
+    //     "Drive SysId (Quasistatic Reverse)",
+    //     drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    // autoChooser.addOption(
+    //     "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
+    // autoChooser.addOption(
+    //     "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+
+    autoChooser.addOption("Auto Climb Left", pathplannerClimbCommand);
+    autoChooser.addOption("CompBump4Climb" , compBump4Climb);
 
     extendClimberL1Command = new ExtendClimberCommand(climber, intake, ClimberLevel.L1, turret);
     extendClimberL3Command = new ExtendClimberCommand(climber, intake, ClimberLevel.L3, turret);

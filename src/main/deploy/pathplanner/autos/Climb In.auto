@@ -5,27 +5,9 @@
     "data": {
       "commands": [
         {
-          "type": "named",
-          "data": {
-            "name": "StartFiringCommand"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 5.0
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "StopFiringCommand"
-          }
-        },
-        {
           "type": "path",
           "data": {
-            "pathName": "Middle_to_LadderIn"
+            "pathName": "Test Straight"
           }
         }
       ]
