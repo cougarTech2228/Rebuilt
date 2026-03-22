@@ -233,7 +233,7 @@ public class RobotContainer {
     Command spitCommand = new SpitCommand(hopper, intake);
     toggleIntakeCommand = new ToggleIntakeCommand(intake, climber, hopper);
 
-    autoClimbL1Command = new AutoClimbL1Command(drive, climber, turret, intake);
+    autoClimbL1Command = new AutoClimbL1Command(drive, climber, turret, intake, hopper);
     autoClimbL3Command = new AutoClimbL3Command(drive, climber, turret, intake, hopper);
 
     alignL1ClimbCommand = new AlignL1ClimbCommand(drive, climber, turret);
