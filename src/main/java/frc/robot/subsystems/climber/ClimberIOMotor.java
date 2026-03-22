@@ -145,7 +145,7 @@ public class ClimberIOMotor implements ClimberIO {
         inputs.isClimberExtended = isExtended(extensionSetpoint);
         inputs.climberMotorPIDTarget = climberSetpoint;
         inputs.extendMotorPIDTarget = extensionSetpoint;
-        inputs.isClimberReady = climberReadyDIO.get();
+        inputs.isClimberReady = isTowerTouching();
 
         if (!hasExtensionHomed && inputs.isExtensionHome) {
             hasExtensionHomed = true;
@@ -222,7 +222,7 @@ public class ClimberIOMotor implements ClimberIO {
 
     @Override
     public boolean isExtended(Climber.ClimberLevel level) {
-        if (!climberReadyDIO.get()) {
+        if (isTowerTouching()) {
             return true;
         }
         double target = 0;
@@ -274,5 +274,7 @@ public class ClimberIOMotor implements ClimberIO {
         extensionMotor.set(0);
     }
 
-
+    private boolean isTowerTouching() {
+        return climberReadyDIO.get();
+    }
 }
