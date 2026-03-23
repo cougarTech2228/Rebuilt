@@ -9,8 +9,6 @@ package frc.robot;
 
 import static frc.robot.subsystems.vision.VisionConstants.*;
 
-import java.util.Optional;
-
 import com.ctre.phoenix6.CANBus;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
@@ -19,27 +17,24 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 
 import frc.robot.commands.pathplanner.StartFiringCommand;
 import frc.robot.commands.pathplanner.StopFiringCommand;
 
 import frc.robot.commands.pathplanner.SpitCommand;
-import frc.robot.commands.AlignL1ClimbCommand;
-import frc.robot.commands.AlignL3ClimbCommand;
 import frc.robot.commands.AutoClimbL1Command;
 import frc.robot.commands.AutoClimbL3Command;
-import frc.robot.commands.AutoDriveTestCommand;
 import frc.robot.commands.CancelCommand;
 import frc.robot.commands.ClimbCommand;
 import frc.robot.commands.DescendCommand;
@@ -48,7 +43,6 @@ import frc.robot.commands.ExtendClimberCommand;
 import frc.robot.commands.HomeClimberCommand;
 import frc.robot.commands.IntakeSpitCommand;
 import frc.robot.commands.OscillateIntakeCommand;
-import frc.robot.commands.PathplannerClimbCommand;
 import frc.robot.commands.ShootCommand;
 import frc.robot.commands.ToggleIntakeCommand;
 import frc.robot.generated.TunerConstants;
@@ -82,9 +76,6 @@ import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
 
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
-
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -123,7 +114,7 @@ public class RobotContainer {
 
   public static final double climberXBase = -0.277;
   @AutoLogOutput(key = "ComponentPoses/Climber")
-  public static Pose3d climberPose = new Pose3d( climberXBase, -0.155, 0.709, new Rotation3d());
+  public static Pose3d climberPose = new Pose3d( climberXBase, -0.155, 0.68, new Rotation3d());
 
   private static final String EXTEND_CLIMBER_L1_KEY = "ExtendClimberL1";
   private static final String EXTEND_CLIMBER_L3_KEY = "ExtendClimberL3";
@@ -140,25 +131,15 @@ public class RobotContainer {
   private final DescendCommand descendCommand;
   private final HomeClimberCommand homeClimberCommand;
 
-  private final AlignL1ClimbCommand alignL1ClimbCommand;
-  private final AlignL3ClimbCommand alignL3ClimbCommand;
-
-  private final AutoClimbL1Command autoClimbL1Command;
   private final AutoClimbL3Command autoClimbL3Command;
 
   private final ToggleIntakeCommand toggleIntakeCommand;
   private final IntakeSpitCommand intakeSpitCommand;
-
-  private final AutoDriveTestCommand autoDriveTestCommand;
-
+  private final Command startFiringCommand;
+  private final Command stopFiringCommand;
+  private final Command spitCommand;
   private final ShootCommand shootCommand;
-
-  private final PathplannerClimbCommand pathplannerClimbCommand;
-
-  private final PathplannerClimbCommand compBump4Climb;
-
   private final OscillateIntakeCommand oscillateIntakeCommand;
-
   private final CancelCommand cancelAutoClimbCommand;
 
   /**
@@ -237,56 +218,45 @@ public class RobotContainer {
         break;
     }
 
-    Command startFiringCommand = new StartFiringCommand(hopper, turret);
-    Command stopFiringCommand = new StopFiringCommand(hopper, turret);
-    Command spitCommand = new SpitCommand(hopper, intake);
-    toggleIntakeCommand = new ToggleIntakeCommand(intake, climber, hopper);
+    startFiringCommand = new StartFiringCommand(hopper, turret);
+    stopFiringCommand = new StopFiringCommand(hopper, turret);
+    spitCommand = new SpitCommand(hopper, intake);
+    toggleIntakeCommand = new ToggleIntakeCommand(intake, climber);
 
-    autoClimbL1Command = new AutoClimbL1Command(drive, climber, turret, intake, hopper);
-    autoClimbL3Command = new AutoClimbL3Command(drive, climber, turret, intake, hopper);
-
-    alignL1ClimbCommand = new AlignL1ClimbCommand(drive, climber, turret);
-    alignL3ClimbCommand = new AlignL3ClimbCommand(drive, climber, turret);
-
-    autoDriveTestCommand = new AutoDriveTestCommand(drive, climber, turret, intake);
+    autoClimbL3Command = new AutoClimbL3Command(drive, climber, turret, intake);
 
     oscillateIntakeCommand = new OscillateIntakeCommand(climber, intake);
-
-    pathplannerClimbCommand = new PathplannerClimbCommand("Climb In", new AutoClimbL1Command(drive, climber, turret, intake, hopper));
-
-    compBump4Climb = new PathplannerClimbCommand("Comp Bump 4 Climb", new AutoClimbL1Command(drive, climber, turret, intake, hopper));
-    
     
     // Register Auto commands
+    NamedCommands.registerCommand("StartFiringCommand", startFiringCommand);
     NamedCommands.registerCommand("StopFiringCommand", stopFiringCommand);
     NamedCommands.registerCommand("SpitCommand", spitCommand);
-    NamedCommands.registerCommand("ToggleIntakeCommand", toggleIntakeCommand);
-    NamedCommands.registerCommand("AutoClimbL1Command", autoClimbL1Command);
+    NamedCommands.registerCommand("ToggleIntakeCommand", new ToggleIntakeCommand(intake, climber));
+    NamedCommands.registerCommand("AutoClimbL1Command", new AutoClimbL1Command(drive, climber, turret, intake));
     NamedCommands.registerCommand("OscillateIntakeCommand", oscillateIntakeCommand);
 
     // Set up auto routines
-    autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
+    // Instead if automatically building options based on detected .auto files, create them manually
+    // so that only autos we want to be able to choose are shown.
+    autoChooser = new LoggedDashboardChooser<>("Auto Choices", new SendableChooser<>());
 
-    // Set up SysId routines
+    autoChooser.addOption("Left Bump Double", AutoBuilder.buildAuto("Comp Bump 4 Double"));
+    autoChooser.addOption("Left Bump Center Climb", new SequentialCommandGroup(
+        AutoBuilder.buildAuto("Comp Bump 4 Climb"),
+        new AutoClimbL1Command(drive, climber, turret, intake)));
 
-    //Commented out default options remove clutter :)
-    // autoChooser.addOption(
-    //     "Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(drive));
-    // autoChooser.addOption(
-    //     "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive));
-    // autoChooser.addOption(
-    //     "Drive SysId (Quasistatic Forward)",
-    //     drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-    // autoChooser.addOption(
-    //     "Drive SysId (Quasistatic Reverse)",
-    //     drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-    // autoChooser.addOption(
-    //     "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
-    // autoChooser.addOption(
-    //     "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    autoChooser.addOption("Right Bump No Climb", AutoBuilder.buildAuto("Comp Bump 1 No Climb"));
+    autoChooser.addOption("Right Bump Center Climb", new SequentialCommandGroup(
+        AutoBuilder.buildAuto("Comp Bump 1 Climb"),
+        new AutoClimbL1Command(drive, climber, turret, intake)));
 
-    autoChooser.addOption("Auto Climb Left", pathplannerClimbCommand);
-    autoChooser.addOption("CompBump4Climb" , compBump4Climb);
+    autoChooser.addOption("Center Climb Left", new SequentialCommandGroup(
+        AutoBuilder.buildAuto("Comp Center Climb Left"),
+        new AutoClimbL1Command(drive, climber, turret, intake)));
+
+    autoChooser.addOption("Center Climb Right", new SequentialCommandGroup(
+        AutoBuilder.buildAuto("Comp Center Climb Right"),
+        new AutoClimbL1Command(drive, climber, turret, intake)));
 
     extendClimberL1Command = new ExtendClimberCommand(climber, intake, ClimberLevel.L1, turret);
     extendClimberL3Command = new ExtendClimberCommand(climber, intake, ClimberLevel.L3, turret);
@@ -442,7 +412,4 @@ public class RobotContainer {
   public void autonomousPeriodic() {
   }
 
-  private void startCommand(Command command) {
-    CommandScheduler.getInstance().schedule(command);
-  }
 }

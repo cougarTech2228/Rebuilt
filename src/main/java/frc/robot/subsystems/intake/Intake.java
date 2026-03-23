@@ -3,13 +3,11 @@ package frc.robot.subsystems.intake;
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
-import frc.robot.subsystems.intake.IntakeIO.IntakeIOInputs;
 
 public class Intake extends SubsystemBase{
     private final IntakeIO io;
@@ -92,8 +90,9 @@ public class Intake extends SubsystemBase{
     }
 
     public boolean isDeployed() {
-        return ((intakeInputs.angleMotorPIDSetpoint == IntakeConstants.ANGLE_MOTOR_DEPLOYED_POSITION) && 
+        boolean val = ((intakeInputs.angleMotorPIDSetpoint == IntakeConstants.ANGLE_MOTOR_DEPLOYED_POSITION) &&
             (Math.abs (intakeInputs.angleMotorPosition - intakeInputs.angleMotorPIDSetpoint) < IntakeConstants.ANGLE_PID_THRESHOLD));
+        return val;
     }
 
     public boolean isSpitting() {

@@ -4,8 +4,6 @@ import static frc.robot.subsystems.vision.VisionConstants.aprilTagLayout;
 
 import java.util.ArrayList;
 
-import javax.print.attribute.standard.Destination;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;

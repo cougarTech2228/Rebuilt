@@ -49,7 +49,7 @@ public class CTSequentialCommandGroup extends Command {
 
     for (Command command : commands) {
       m_commands.add(command);
-      // addRequirements(command.getRequirements());
+      addRequirements(command.getRequirements());
       m_runWhenDisabled &= command.runsWhenDisabled();
       if (command.getInterruptionBehavior() == InterruptionBehavior.kCancelSelf) {
         m_interruptBehavior = InterruptionBehavior.kCancelSelf;

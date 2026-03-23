@@ -14,7 +14,6 @@ public class StartFiringCommand extends Command {
 		this.turret = turret;
 	}
 
-	private boolean initialized = false;
 	private boolean isIndexerOn = false;
 	
 	@Override

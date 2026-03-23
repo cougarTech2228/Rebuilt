@@ -17,7 +17,7 @@ public class ClimberIOSim implements ClimberIO {
     private final DigitalInput climberReadyDIO = new DigitalInput(Constants.DIO_CLIMBER_READY);
 
     private final DCMotorSim extensionSim = new DCMotorSim(
-        LinearSystemId.createDCMotorSystem(DCMotor.getNeo550(1), 0.005, 1.0),
+        LinearSystemId.createDCMotorSystem(DCMotor.getNeo550(1), 0.0001, 4.0),
         DCMotor.getNeo550(1)
     );
 
@@ -27,13 +27,13 @@ public class ClimberIOSim implements ClimberIO {
     );
 
     private final ProfiledPIDController extensionPID = new ProfiledPIDController(
-        0.1, 0, 0.3,
-        new TrapezoidProfile.Constraints(9000.0 / 60.0, 20000.0 / 60.0) 
+        0.4, 0, 0,
+        new TrapezoidProfile.Constraints(150, 300)
     );
     
     private final SimpleMotorFeedforward extensionFF = new SimpleMotorFeedforward(
-        0.0, 
-        12.0 / (11000.0 / 60.0),
+        0.0,
+        0.25,
         0.014
     );
 

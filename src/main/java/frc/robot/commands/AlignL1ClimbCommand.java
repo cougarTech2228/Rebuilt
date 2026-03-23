@@ -2,14 +2,10 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.Commands;
-import frc.robot.subsystems.climber.Climber;
-import frc.robot.subsystems.climber.Climber.ClimberLevel;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.turret.Turret;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
@@ -17,8 +13,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import com.ctre.phoenix6.mechanisms.swerve.LegacySwerveModule.DriveRequestType;
-import com.ctre.phoenix6.swerve.SwerveRequest.ApplyRobotSpeeds;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.ConstraintsZone;
 import com.pathplanner.lib.path.GoalEndState;
@@ -30,7 +24,6 @@ import com.pathplanner.lib.util.FlippingUtil;
 public class AlignL1ClimbCommand extends Command {
    
     private final Drive driveSubsystem;
-    private final Climber climberSubsystem;
     private final Turret turretSubsystem;
 
     private DriverStation.Alliance alliance;
@@ -49,11 +42,9 @@ public class AlignL1ClimbCommand extends Command {
     private PathConstraints endConstraints = new PathConstraints(0.5, 0.75, Math.PI, Math.PI);
     private ArrayList<ConstraintsZone> listCZones;
 
-    public AlignL1ClimbCommand(Drive driveSubsystem, Climber climberSubsystem, Turret turretSubsystem) {
+    public AlignL1ClimbCommand(Drive driveSubsystem, Turret turretSubsystem) {
         this.driveSubsystem = driveSubsystem;
-        this.climberSubsystem = climberSubsystem;
         this.turretSubsystem = turretSubsystem;
-
         listCZones = new ArrayList<>();
         listCZones.add(new ConstraintsZone(0, 0, endConstraints));
     }
@@ -141,10 +132,14 @@ public class AlignL1ClimbCommand extends Command {
         
         path.preventFlipping = true;
         subCommand = AutoBuilder.followPath(path);
-        // subCommand.addRequirements(driveSubsystem);
-        CommandScheduler.getInstance().schedule(subCommand);
+        subCommand.initialize();
+        // Critical hack, since we're building up and scheduling a manual command that uses the drive
+        // subsystem, we need to make it think it has no requirements, or it will conflict with the
+        // pathfollower commands
+        subCommand.getRequirements().clear();
+        CommandScheduler.getInstance().schedule(subCommand.asProxy());
     }
-     
+
     @Override
     public boolean isFinished() {
         return subCommand != null && subCommand.isFinished(); // Added null check just in case

@@ -25,19 +25,7 @@
         {
           "type": "wait",
           "data": {
-            "waitTime": 2.0
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "OscillateIntakeCommand"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 2.0
+            "waitTime": 4.0
           }
         },
         {
@@ -47,21 +35,9 @@
           }
         },
         {
-          "type": "named",
-          "data": {
-            "name": "ToggleIntakeCommand"
-          }
-        },
-        {
           "type": "path",
           "data": {
             "pathName": "MidBack_Left"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "AutoClimbL1Command"
           }
         }
       ]

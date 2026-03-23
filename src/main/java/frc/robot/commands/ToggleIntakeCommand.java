@@ -2,22 +2,19 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.climber.Climber;
-import frc.robot.subsystems.hopper.Hopper;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeConstants;
 
 public class ToggleIntakeCommand extends Command {
     private final Intake intake;
     private final Climber climber;
-    private final Hopper hopper;
     private boolean toggeled;
 
-    public ToggleIntakeCommand(Intake intake, Climber climber, Hopper hopper) {
+    public ToggleIntakeCommand(Intake intake, Climber climber) {
         this.intake = intake;
         this.climber = climber;
-        this.hopper = hopper;
         // only require intake, climber is only used for reading status
-        addRequirements(intake, hopper);
+        addRequirements(intake);
     }
 
     @Override
@@ -39,14 +36,14 @@ public class ToggleIntakeCommand extends Command {
         //             // Off or currently intaking: toggle it and ensure kicker is off
         //             intake.toggleIntake();
         //         }
-                
+
         //     } else {
         //         // Intake is idol, toggle it like normal
         //         // Case 3: Intake is idle/retracted, toggle it out and turn kicker off
         //         intake.toggleIntake();
         //     }
         //     hopper.kickerOff();
-        // } 
+        // }
         // toggeled = true;
 
         // if the climber is extended, just ignore this request, and finish the command
@@ -64,10 +61,10 @@ public class ToggleIntakeCommand extends Command {
                 // Intake is not deployed out: toggle it to deploy and set intake voltage
                 intake.toggleIntake();
             }
-            
+
             // Turn kicker off once, satisfying the rule for all toggle scenarios
             // hopper.kickerOff();
-        } 
+        }
         toggeled = true;
     }
 

@@ -5,15 +5,15 @@
     "data": {
       "commands": [
         {
-          "type": "path",
-          "data": {
-            "pathName": "Bump1_to_Neutral1"
-          }
-        },
-        {
           "type": "named",
           "data": {
             "name": "ToggleIntakeCommand"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Bump1_to_Neutral1"
           }
         },
         {
@@ -37,7 +37,7 @@
         {
           "type": "wait",
           "data": {
-            "waitTime": 5.0
+            "waitTime": 4.0
           }
         },
         {
@@ -46,24 +46,6 @@
             "name": "StopFiringCommand"
           }
         },
-        {
-          "type": "named",
-          "data": {
-            "name": "ToggleIntakeCommand"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Bump2 turn for climb"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "AutoClimbL1Command"
-          }
-        }
       ]
     }
   },
