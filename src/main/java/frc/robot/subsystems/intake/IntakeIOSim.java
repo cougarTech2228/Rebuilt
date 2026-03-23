@@ -65,13 +65,6 @@ public class IntakeIOSim implements IntakeIO {
     }
 
     @Override
-    public void setIntakeAngle(IntakeAngle angle) {
-        this.angleSetpointUnits = (angle == IntakeAngle.DEPLOYED) 
-            ? IntakeConstants.ANGLE_MOTOR_DEPLOYED_POSITION 
-            : IntakeConstants.ANGLE_MOTOR_HOME_POSITION;
-    }
-
-    @Override
     public void manualSetIntakeAngle(double angle) {
         this.angleSetpointUnits = angle;
     }
@@ -80,15 +73,12 @@ public class IntakeIOSim implements IntakeIO {
     public void setIntakeMode(IntakeMode mode) {
         switch (mode) {
             case INTAKE:
-                setIntakeAngle(IntakeAngle.DEPLOYED);
                 manualSetIntakeVoltage(IntakeConstants.INTAKE_MOTOR_INTAKE_VOLTAGE);
                 break;
             case SPIT:
-                setIntakeAngle(IntakeAngle.DEPLOYED);
                 manualSetIntakeVoltage(IntakeConstants.INTAKE_MOTOR_SPIT_VOLTAGE);
                 break;
             case IDLE:
-                setIntakeAngle(IntakeAngle.HOME);
                 manualSetIntakeVoltage(IntakeConstants.INTAKE_MOTOR_IDLE_VOLTAGE);
                 break;
         }

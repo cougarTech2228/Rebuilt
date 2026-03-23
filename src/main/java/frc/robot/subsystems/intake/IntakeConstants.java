@@ -11,6 +11,11 @@ public class IntakeConstants {
     public static final double ANGLE_MOTOR_BUMPED_POSITION = 21.8;
     public static final double ANGLE_PID_THRESHOLD = 2;
 
+    public static final double ANGLE_MOTOR_BUMP_WAVE_1 = ANGLE_MOTOR_DEPLOYED_POSITION * 0.8;
+    public static final double ANGLE_MOTOR_BUMP_WAVE_2 = ANGLE_MOTOR_DEPLOYED_POSITION * 0.6;
+    public static final double ANGLE_MOTOR_BUMP_WAVE_3 = ANGLE_MOTOR_DEPLOYED_POSITION * 0.4;
+    public static final double ANGLE_MOTOR_BUMP_WAVE_4 = ANGLE_MOTOR_DEPLOYED_POSITION * 0.2;
+
     public static final double ANGLE_MOTOR_STALL_CURRENT_THRESHOLD = 15;
     public static final double ANGLE_MOTOR_STALL_VELOCITY_THRESHOLD = 100;
     public static final double INTAKE_ENCODER_OFFSET = 0.106445;

@@ -30,8 +30,6 @@ public interface IntakeIO {
 
     public default void setIntakeMode(IntakeMode mode) {};
 
-    public default void setIntakeAngle(IntakeAngle angle) {};
-
     public default void manualSetIntakeVoltage(double voltage) {};
 
     public default void manualSetIntakeAngle(double angle) {};

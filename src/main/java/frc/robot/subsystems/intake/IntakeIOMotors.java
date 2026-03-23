@@ -96,32 +96,16 @@ public class IntakeIOMotors implements IntakeIO {
         }
     }
 
-    public void setIntakeAngle(IntakeAngle angle) {
-        switch (angle) {
-            case HOME:
-                anglePID.setSetpoint(IntakeConstants.ANGLE_MOTOR_HOME_POSITION, ControlType.kMAXMotionPositionControl);
-                break;
-            case DEPLOYED:
-                anglePID.setSetpoint(IntakeConstants.ANGLE_MOTOR_DEPLOYED_POSITION, ControlType.kMAXMotionPositionControl);
-                break;
-            case BUMPED:
-                anglePID.setSetpoint(IntakeConstants.ANGLE_MOTOR_BUMPED_POSITION, ControlType.kMAXMotionPositionControl);
-        }
-    }
-
     public void setIntakeMode(IntakeMode mode) {
         double intakeMotorVoltage = 0.0;
         switch (mode) {
             case INTAKE:
-                setIntakeAngle(IntakeAngle.DEPLOYED);
                 intakeMotorVoltage = IntakeConstants.INTAKE_MOTOR_INTAKE_VOLTAGE;
                 break;
             case SPIT:
-                setIntakeAngle(IntakeAngle.DEPLOYED);
                 intakeMotorVoltage = IntakeConstants.INTAKE_MOTOR_SPIT_VOLTAGE;
                 break;
             case IDLE:
-                setIntakeAngle(IntakeAngle.HOME);
                 intakeMotorVoltage = IntakeConstants.INTAKE_MOTOR_IDLE_VOLTAGE;
                 break;
         }

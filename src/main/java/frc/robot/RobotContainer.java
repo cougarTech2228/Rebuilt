@@ -64,6 +64,7 @@ import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIO;
 import frc.robot.subsystems.intake.IntakeIOMotors;
 import frc.robot.subsystems.intake.IntakeIOSim;
+import frc.robot.subsystems.intake.Intake.OscillateType;
 import frc.robot.subsystems.hopper.HopperIOMotors;
 import frc.robot.subsystems.turret.Turret;
 import frc.robot.subsystems.turret.TurretIO;
@@ -218,8 +219,8 @@ public class RobotContainer {
         break;
     }
 
-    startFiringCommand = new StartFiringCommand(hopper, turret);
-    stopFiringCommand = new StopFiringCommand(hopper, turret);
+    startFiringCommand = new StartFiringCommand(hopper, turret, intake);
+    stopFiringCommand = new StopFiringCommand(hopper, turret, intake);
     spitCommand = new SpitCommand(hopper, intake);
     toggleIntakeCommand = new ToggleIntakeCommand(intake, climber);
 
@@ -323,7 +324,13 @@ public class RobotContainer {
         .onFalse(new InstantCommand(() -> {
             driverOverridePercentage = 1.0;
         }));
-    
+    controller.povUp().onTrue(new InstantCommand(() -> {
+        intake.oscillate(OscillateType.ONCE);
+    }));
+    controller.povDown().onTrue(new InstantCommand(() -> {
+        intake.oscillate(OscillateType.WAVE);
+    }));
+
     SmartDashboard.putData(CommandScheduler.getInstance());
     SmartDashboard.putBoolean(HOME_CLIMBER_KEY, false);
     SmartDashboard.putBoolean(EXTEND_CLIMBER_L1_KEY, false);
