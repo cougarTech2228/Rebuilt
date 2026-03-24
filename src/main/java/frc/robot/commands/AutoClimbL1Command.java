@@ -16,6 +16,9 @@ public class AutoClimbL1Command extends SequentialCommandGroup {
             // Safely retract intake if needed
             new ToggleIntakeCommand(intake, climber)
                 .onlyIf(() -> intake.isDeployed()),
+            
+            // Fail safe turn off intake voltage anyways
+            new StopIntakeCommand(intake),
 
             // PathPlanner to localized position near the ladder
             new AlignL1ClimbCommand(drive, turret)
