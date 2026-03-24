@@ -248,7 +248,7 @@ public class RobotContainer {
         new AutoClimbL1Command(drive, climber, turret, intake)));
 
     autoChooser.addOption("Right Bump No Climb", AutoBuilder.buildAuto("Comp Bump 1 No Climb"));
-    
+
     autoChooser.addOption("Right Bump Climb", new SequentialCommandGroup(
         AutoBuilder.buildAuto("Comp Bump 1 Climb"),
         new AutoClimbL1Command(drive, climber, turret, intake)));
