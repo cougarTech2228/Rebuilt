@@ -60,19 +60,14 @@
       "linkedName": "Neutral1"
     }
   ],
-  "rotationTargets": [
-    {
-      "waypointRelativePos": 0.9673518742442581,
-      "rotationDegrees": 0.0
-    }
-  ],
+  "rotationTargets": [],
   "constraintZones": [
     {
       "name": "Constraints Zone",
       "minWaypointRelativePos": 1.6427289048473934,
       "maxWaypointRelativePos": 3.0,
       "constraints": {
-        "maxVelocity": 1.0,
+        "maxVelocity": 1.25,
         "maxAcceleration": 3.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,
@@ -84,7 +79,7 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 2.0,
+    "maxVelocity": 3.0,
     "maxAcceleration": 10.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
@@ -99,7 +94,7 @@
   "folder": "BumpPaths",
   "idealStartingState": {
     "velocity": 0.0,
-    "rotation": -45.0
+    "rotation": 90.0
   },
   "useDefaultConstraints": false
 }
