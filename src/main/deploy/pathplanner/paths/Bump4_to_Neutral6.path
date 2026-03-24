@@ -48,11 +48,11 @@
     },
     {
       "anchor": {
-        "x": 7.7,
+        "x": 7.6,
         "y": 7.0
       },
       "prevControl": {
-        "x": 7.207596123493897,
+        "x": 7.107596123493896,
         "y": 7.086824088833465
       },
       "nextControl": null,
@@ -64,10 +64,10 @@
   "constraintZones": [
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 1.75,
+      "minWaypointRelativePos": 1.588868940754041,
       "maxWaypointRelativePos": 3.0,
       "constraints": {
-        "maxVelocity": 1.25,
+        "maxVelocity": 1.3,
         "maxAcceleration": 3.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,
@@ -79,7 +79,7 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 2.0,
+    "maxVelocity": 3.0,
     "maxAcceleration": 5.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 700.0,
@@ -94,7 +94,7 @@
   "folder": "BumpPaths",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -45.0
+    "rotation": -90.0
   },
   "useDefaultConstraints": false
 }
