@@ -242,11 +242,13 @@ public class RobotContainer {
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", new SendableChooser<>());
 
     autoChooser.addOption("Left Bump Double No Climb", AutoBuilder.buildAuto("Comp Bump 4 Double"));
+
     autoChooser.addOption("Left Bump Climb", new SequentialCommandGroup(
         AutoBuilder.buildAuto("Comp Bump 4 Climb"),
         new AutoClimbL1Command(drive, climber, turret, intake)));
 
     autoChooser.addOption("Right Bump No Climb", AutoBuilder.buildAuto("Comp Bump 1 No Climb"));
+    
     autoChooser.addOption("Right Bump Climb", new SequentialCommandGroup(
         AutoBuilder.buildAuto("Comp Bump 1 Climb"),
         new AutoClimbL1Command(drive, climber, turret, intake)));
@@ -260,6 +262,10 @@ public class RobotContainer {
         new AutoClimbL1Command(drive, climber, turret, intake)));
 
     autoChooser.addOption("Left Bump Middle + Depot", AutoBuilder.buildAuto("Comp Bump 4 Outpost"));
+    
+    autoChooser.addOption("Hub Depot Climb", new SequentialCommandGroup(
+        AutoBuilder.buildAuto("Hub Depot Climb"),
+        new AutoClimbL1Command(drive, climber, turret, intake)));
 
     extendClimberL1Command = new ExtendClimberCommand(climber, intake, ClimberLevel.L1, turret);
     extendClimberL3Command = new ExtendClimberCommand(climber, intake, ClimberLevel.L3, turret);

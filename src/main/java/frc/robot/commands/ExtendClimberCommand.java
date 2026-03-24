@@ -11,6 +11,7 @@ public class ExtendClimberCommand extends Command {
     private final Intake intake;
     private final Climber.ClimberLevel level;
     private final Turret turret;
+    private boolean extendCommandSent = false;
 
     public ExtendClimberCommand(Climber climber, Intake intake, Climber.ClimberLevel level, Turret turret) {
         this.climber = climber;
@@ -24,6 +25,7 @@ public class ExtendClimberCommand extends Command {
     @Override
     public void initialize() {
         turret.climbMode(true);
+        extendCommandSent = false;
     }
 
     @Override
@@ -32,8 +34,9 @@ public class ExtendClimberCommand extends Command {
         // or we will get a penality for extending on 2 sides of the bot
         if (!intake.isRetracted()){
             intake.setIntakeAngle(IntakeAngle.HOME);
-        } else {
+        } else if (!extendCommandSent){
             climber.extend(level);
+            extendCommandSent = true;
         }
     }
 

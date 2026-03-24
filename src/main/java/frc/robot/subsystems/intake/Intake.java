@@ -216,7 +216,7 @@ public class Intake extends SubsystemBase{
     }
 
     private boolean isAtPosition(double position){
-        return (intakeInputs.angleMotorPIDSetpoint == position &&
+        return ( (Math.abs(intakeInputs.angleMotorPIDSetpoint - position) < 1) &&
             (Math.abs (intakeInputs.angleMotorPosition - intakeInputs.angleMotorPIDSetpoint) < IntakeConstants.ANGLE_PID_THRESHOLD));
     }
 

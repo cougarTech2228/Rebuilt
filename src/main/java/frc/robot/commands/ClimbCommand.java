@@ -6,6 +6,7 @@ import frc.robot.subsystems.climber.Climber;
 public class ClimbCommand extends Command {
     private final Climber climber;
     private final Climber.ClimberLevel level;
+    private boolean climbCommandSent = false;
 
     public ClimbCommand(Climber climber, Climber.ClimberLevel level) {
         this.climber = climber;
@@ -14,12 +15,14 @@ public class ClimbCommand extends Command {
 
     @Override
     public void initialize() {
+        climbCommandSent = false;
     }
 
     @Override
     public void execute() {
-        if (climber.isSafeToClimb(level)) {
+        if (climber.isSafeToClimb(level) && !climbCommandSent) {
             climber.climb(level);
+            climbCommandSent = true;
         }
     }
 

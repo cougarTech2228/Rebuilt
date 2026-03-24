@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.560272163090307,
-        "y": 4.0
+        "x": 3.6,
+        "y": 7.2
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.560272163090307,
-        "y": 5.477933581944937
+        "x": 2.3383847398806097,
+        "y": 7.2
       },
       "isLocked": false,
-      "linkedName": "Hub"
+      "linkedName": "Trench2"
     },
     {
       "anchor": {
-        "x": 0.4,
-        "y": 6.9
+        "x": 0.575,
+        "y": 7.2
       },
       "prevControl": {
-        "x": 1.6840211261207432,
-        "y": 6.9
+        "x": 2.671226489670642,
+        "y": 7.2
       },
       "nextControl": null,
       "isLocked": false,
@@ -47,8 +47,8 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 4.0,
-    "maxAcceleration": 10.0,
+    "maxVelocity": 2.0,
+    "maxAcceleration": 5.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 700.0,
     "nominalVoltage": 12.0,
@@ -64,5 +64,5 @@
     "velocity": 0,
     "rotation": -90.0
   },
-  "useDefaultConstraints": true
+  "useDefaultConstraints": false
 }

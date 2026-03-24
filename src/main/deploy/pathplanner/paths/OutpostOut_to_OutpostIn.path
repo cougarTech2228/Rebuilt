@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 0.4,
-        "y": 6.9
+        "x": 0.575,
+        "y": 7.2
       },
       "prevControl": null,
       "nextControl": {
-        "x": 0.4000000000000001,
-        "y": 5.9
+        "x": 0.575,
+        "y": 6.2
       },
       "isLocked": false,
       "linkedName": "OutpostOutSouth"
     },
     {
       "anchor": {
-        "x": 0.4,
+        "x": 0.575,
         "y": 5.0
       },
       "prevControl": {
-        "x": 0.39999999999999986,
-        "y": 6.0
+        "x": 0.575,
+        "y": 5.25
       },
       "nextControl": null,
       "isLocked": false,
@@ -33,7 +33,7 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 1.0,
+    "maxVelocity": 0.5,
     "maxAcceleration": 3.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
