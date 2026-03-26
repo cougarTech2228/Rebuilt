@@ -13,19 +13,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Bump1_to_Neutral1"
+            "pathName": "Bump1_to_Neutral2"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Neutral1_to_NeutralBottomMid"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "NeutralBottomMid_to_Bump2"
+            "pathName": "Neutral2_to_Bump1"
           }
         },
         {
@@ -50,6 +44,6 @@
     }
   },
   "resetOdom": true,
-  "folder": "Comp Autos",
+  "folder": null,
   "choreoAuto": false
 }

@@ -6,6 +6,7 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.units.measure.Angle;
 
+import com.revrobotics.spark.config.MAXMotionConfig;
 import com.revrobotics.spark.config.MAXMotionConfig.MAXMotionPositionMode;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.FeedbackSensor;
@@ -18,6 +19,7 @@ import com.revrobotics.spark.SparkBase.ControlType;
 
 import frc.robot.Constants;
 import frc.robot.subsystems.intake.Intake.IntakeMode;
+import frc.robot.subsystems.intake.Intake.OscillateType;
 import frc.robot.subsystems.intake.Intake.IntakeAngle;
 
 public class IntakeIOMotors implements IntakeIO {
@@ -28,17 +30,23 @@ public class IntakeIOMotors implements IntakeIO {
     private final SparkClosedLoopController anglePID;
 
     private final CANcoder intakeEncoder;
-    StatusSignal<Angle> encoderPositionSignal;
+    private StatusSignal<Angle> encoderPositionSignal;
 
+    private MAXMotionConfig angleConfigNormal;
+    private MAXMotionConfig angleConfigOscilliate;
+    private SparkMaxConfig angleConfig;
 
     public IntakeIOMotors() {
         angleMotor = new SparkMax(Constants.CAN_ID_INTAKE_ANGLE_MOTOR, MotorType.kBrushless);
         anglePID = angleMotor.getClosedLoopController();
 
-        SparkMaxConfig angleConfig = new SparkMaxConfig();
-        angleConfig.idleMode(IdleMode.kBrake).smartCurrentLimit(20);
+        angleConfigOscilliate = new MAXMotionConfig();
+        angleConfigNormal = new MAXMotionConfig();
+
+        angleConfig = new SparkMaxConfig();
+        angleConfig.idleMode(IdleMode.kBrake).smartCurrentLimit(30);
         angleConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-            .p(1)
+            .p(1.0)
             .i(0)
             .d(0);
         angleConfig.closedLoop.feedForward
@@ -46,16 +54,25 @@ public class IntakeIOMotors implements IntakeIO {
             .kA(0)   // Acceleration gain (Volts per Velocity Unit / s)
             .kG(0)    // Optional: Linear gravity gain for elevators (Volts)
             .kCos(0); // Optional: Cosine gravity gain for arms (Volts)
-        angleConfig.closedLoop.maxMotion.maxAcceleration(10000);
-        angleConfig.closedLoop.maxMotion.cruiseVelocity(9000);
-        angleConfig.closedLoop.maxMotion.positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal);
-        angleConfig.closedLoop.maxMotion.allowedProfileError(1);
+
+        angleConfigNormal.maxAcceleration(10000);
+        angleConfigNormal.cruiseVelocity(3000);
+        angleConfigNormal.positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal);
+        angleConfigNormal.allowedProfileError(1);
+
+        angleConfigOscilliate.maxAcceleration(10000);
+        angleConfigOscilliate.cruiseVelocity(900);
+        angleConfigOscilliate.positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal);
+        angleConfigOscilliate.allowedProfileError(1);
+
+        angleConfig.closedLoop.apply(angleConfigNormal);
+
         angleMotor.configure(angleConfig, com.revrobotics.ResetMode.kResetSafeParameters, com.revrobotics.PersistMode.kPersistParameters);
 
 
         intakeMotor = new SparkMax(Constants.CAN_ID_INTAKE_MOTOR, MotorType.kBrushless);
         SparkMaxConfig intakeConfig = new SparkMaxConfig();
-        intakeConfig.idleMode(IdleMode.kBrake).smartCurrentLimit(20);
+        intakeConfig.idleMode(IdleMode.kBrake).smartCurrentLimit(30);
  
         intakeMotor.configure(intakeConfig, com.revrobotics.ResetMode.kResetSafeParameters, com.revrobotics.PersistMode.kPersistParameters);
         intakeEncoder = new CANcoder(Constants.CAN_ID_INTAKE_ENCODER, frc.robot.RobotContainer.kCanivore);
@@ -68,7 +85,7 @@ public class IntakeIOMotors implements IntakeIO {
         encoderPositionSignal.waitForUpdate(0.2);
 
         // seed the motor position based on the cancoder
-        angleMotor.getEncoder().setPosition(encoderPositionSignal.getValueAsDouble() * 100);
+        angleMotor.getEncoder().setPosition(encoderPositionSignal.getValueAsDouble() * 49);
     }
 
     public void updateInputs(IntakeIOInputs inputs) {
@@ -146,5 +163,15 @@ public class IntakeIOMotors implements IntakeIO {
     public void stop() {
         intakeMotor.set(0);
         angleMotor.set(0);
+    }
+
+    public void setOscillate(OscillateType type) {
+        if (type == OscillateType.STOP) {
+            angleConfig.closedLoop.apply(angleConfigNormal);
+            angleMotor.configure(angleConfig, com.revrobotics.ResetMode.kNoResetSafeParameters, com.revrobotics.PersistMode.kNoPersistParameters);
+        } else {
+            angleConfig.closedLoop.apply(angleConfigOscilliate);
+            angleMotor.configure(angleConfig, com.revrobotics.ResetMode.kResetSafeParameters, com.revrobotics.PersistMode.kNoPersistParameters);
+        }
     }
 }

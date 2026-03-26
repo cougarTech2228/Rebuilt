@@ -61,6 +61,7 @@ public class Intake extends SubsystemBase{
     public void setIntakeMode(IntakeMode mode) {
         currentIntakeMode = mode;
         oscillationState = OscillationState.IDLE;
+        oscillate(OscillateType.STOP);
         switch (mode) {
             case IDLE:
                 io.manualSetIntakeAngle(IntakeConstants.ANGLE_MOTOR_HOME_POSITION);
@@ -114,9 +115,7 @@ public class Intake extends SubsystemBase{
         WAVE_DEPLOY_2,
         WAVE_BUMP_2,
         WAVE_DEPLOY_3,
-        WAVE_BUMP_3,
-        WAVE_DEPLOY_4,
-        WAVE_BUMP_4
+        WAVE_BUMP_3
     };
     OscillationState oscillationState = OscillationState.IDLE;
 
@@ -191,20 +190,8 @@ public class Intake extends SubsystemBase{
                         break;
                     case WAVE_BUMP_3:
                         if (isAtPosition(IntakeConstants.ANGLE_MOTOR_BUMP_WAVE_3)) {
-                            oscillationState = OscillationState.WAVE_DEPLOY_4;
-                            setIntakeAngle(IntakeAngle.DEPLOYED);
-                        }
-                        break;
-                    case WAVE_DEPLOY_4:
-                        if (isDeployed()) {
-                            oscillationState = OscillationState.WAVE_BUMP_4;
-                            setIntakeAngle(IntakeConstants.ANGLE_MOTOR_BUMP_WAVE_4);
-                        }
-                        break;
-                    case WAVE_BUMP_4:
-                        if (isAtPosition(IntakeConstants.ANGLE_MOTOR_BUMP_WAVE_4)) {
                             oscillationState = OscillationState.IDLE;
-                            setIntakeMode(IntakeMode.INTAKE);
+                            setIntakeAngle(IntakeAngle.DEPLOYED);
                         }
                         break;
                 }
@@ -239,6 +226,7 @@ public class Intake extends SubsystemBase{
     public void oscillate(OscillateType type) {
 
         currentOscillateType = type;
+        io.setOscillate(type);
         switch (type){
             case ONCE:
                 oscillationState = OscillationState.ONCE_DEPLOY_1;

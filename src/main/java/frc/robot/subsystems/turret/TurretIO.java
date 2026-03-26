@@ -41,6 +41,8 @@ public interface TurretIO {
         public boolean isTurretAtTarget = false;
         public boolean isTargetInKeepOut = false;
         public double targetDistance = 0;
+        public double filteredTargetDistance = 0;
+        public double slewFilteredTargetDistance = 0;
     }
     public default void updateInputs(TurretIOInputs inputs) {}
 

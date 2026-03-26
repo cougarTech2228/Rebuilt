@@ -3,6 +3,7 @@ package frc.robot.subsystems.intake;
 import org.littletonrobotics.junction.AutoLog;
 
 import frc.robot.subsystems.intake.Intake.IntakeMode;
+import frc.robot.subsystems.intake.Intake.OscillateType;
 import frc.robot.subsystems.intake.Intake.IntakeAngle;
 
 public interface IntakeIO {
@@ -35,4 +36,6 @@ public interface IntakeIO {
     public default void manualSetIntakeAngle(double angle) {};
 
     public default void stop() {};
+
+    public default void setOscillate(OscillateType type) {};
 }

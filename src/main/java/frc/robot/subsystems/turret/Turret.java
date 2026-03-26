@@ -1,6 +1,8 @@
 package frc.robot.subsystems.turret;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.filter.LinearFilter;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -37,6 +39,9 @@ public class Turret extends SubsystemBase{
     private Pose2d virtualTargetPose = new Pose2d();
 
     private double currentHoodAngle = 0;
+
+    private LinearFilter distanceFilter = LinearFilter.singlePoleIIR(0.1, 0.02);
+    private SlewRateLimiter slewDistanceFilter = new SlewRateLimiter(2);
 
     public Turret(TurretIO turretIO, Drive driveSubsystem) {
         this.turretIO = turretIO;
@@ -94,6 +99,7 @@ public class Turret extends SubsystemBase{
         // --- Shoot On The Move Math ---
         Pose2d robotPose = driveSubsystem.getPose();
         Pose2d realTargetPose = getTargetPoint(aimTarget);
+        
 
         // 1. Get the robot's velocity
         ChassisSpeeds speeds = driveSubsystem.getChassisSpeeds();
@@ -126,6 +132,8 @@ public class Turret extends SubsystemBase{
 
         virtualTargetPose = new Pose2d(virtualTargetTrans, realTargetPose.getRotation());
         turretInputs.targetDistance = getTargetDistance();
+        turretInputs.filteredTargetDistance = distanceFilter.calculate(turretInputs.targetDistance);
+        turretInputs.slewFilteredTargetDistance = slewDistanceFilter.calculate(turretInputs.filteredTargetDistance);
 
         // Log the real target vs the virtual aim target
         Logger.recordOutput("Turret/RealTargetPose", realTargetPose);
@@ -269,7 +277,7 @@ public class Turret extends SubsystemBase{
             }
         } else {
             if (enable) {
-                double dist = getTargetDistance();
+                double dist = turretInputs.filteredTargetDistance;
                 double vel = getVelocityForTarget(dist, false);
                 setFlywheelVelocity(vel, vel * 1.2);
 
