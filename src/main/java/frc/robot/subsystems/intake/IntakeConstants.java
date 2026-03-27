@@ -8,7 +8,7 @@ public class IntakeConstants {
 
     public static final double ANGLE_MOTOR_HOME_POSITION = 0.0
     ;
-    public static final double ANGLE_MOTOR_DEPLOYED_POSITION = 18.1;
+    public static final double ANGLE_MOTOR_DEPLOYED_POSITION = 19.3;
     public static final double ANGLE_MOTOR_BUMPED_POSITION = ANGLE_MOTOR_DEPLOYED_POSITION * 0.4;
     public static final double ANGLE_PID_THRESHOLD = 1;
 
