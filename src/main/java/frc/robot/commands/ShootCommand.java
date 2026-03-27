@@ -15,9 +15,13 @@ public class ShootCommand extends Command {
     }
 
     @Override
-    public void execute() {
+    public void initialize() {
         AutoAimCommand.autoAim = true;
         turret.enableShooter(true);
+    }
+
+    @Override
+    public void execute() {
         if (turret.canShoot()) {
             hopper.indexerOn(false);
             hopper.kickerOn(false);

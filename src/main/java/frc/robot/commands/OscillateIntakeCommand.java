@@ -1,24 +1,31 @@
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.climber.Climber;
-import frc.robot.subsystems.climber.Climber.ClimberLevel;
-import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.intake.Intake;
-import frc.robot.subsystems.intake.Intake.IntakeAngle;
-import frc.robot.subsystems.turret.Turret;
-import frc.robot.util.CTSequentialCommandGroup;
 
-public class OscillateIntakeCommand extends CTSequentialCommandGroup {
-    // Extend to L3 w/ limit switch, climb to L1
+public class OscillateIntakeCommand extends Command {
+    private final Intake intake;
 
     public OscillateIntakeCommand(Climber climber, Intake intake) {
-        this.addCommands(
-            new OscillateIntakeOnce(intake, climber),
-            new WaitCommand(0.25)
-        );
+        this.intake = intake;
     }
 
+    @Override
+    public void initialize() {
+        intake.oscillate(Intake.OscillateType.WAVE);
+    }
 
+    @Override
+    public boolean isFinished() {
+        boolean finished = !intake.isOscillateActive();
+        return finished;
+    }
+
+    @Override
+    public void end(boolean interrupted) {
+        if (interrupted){
+            intake.oscillate(Intake.OscillateType.STOP);
+        }
+    }
 }

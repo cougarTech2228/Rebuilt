@@ -12,11 +12,11 @@ import frc.robot.subsystems.intake.Intake.IntakeMode;
 
 public class IntakeIOSim implements IntakeIO {
     
-    private static final double GEAR_RATIO = 100.0;
+    private static final double GEAR_RATIO = 49.0;
     
     private final SingleJointedArmSim angleSim = new SingleJointedArmSim(
-        LinearSystemId.createSingleJointedArmSystem(DCMotor.getNEO(1), 0.05, GEAR_RATIO),
-        DCMotor.getNEO(1),
+        LinearSystemId.createSingleJointedArmSystem(DCMotor.getNeo550(1), 0.0001, GEAR_RATIO),
+        DCMotor.getNeo550(1),
         GEAR_RATIO,
         0.3,
         Units.degreesToRadians(-10),

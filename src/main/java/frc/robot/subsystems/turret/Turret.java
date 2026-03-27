@@ -43,6 +43,8 @@ public class Turret extends SubsystemBase{
     private LinearFilter distanceFilter = LinearFilter.singlePoleIIR(0.1, 0.02);
     private SlewRateLimiter slewDistanceFilter = new SlewRateLimiter(2);
 
+    private boolean turretEnabled = false;
+
     public Turret(TurretIO turretIO, Drive driveSubsystem) {
         this.turretIO = turretIO;
         this.driveSubsystem = driveSubsystem;
@@ -96,6 +98,7 @@ public class Turret extends SubsystemBase{
     public void periodic() {
         turretIO.updateInputs(turretInputs);
 
+
         // --- Shoot On The Move Math ---
         Pose2d robotPose = driveSubsystem.getPose();
         Pose2d realTargetPose = getTargetPoint(aimTarget);
@@ -131,6 +134,31 @@ public class Turret extends SubsystemBase{
         }
 
         virtualTargetPose = new Pose2d(virtualTargetTrans, realTargetPose.getRotation());
+
+        if (turretEnabled) {
+            if (SmartDashboard.getBoolean("TestMode", false)) {
+                setHoodElevation(SmartDashboard.getNumber("TurretHoodElevation", 0.0));
+                double ratio = SmartDashboard.getNumber("TurretTestFlywheelRatio", 1.0);
+                double velocity = SmartDashboard.getNumber("TurretFlywheelVelocity", 0.0);
+                setFlywheelVelocity(velocity, ratio * velocity);
+
+                setAimTarget(SmartDashboard.getNumber("TurretAngle", 0.0));
+            } else {
+                double dist = turretInputs.filteredTargetDistance;
+                double vel = getVelocityForTarget(dist, false);
+                setFlywheelVelocity(vel, vel * 1.2);
+
+                double angle = getAngleForTarget(dist);
+                if (Math.abs(angle - currentHoodAngle) > 0.01) {
+                    currentHoodAngle = angle;
+                    setHoodElevation(angle);
+                }
+            }
+        } else {
+            setFlywheelVelocity(0, 0);
+            // no need to move the hood on disable
+        }
+
         turretInputs.targetDistance = getTargetDistance();
         turretInputs.filteredTargetDistance = distanceFilter.calculate(turretInputs.targetDistance);
         turretInputs.slewFilteredTargetDistance = slewDistanceFilter.calculate(turretInputs.filteredTargetDistance);
@@ -263,33 +291,7 @@ public class Turret extends SubsystemBase{
     }
 
     public void enableShooter(boolean enable) {
-        if (SmartDashboard.getBoolean("TestMode", false)) {
-            if (enable) {
-                setHoodElevation(SmartDashboard.getNumber("TurretHoodElevation", 0.0));
-                double ratio = SmartDashboard.getNumber("TurretTestFlywheelRatio", 1.0);
-                double velocity = SmartDashboard.getNumber("TurretFlywheelVelocity", 0.0);
-                setFlywheelVelocity(velocity, ratio * velocity);
-
-                setAimTarget(SmartDashboard.getNumber("TurretAngle", 0.0));
-            } else {
-                setFlywheelVelocity(0, 0);
-            }
-        } else {
-            if (enable) {
-                double dist = turretInputs.filteredTargetDistance;
-                double vel = getVelocityForTarget(dist, false);
-                setFlywheelVelocity(vel, vel * 1.2);
-
-                double angle = getAngleForTarget(dist);
-                if (Math.abs(angle - currentHoodAngle) > 0.01) {
-                    currentHoodAngle = angle;
-                    setHoodElevation(angle);
-                }
-            } else {
-                setFlywheelVelocity(0, 0);
-                // no need to move the hood on disable
-            }
-        }
+        turretEnabled = enable;
     }
 
     public boolean canShoot() {

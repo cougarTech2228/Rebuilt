@@ -1,5 +1,6 @@
 package frc.robot.subsystems.intake;
 
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 import com.revrobotics.spark.SparkBase.ControlType;
@@ -117,6 +118,7 @@ public class Intake extends SubsystemBase{
         WAVE_DEPLOY_3,
         WAVE_BUMP_3
     };
+    @AutoLogOutput(key = "Intake/Oscillation State")
     OscillationState oscillationState = OscillationState.IDLE;
 
     public void periodic() {
@@ -241,8 +243,10 @@ public class Intake extends SubsystemBase{
                 break;
             default:
                 break;
-            
         }
-        
+    }
+
+    public boolean isOscillateActive() {
+        return oscillationState != OscillationState.IDLE;
     }
 }
