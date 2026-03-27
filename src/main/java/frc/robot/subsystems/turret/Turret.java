@@ -255,8 +255,6 @@ public class Turret extends SubsystemBase{
 
         // ensure we don't end up with a negative value or super slow speed
         velocity = Math.max(velocity, TurretConstants.MIN_FLYWHEEL_SPEED);
-Logger.recordOutput("Turret/realDistance", distance);
-Logger.recordOutput("Turret/calcVelocity", velocity);
         return velocity;
     }
 
