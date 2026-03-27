@@ -123,7 +123,7 @@ public class Drive extends SubsystemBase {
         this::getChassisSpeeds,
         this::runVelocity,
         new PPHolonomicDriveController(
-            new PIDConstants(5.0, 0.0, 0.0), new PIDConstants(5.0, 0.0, 0.0)),
+            new PIDConstants(7.0, 0.0, 0.0), new PIDConstants(5.0, 0.0, 0.0)),
         PP_CONFIG,
         () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,
         this);
@@ -321,6 +321,13 @@ public class Drive extends SubsystemBase {
   /** Returns the current odometry rotation. */
   public Rotation2d getRotation() {
     return getPose().getRotation();
+  }
+
+  /** * Returns the estimated robot rotation at a specific timestamp. 
+   * Essential for disambiguating planar ambiguity in single-tag vision solves.
+   */
+  public Rotation2d getRotationAtTime(double timestampSeconds) {
+      return poseEstimator.sampleAt(timestampSeconds).map(Pose2d::getRotation).orElse(getRotation());
   }
 
   /** Resets the current odometry pose. */

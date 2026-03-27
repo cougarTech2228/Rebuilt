@@ -19,15 +19,11 @@ public class StartFiringCommand extends Command {
 	}
 
 	private boolean isIndexerOn = false;
-	
-	@Override
-	public void initialize() {
-		turret.enableShooter(true);
-	}
 
 	@Override
 	public void execute() {
 		AutoAimCommand.autoAim = true;
+		turret.enableShooter(true);
 		if (turret.canShoot() && isIndexerOn == false) {
 			hopper.indexerOn(false);
 			hopper.kickerOn(false);

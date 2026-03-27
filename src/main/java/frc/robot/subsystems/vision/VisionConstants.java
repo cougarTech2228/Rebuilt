@@ -35,14 +35,16 @@ public class VisionConstants {
             new Rotation3d(0.0, Units.degreesToRadians(-25), Units.degreesToRadians(-90.0)));
             
     // Basic filtering thresholds
-    public static double maxAmbiguity = 0.15; // Tightened from 0.3 to kill ambiguity flipping
+    public static double maxAmbiguity = 0.2;
     public static double maxZError = 0.75;
-    public static double maxSingleTagDistance = 4.0; // Meters - ignore single tags further than this
+    public static double maxSingleTagDistance = 2.5; // Meters
+    public static double maxMultiTagDistance = 4.5; // Meters
+    public static double fieldBorderMargin = 0.3; // Meters (Allows robot center to be slightly out of bounds if bumper is against wall)
 
-    // Standard deviation baselines
-    public static double multiTagLinearStdDev = 0.05; // Highly stable, trust it more
-    public static double multiTagAngularStdDev = 0.05;
-    public static double singleTagLinearStdDev = 0.5; // 10x less trust to act as a rigid noise filter
+    // Standard deviation baselines, for 1 meter distance and 1 tag
+    // (Adjusted automatically based on distance and # of tags)
+    public static double linearStdDevBaseline = 0.02; // Meters
+    public static double angularStdDevBaseline = 0.06; // Radians
 
     // Standard deviation multipliers for each camera
     // (Adjust to trust some cameras more than others)

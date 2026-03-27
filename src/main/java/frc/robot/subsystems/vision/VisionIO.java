@@ -16,7 +16,7 @@ public interface VisionIO {
   public static class VisionIOInputs {
     public boolean connected = false;
     public TargetObservation latestTargetObservation =
-        new TargetObservation(Rotation2d.kZero, Rotation2d.kZero);
+        new TargetObservation(new Rotation2d(), new Rotation2d());
     public PoseObservation[] poseObservations = new PoseObservation[0];
     public int[] tagIds = new int[0];
   }
@@ -28,6 +28,7 @@ public interface VisionIO {
   public static record PoseObservation(
       double timestamp,
       Pose3d pose,
+      Pose3d altPose, // Used for disambiguating single-tag solves
       double ambiguity,
       int tagCount,
       double averageTagDistance,

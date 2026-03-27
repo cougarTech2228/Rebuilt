@@ -160,7 +160,7 @@ public class RobotContainer {
             new ModuleIOTalonFX(TunerConstants.BackRight));
 
         vision = new Vision(
-            drive::addVisionMeasurement, drive::getPose,
+            drive::addVisionMeasurement, drive::getRotationAtTime,
             new VisionIOPhotonVision(frontCameraName, robotToFrontCamera),
             new VisionIOPhotonVision(leftCameraName, robotToLeftCamera),
             new VisionIOPhotonVision(backCameraName, robotToBackCamera),
@@ -182,7 +182,7 @@ public class RobotContainer {
             new ModuleIOSim(TunerConstants.BackLeft),
             new ModuleIOSim(TunerConstants.BackRight));
         vision = new Vision(
-            drive::addVisionMeasurement, drive::getPose,
+            drive::addVisionMeasurement, drive::getRotationAtTime,
             new VisionIOPhotonVisionSim(frontCameraName, robotToFrontCamera, drive::getPose),
             new VisionIOPhotonVisionSim(leftCameraName, robotToLeftCamera, drive::getPose),
             new VisionIOPhotonVisionSim(backCameraName, robotToBackCamera, drive::getPose),
@@ -207,7 +207,7 @@ public class RobotContainer {
             },
             new ModuleIO() {
             });
-        vision = new Vision(drive::addVisionMeasurement, drive::getPose, new VisionIO() {
+        vision = new Vision(drive::addVisionMeasurement, drive::getRotationAtTime, new VisionIO() {
         }, new VisionIO() {
         });
         turret = new Turret(new TurretIO() {
