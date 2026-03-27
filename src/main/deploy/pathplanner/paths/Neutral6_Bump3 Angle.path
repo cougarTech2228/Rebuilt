@@ -12,7 +12,7 @@
         "y": 5.0
       },
       "isLocked": false,
-      "linkedName": "Neutral6"
+      "linkedName": "Neutral6Angle"
     },
     {
       "anchor": {
@@ -103,7 +103,7 @@
   "folder": "NeutralPaths",
   "idealStartingState": {
     "velocity": 1.0,
-    "rotation": -90.0
+    "rotation": -119.99999999999999
   },
   "useDefaultConstraints": false
 }
