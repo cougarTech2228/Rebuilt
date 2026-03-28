@@ -236,6 +236,7 @@ public class Intake extends SubsystemBase{
                 break;
             case STOP:
                 oscillationState = OscillationState.IDLE;
+                setIntakeAngle(IntakeAngle.DEPLOYED);
                 break;
             case WAVE:
                 oscillationState = OscillationState.WAVE_DEPLOY_1;

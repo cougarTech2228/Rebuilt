@@ -37,8 +37,8 @@ public class VisionConstants {
     // Basic filtering thresholds
     public static double maxAmbiguity = 0.2;
     public static double maxZError = 0.75;
-    public static double maxSingleTagDistance = 2.5; // Meters
-    public static double maxMultiTagDistance = 4.5; // Meters
+    public static double maxSingleTagDistance = 4.0; // Meters
+    public static double maxMultiTagDistance = 6.0; // Meters
     public static double fieldBorderMargin = 0.3; // Meters (Allows robot center to be slightly out of bounds if bumper is against wall)
 
     // Standard deviation baselines, for 1 meter distance and 1 tag
