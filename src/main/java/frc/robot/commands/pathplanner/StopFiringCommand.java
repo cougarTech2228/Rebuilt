@@ -24,7 +24,6 @@ public class StopFiringCommand extends Command {
 		turret.enableShooter(false);
 		hopper.indexerOff();
 		hopper.kickerOff();
-		intake.oscillate(OscillateType.STOP);
 		AutoAimCommand.autoAim = false;
 	}
 

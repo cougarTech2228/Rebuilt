@@ -241,7 +241,7 @@ public class RobotContainer {
     // so that only autos we want to be able to choose are shown.
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", new SendableChooser<>());
 
-    autoChooser.addOption("Left Bump Double No Climb", AutoBuilder.buildAuto("Comp Bump 4 Double"));
+    autoChooser.addOption("New Left Bump Double No Climb", AutoBuilder.buildAuto("New Comp Bump 4 Double"));
 
     autoChooser.addOption("Left Bump Climb", new SequentialCommandGroup(
         AutoBuilder.buildAuto("Comp Bump 4 Climb"),

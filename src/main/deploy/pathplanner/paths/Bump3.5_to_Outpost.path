@@ -16,11 +16,11 @@
     },
     {
       "anchor": {
-        "x": 0.63,
+        "x": 0.69,
         "y": 6.0
       },
       "prevControl": {
-        "x": 1.63,
+        "x": 0.94,
         "y": 6.0
       },
       "nextControl": null,
@@ -28,16 +28,21 @@
       "linkedName": "OutpostMid"
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.6761006289308192,
+      "rotationDegrees": -179.9
+    }
+  ],
   "constraintZones": [
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 0.45242369838420254,
+      "minWaypointRelativePos": 0.0,
       "maxWaypointRelativePos": 1.0,
       "constraints": {
         "maxVelocity": 1.0,
         "maxAcceleration": 3.0,
-        "maxAngularVelocity": 540.0,
+        "maxAngularVelocity": 120.0,
         "maxAngularAcceleration": 720.0,
         "nominalVoltage": 12.0,
         "unlimited": false
@@ -62,7 +67,7 @@
   "folder": "BumpPaths",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": 0.0
   },
   "useDefaultConstraints": false
 }

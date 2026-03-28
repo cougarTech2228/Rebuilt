@@ -13,13 +13,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Bump4_to_Neutral6_Angle"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Neutral6_Bump3 Angle"
+            "pathName": "Bump4_Loop"
           }
         },
         {

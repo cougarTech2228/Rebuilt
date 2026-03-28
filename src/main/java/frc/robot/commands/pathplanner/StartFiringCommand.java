@@ -32,7 +32,6 @@ public class StartFiringCommand extends Command {
 			hopper.indexerOn(false);
 			hopper.kickerOn(false);
 			isIndexerOn = true;
-			intake.oscillate(OscillateType.WAVE);
 		}
 	}
 
