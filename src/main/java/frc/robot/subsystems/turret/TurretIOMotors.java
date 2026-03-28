@@ -192,7 +192,7 @@ public class TurretIOMotors implements TurretIO {
         flywheelConfig.Slot0.kP = 0.1;
         flywheelConfig.Slot0.kI = 0.0;
         flywheelConfig.Slot0.kD = 0.0;
-        flywheelConfig.Slot0.kV = 0.118;
+        flywheelConfig.Slot0.kV = 0.113;
         flywheelConfig.Slot0.kA = 0.0;
 
         flywheelConfig.CurrentLimits.StatorCurrentLimit = 120.0; // Amps
@@ -205,10 +205,10 @@ public class TurretIOMotors implements TurretIO {
         flywheelMotorVoltageSignal = flywheelMotor.getMotorVoltage();
         flywheelMotorCurrentSignal = flywheelMotor.getStatorCurrent();
 
-        upperFlywheelConfig.Slot0.kP = 0.3;
+        upperFlywheelConfig.Slot0.kP = 0.1;
         upperFlywheelConfig.Slot0.kI = 0.0;
         upperFlywheelConfig.Slot0.kD = 0.0;
-        upperFlywheelConfig.Slot0.kV = 0.1;
+        upperFlywheelConfig.Slot0.kV = 0.115;
         upperFlywheelConfig.Slot0.kA = 0.0;
 
         upperFlywheelConfig.CurrentLimits.StatorCurrentLimit = 120.0; // Amps

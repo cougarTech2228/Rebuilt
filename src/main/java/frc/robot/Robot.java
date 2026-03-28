@@ -145,6 +145,7 @@ public class Robot extends LoggedRobot {
   @Override
   public void teleopInit() {
     shiftStartTime = -1;
+    
 
     // This makes sure that the autonomous stops running when
     // teleop starts running. If you want the autonomous to
@@ -152,6 +153,7 @@ public class Robot extends LoggedRobot {
     // this line or comment it out.
     if (autonomousCommand != null) {
       autonomousCommand.cancel();
+    
     }
 
     // kill the auto aim command that was running durring auto

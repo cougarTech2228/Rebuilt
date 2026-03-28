@@ -3,16 +3,16 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.6,
+        "x": 3.5,
         "y": 2.5
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.6,
+        "x": 4.5,
         "y": 2.5
       },
       "isLocked": false,
-      "linkedName": "Bump1East"
+      "linkedName": null
     },
     {
       "anchor": {
@@ -20,20 +20,49 @@
         "y": 2.5
       },
       "prevControl": {
-        "x": 6.75,
+        "x": 7.75,
+        "y": 3.0625000000000018
+      },
+      "nextControl": {
+        "x": 7.75,
+        "y": 1.9706166925481337
+      },
+      "isLocked": false,
+      "linkedName": "Neutral2"
+    },
+    {
+      "anchor": {
+        "x": 2.3,
+        "y": 2.5
+      },
+      "prevControl": {
+        "x": 2.8,
         "y": 2.5
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Neutral2"
+      "linkedName": "ClimbPosSouth"
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.6069182389937107,
+      "rotationDegrees": 0.0
+    },
+    {
+      "waypointRelativePos": 1.125786163522011,
+      "rotationDegrees": 0.0
+    },
+    {
+      "waypointRelativePos": 1.4465408805031434,
+      "rotationDegrees": -90.0
+    }
+  ],
   "constraintZones": [
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 0.7899461400359048,
-      "maxWaypointRelativePos": 0.9605026929982045,
+      "minWaypointRelativePos": 0.51705565529623,
+      "maxWaypointRelativePos": 1.0592459605026938,
       "constraints": {
         "maxVelocity": 1.0,
         "maxAcceleration": 10.0,
@@ -47,7 +76,7 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 2.0,
+    "maxVelocity": 4.0,
     "maxAcceleration": 10.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 700.0,
@@ -56,13 +85,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": -90.0
   },
   "reversed": false,
   "folder": "BumpPaths",
   "idealStartingState": {
-    "velocity": 0,
-    "rotation": 0.0
+    "velocity": 0.0,
+    "rotation": 45.0
   },
   "useDefaultConstraints": false
 }

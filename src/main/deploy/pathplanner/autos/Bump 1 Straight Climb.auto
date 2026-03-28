@@ -17,19 +17,13 @@
           }
         },
         {
-          "type": "path",
-          "data": {
-            "pathName": "Neutral2_to_Bump1"
-          }
-        },
-        {
           "type": "deadline",
           "data": {
             "commands": [
               {
                 "type": "wait",
                 "data": {
-                  "waitTime": 4.0
+                  "waitTime": 5.0
                 }
               },
               {
@@ -49,7 +43,7 @@
                           {
                             "type": "wait",
                             "data": {
-                              "waitTime": 2.0
+                              "waitTime": 1.5
                             }
                           },
                           {
@@ -77,6 +71,6 @@
     }
   },
   "resetOdom": true,
-  "folder": null,
+  "folder": "Comp Autos",
   "choreoAuto": false
 }
