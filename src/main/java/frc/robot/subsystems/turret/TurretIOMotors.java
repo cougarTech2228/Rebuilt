@@ -192,7 +192,7 @@ public class TurretIOMotors implements TurretIO {
         flywheelConfig.Slot0.kP = 0.1;
         flywheelConfig.Slot0.kI = 0.0;
         flywheelConfig.Slot0.kD = 0.0;
-        flywheelConfig.Slot0.kV = 0.111;
+        flywheelConfig.Slot0.kV = 0.118;
         flywheelConfig.Slot0.kA = 0.0;
 
         flywheelConfig.CurrentLimits.StatorCurrentLimit = 120.0; // Amps
@@ -378,6 +378,12 @@ public class TurretIOMotors implements TurretIO {
         inputs.upperFlywheelMotorVoltage = upperFlywheelMotorVoltageSignal.getValueAsDouble();
         inputs.upperFlywheelMotorCurrent = upperFlywheelMotorCurrentSignal.getValueAsDouble();
         inputs.upperFlywheelPIDTargetVelocity = targetUpperFlywheelVelocity;
+
+        // Log the actual error (Measured - Target)
+        // Positive values = Wheel is spinning faster than target (Overshooting)
+        // Negative values = Wheel is still spinning up (Undershooting)
+        inputs.flywheelVelocityError = inputs.flywheelMotorVelocity - targetFlywheelVelocity;
+        inputs.upperFlywheelVelocityError = inputs.upperFlywheelMotorVelocity - targetUpperFlywheelVelocity;
 
         inputs.areFlywheelsAtVelocity = areFlywheelsAtVelocity();
         inputs.isTurretAtTarget = isTurretAtTarget();

@@ -8,6 +8,7 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -37,6 +38,8 @@ public class Turret extends SubsystemBase{
 
     // Store the compensated target each loop
     private Pose2d virtualTargetPose = new Pose2d();
+    private double shotStability = 1.0; // 0 = stable, 1 = unstable calculations    
+    private static final double MAX_SHOT_STABILITY = 0.7;
 
     private double currentHoodAngle = 0;
 
@@ -44,6 +47,10 @@ public class Turret extends SubsystemBase{
     private SlewRateLimiter slewDistanceFilter = new SlewRateLimiter(2);
 
     private boolean turretEnabled = false;
+
+    private final InterpolatingDoubleTreeMap hoodAngleMap = new InterpolatingDoubleTreeMap();
+    private final InterpolatingDoubleTreeMap flywheelVelocityMap = new InterpolatingDoubleTreeMap();
+    private final InterpolatingDoubleTreeMap flightMap = new InterpolatingDoubleTreeMap();
 
     public Turret(TurretIO turretIO, Drive driveSubsystem) {
         this.turretIO = turretIO;
@@ -65,11 +72,41 @@ public class Turret extends SubsystemBase{
 
         // Shoot-on-the-move tuning parameter. Represents the average horizontal m/s of the fuel.
         SmartDashboard.putNumber("TurretShotSpeedMpS", 15.0);
+
+        // map references, (distance away from hub, hood angle)
+        hoodAngleMap.put(1.000, 0.0);
+        hoodAngleMap.put(1.500, 0.1);
+        hoodAngleMap.put(2.000, 0.2);
+        hoodAngleMap.put(2.500, 0.3);
+        hoodAngleMap.put(3.000, 0.4);
+        hoodAngleMap.put(3.500, 0.5);
+        hoodAngleMap.put(4.000, 0.6);
+        hoodAngleMap.put(4.500, 0.7);
+
+        // map references, (distance away from the hub, flywheel velocity)
+        flywheelVelocityMap.put(1.000, 35.678);
+        flywheelVelocityMap.put(1.500, 36.463);
+        flywheelVelocityMap.put(2.000, 38.157);
+        flywheelVelocityMap.put(2.500, 40.468);
+        flywheelVelocityMap.put(3.000, 43.106);
+        flywheelVelocityMap.put(3.500, 45.779);
+        flywheelVelocityMap.put(4.000, 48.196);
+        flywheelVelocityMap.put(4.500, 50.065);
+        flywheelVelocityMap.put(5.000, 51.095);
+
+        // map references, (distance away from hub, seconds airtime)
+        flightMap.put(1.500, 0.939);
+        flightMap.put(2.000, 1.045);
+        flightMap.put(2.500, 1.119);
+        flightMap.put(3.000, 1.254);
+        flightMap.put(3.500, 1.341);
+        flightMap.put(4.000, 1.518);
+
     }
 
     private double getTargetDistance() {
         Pose2d robotPose = driveSubsystem.getPose();
-
+        
         // Return distance to the virtual compensated target from the physical turret offset
         return robotPose.getTranslation().plus(
             TurretConstants.TurretOffset.getTranslation().rotateBy(robotPose.getRotation()))
@@ -81,17 +118,21 @@ public class Turret extends SubsystemBase{
      */
     private double estimateTimeOfFlight(double distance) {
 
-        // Basic Average (not currently active)
-        // double averageHorizontalSpeed = SmartDashboard.getNumber("TurretShotSpeedMpS", 15.0);
+        // // Basic Average (not currently active)
+        // // double averageHorizontalSpeed = SmartDashboard.getNumber("TurretShotSpeedMpS", 15.0);
 
+        // // = -0.1343x2 + 1.163x + 0.1467
+        // double averageHorizontalSpeed = (-0.1343 * distance * distance) + (1.163 * distance) + 0.1467;
+        // double timeOfFlightSeconds = distance / averageHorizontalSpeed;
 
+        // // sanity check
+        // return MathUtil.clamp(timeOfFlightSeconds, 0.1, 2.0);
 
-        // = -0.1343x2 + 1.163x + 0.1467
-        double averageHorizontalSpeed = (-0.1343 * distance * distance) + (1.163 * distance) + 0.1467;
-        double timeOfFlightSeconds = distance / averageHorizontalSpeed;
+        // Use the measured flight-time look-up table, not a derived formula.
+        // The table implicitly encodes the physics — this is the key advantage
+        // of the ToF-recursion approach per the docs.
+        return MathUtil.clamp(flightMap.get(distance), 0.1, 2.0);
 
-        // sanity check
-        return MathUtil.clamp(timeOfFlightSeconds, 0.1, 2.0);
     }
 
     @Override
@@ -119,18 +160,54 @@ public class Turret extends SubsystemBase{
         // 3. Convert the true physical turret velocity to Field Relative
         Translation2d fieldRelativeVelocity = totalTurretVelocityRR.rotateBy(robotPose.getRotation());
 
-        // 4. Iterative Solver for Time of Flight (ToF)
+        // // 4. Iterative Solver for Time of Flight (ToF)
+        // Translation2d virtualTargetTrans = realTargetPose.getTranslation();
+        // Translation2d absoluteTurretPosition = robotPose.getTranslation().plus(turretOffset.rotateBy(robotPose.getRotation()));
+
+        // for (int i = 0; i < 3; i++) {
+        //     // Distance from the physical turret to the virtual target
+        //     double virtualDistance = absoluteTurretPosition.getDistance(virtualTargetTrans);
+        //     double timeOfFlight = estimateTimeOfFlight(virtualDistance);
+
+        //     // Offset the target point by the velocity we will impart during the time of flight
+        //     Translation2d movingOffset = fieldRelativeVelocity.times(timeOfFlight);
+        //     virtualTargetTrans = realTargetPose.getTranslation().minus(movingOffset);
+        // }
+
+        // virtualTargetPose = new Pose2d(virtualTargetTrans, realTargetPose.getRotation());
+
         Translation2d virtualTargetTrans = realTargetPose.getTranslation();
-        Translation2d absoluteTurretPosition = robotPose.getTranslation().plus(turretOffset.rotateBy(robotPose.getRotation()));
+        Translation2d absoluteTurretPosition = robotPose.getTranslation()
+            .plus(turretOffset.rotateBy(robotPose.getRotation()));
 
-        for (int i = 0; i < 3; i++) {
-            // Distance from the physical turret to the virtual target
+        // Track the last two ToF values to compute the contraction rate (stability)
+        // |φ'| = |τ_n - τ_{n-1}| / |τ_{n-1} - τ_{n-2}|
+        double tofPrev2 = 0.0;
+        double tofPrev1 = 0.0;
+        double tofCurrent = 0.0;
+        shotStability = 1.0; // default to fragile until we compute it
+
+        // 3–5 iterations is enough per the docs; 5 gives a wider convergence envelope
+        // with diminishing returns beyond that
+        for (int i = 0; i < 5; i++) {
             double virtualDistance = absoluteTurretPosition.getDistance(virtualTargetTrans);
-            double timeOfFlight = estimateTimeOfFlight(virtualDistance);
+            tofCurrent = estimateTimeOfFlight(virtualDistance); // now reads from flight map
 
-            // Offset the target point by the velocity we will impart during the time of flight
-            Translation2d movingOffset = fieldRelativeVelocity.times(timeOfFlight);
+            Translation2d movingOffset = fieldRelativeVelocity.times(tofCurrent);
             virtualTargetTrans = realTargetPose.getTranslation().minus(movingOffset);
+
+            // Compute contraction rate once we have three ToF samples
+            // Avoid divide-by-zero only use terms larger than machine epsilon
+            if (i >= 2) {
+                double deltaN = Math.abs(tofCurrent - tofPrev1);
+                double deltaNm1 = Math.abs(tofPrev1 - tofPrev2);
+                if (deltaNm1 > 1e-9) {
+                    shotStability = deltaN / deltaNm1;
+                }
+            }
+
+            tofPrev2 = tofPrev1;
+            tofPrev1 = tofCurrent;
         }
 
         virtualTargetPose = new Pose2d(virtualTargetTrans, realTargetPose.getRotation());
@@ -166,6 +243,7 @@ public class Turret extends SubsystemBase{
         // Log the real target vs the virtual aim target
         Logger.recordOutput("Turret/RealTargetPose", realTargetPose);
         Logger.recordOutput("Turret/VirtualTargetPose", virtualTargetPose);
+        Logger.recordOutput("Turret/ShotStability", shotStability); 
         Logger.processInputs("Turret", turretInputs);
 
         RobotContainer.turretPose = new Pose3d(
@@ -246,8 +324,9 @@ public class Turret extends SubsystemBase{
         double angle;
 
         if (aimTarget == TurretAimTarget.Hub) {
-            // y = 0.1933x - 0.1842
-            angle = (0.1933 * distance) - 0.1842;
+            // y = 0.1933x - 0.1842 
+            // angle = (0.1933 * distance) - 0.1842;
+            angle = hoodAngleMap.get(distance);
         } else {
             angle = 1.3;
         }
@@ -269,10 +348,11 @@ public class Turret extends SubsystemBase{
 
         if (aimTarget == TurretAimTarget.Hub) {
             // y = -0.3884x3 + 3.5657x2 - 5.4995x + 37.699
-            velocity = (-0.3884 * distance * distance * distance)
-                + (3.5657 * distance * distance)
-                - (5.4995 * distance)
-                + 38;
+            // velocity = (-0.3884 * distance * distance * distance)
+            //     + (3.5657 * distance * distance)
+            //     - (5.4995 * distance)
+            //     + 38;
+            velocity = flywheelVelocityMap.get(distance);
         } else {
             //y = 5.2631x + 18.264
             velocity = (5.2631 * distance) + 18.264;
@@ -283,6 +363,9 @@ public class Turret extends SubsystemBase{
 
         // ensure we don't end up with a negative value or super slow speed
         velocity = Math.max(velocity, TurretConstants.MIN_FLYWHEEL_SPEED);
+        Logger.recordOutput("Turret/realDistance", distance);
+        Logger.recordOutput("Turret/calcVelocity", velocity);
+        
         return velocity;
     }
 
@@ -295,7 +378,10 @@ public class Turret extends SubsystemBase{
     }
 
     public boolean canShoot() {
-        return turretInputs.areFlywheelsAtVelocity && turretInputs.isTurretAtTarget && !turretInputs.isTargetInKeepOut;
+        return turretInputs.areFlywheelsAtVelocity
+            && turretInputs.isTurretAtTarget
+            && !turretInputs.isTargetInKeepOut;
+            // && shotStability < MAX_SHOT_STABILITY;
     }
 
     private Pose2d getTargetPoint(TurretAimTarget target) {

@@ -43,6 +43,9 @@ public interface TurretIO {
         public double targetDistance = 0;
         public double filteredTargetDistance = 0;
         public double slewFilteredTargetDistance = 0;
+        public double flywheelVelocityError = 0;
+        public double upperFlywheelVelocityError = 0;
+
     }
     public default void updateInputs(TurretIOInputs inputs) {}
 
