@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 0.55,
-        "y": 7.2
+        "x": 0.9592466887417217,
+        "y": 6.445298013245033
       },
       "prevControl": null,
       "nextControl": {
-        "x": 0.5500000000000002,
-        "y": 6.2
+        "x": 0.9592466887417218,
+        "y": 5.445298013245033
       },
       "isLocked": false,
       "linkedName": "OutpostOutSouth"

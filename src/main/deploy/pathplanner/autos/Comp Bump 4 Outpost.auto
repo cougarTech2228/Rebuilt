@@ -39,12 +39,6 @@
           "data": {
             "name": "StopFiringCommand"
           }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": null
-          }
         }
       ]
     }
