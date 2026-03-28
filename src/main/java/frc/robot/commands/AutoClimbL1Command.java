@@ -25,8 +25,8 @@ public class AutoClimbL1Command extends SequentialCommandGroup {
                 .alongWith(new ExtendClimberCommand(climber, intake, ClimberLevel.L1, turret)),
 
             // Slow drive until flush with ladder and latched
-            drive.run(() -> drive.runVelocity(new ChassisSpeeds(-0.1, 0, 0)))
-                 .withTimeout(1.5),
+            drive.run(() -> drive.runVelocity(new ChassisSpeeds(-0.2, 0, 0)))
+                 .withTimeout(1),
                  
             drive.run(() -> drive.runVelocity(new ChassisSpeeds(-0.05, 0.2, Math.toRadians(-10))))
                  .until(climber::isReadyToClimb),

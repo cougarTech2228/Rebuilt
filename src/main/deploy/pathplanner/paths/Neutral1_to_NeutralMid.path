@@ -4,28 +4,28 @@
     {
       "anchor": {
         "x": 7.8,
-        "y": 2.8
+        "y": 1.25
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.300000000000001,
-        "y": 2.8
+        "x": 7.8,
+        "y": 2.249999999999999
       },
       "isLocked": false,
-      "linkedName": "NeutralBottomMid"
+      "linkedName": "Neutral1"
     },
     {
       "anchor": {
-        "x": 3.0,
-        "y": 2.6
+        "x": 7.8,
+        "y": 2.8
       },
       "prevControl": {
-        "x": 4.499999999999999,
-        "y": 2.6
+        "x": 7.8,
+        "y": 1.9438568959619298
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Bump2ShootPoint"
+      "linkedName": "NeutralBottomMid"
     }
   ],
   "rotationTargets": [],
@@ -33,7 +33,7 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 3.0,
+    "maxVelocity": 1.1,
     "maxAcceleration": 10.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 700.0,
@@ -42,12 +42,12 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 90.0
   },
   "reversed": false,
   "folder": "NeutralPaths",
   "idealStartingState": {
-    "velocity": 0,
+    "velocity": 1.0,
     "rotation": 90.0
   },
   "useDefaultConstraints": false
