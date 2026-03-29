@@ -8,7 +8,7 @@ public class IntakeConstants {
 
     public static final double ANGLE_MOTOR_HOME_POSITION = 0.0
     ;
-    public static final double ANGLE_MOTOR_DEPLOYED_POSITION = 19.3;
+    public static final double ANGLE_MOTOR_DEPLOYED_POSITION = 18.8;
     public static final double ANGLE_MOTOR_BUMPED_POSITION = ANGLE_MOTOR_DEPLOYED_POSITION * 0.4;
     public static final double ANGLE_PID_THRESHOLD = 1;
 
@@ -18,6 +18,6 @@ public class IntakeConstants {
 
     public static final double ANGLE_MOTOR_STALL_CURRENT_THRESHOLD = 15;
     public static final double ANGLE_MOTOR_STALL_VELOCITY_THRESHOLD = 100;
-    public static final double INTAKE_ENCODER_OFFSET = 0.447266;
+    public static final double INTAKE_ENCODER_OFFSET = 0.281982;
     public static final double INTAKE_START_WHEELS_POSITION = 28;
 }
