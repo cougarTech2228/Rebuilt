@@ -1,0 +1,95 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Bump3Edge_to_DepotNorth"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "ToggleIntakeCommand"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "DepotNorth_To_DepotSouth"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "DepotSouth_To_Hub"
+          }
+        },
+        {
+          "type": "deadline",
+          "data": {
+            "commands": [
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 4.75
+                }
+              },
+              {
+                "type": "parallel",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "StartFiringCommand"
+                      }
+                    },
+                    {
+                      "type": "sequential",
+                      "data": {
+                        "commands": [
+                          {
+                            "type": "wait",
+                            "data": {
+                              "waitTime": 1.5
+                            }
+                          },
+                          {
+                            "type": "named",
+                            "data": {
+                              "name": "OscillateIntakeCommand"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "StopFiringCommand"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": "Comp Autos",
+  "choreoAuto": false
+}

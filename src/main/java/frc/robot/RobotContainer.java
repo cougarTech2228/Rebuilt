@@ -103,7 +103,7 @@ public class RobotContainer {
   // Controller
   private final CommandXboxController controller = new CommandXboxController(0);
 
-  private double driverOverridePercentage = 1.0;
+  public static double driverOverridePercentage = 1.0;
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
@@ -264,8 +264,12 @@ public class RobotContainer {
 
     autoChooser.addOption("Left Bump Middle + Depot", AutoBuilder.buildAuto("Comp Bump 4 Outpost"));
     
-    autoChooser.addOption("Hub Depot Climb", new SequentialCommandGroup(
-        AutoBuilder.buildAuto("Hub Depot Climb"),
+    autoChooser.addOption("Bump Depot Climb", new SequentialCommandGroup(
+        AutoBuilder.buildAuto("Bump Depot Climb"),
+        new AutoClimbL1Command(drive, climber, turret, intake)));
+    
+    autoChooser.addOption("Trench Depot Climb", new SequentialCommandGroup(
+        AutoBuilder.buildAuto("Trench Depot Climb"),
         new AutoClimbL1Command(drive, climber, turret, intake)));
 
     autoChooser.addOption("Right Bump Climb", new SequentialCommandGroup(

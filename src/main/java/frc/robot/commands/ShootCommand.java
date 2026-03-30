@@ -1,6 +1,7 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.RobotContainer;
 import frc.robot.subsystems.hopper.Hopper;
 import frc.robot.subsystems.turret.Turret;
 
@@ -18,6 +19,7 @@ public class ShootCommand extends Command {
     public void initialize() {
         AutoAimCommand.autoAim = true;
         turret.enableShooter(true);
+        RobotContainer.driverOverridePercentage = 0.5;
     }
 
     @Override
@@ -37,6 +39,8 @@ public class ShootCommand extends Command {
         hopper.indexerOff();
         hopper.kickerOff();
         AutoAimCommand.autoAim = false;
+        
+        RobotContainer.driverOverridePercentage = 1.0;
     }
 
     @Override

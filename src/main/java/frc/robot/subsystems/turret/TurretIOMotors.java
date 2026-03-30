@@ -144,6 +144,10 @@ public class TurretIOMotors implements TurretIO {
         hoodConfig.closedLoop.maxMotion.cruiseVelocity(2000);
         hoodConfig.closedLoop.maxMotion.positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal);
         hoodConfig.closedLoop.maxMotion.allowedProfileError(1);
+        hoodConfig.softLimit.forwardSoftLimit(TurretConstants.HOOD_GEAR_RATIO * TurretConstants.HOOD_MAX_ANGLE);
+        hoodConfig.softLimit.reverseSoftLimit(0);
+        hoodConfig.softLimit.forwardSoftLimitEnabled(true);
+        hoodConfig.softLimit.reverseSoftLimitEnabled(true);
         hoodMotor.configure(hoodConfig, com.revrobotics.ResetMode.kResetSafeParameters, com.revrobotics.PersistMode.kPersistParameters);
 
 

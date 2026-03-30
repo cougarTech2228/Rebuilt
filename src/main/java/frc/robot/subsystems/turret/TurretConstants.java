@@ -12,7 +12,7 @@ public class TurretConstants {
     public static final double MIN_FLYWHEEL_SPEED = 10;
 
     public static final double HOOD_MIN_ANGLE = 0;
-    public static final double HOOD_MAX_ANGLE = 1.4;
+    public static final double HOOD_MAX_ANGLE = 1.23;
 
     public static final double turretTestIntercept = 34.298;
 
