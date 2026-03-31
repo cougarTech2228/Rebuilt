@@ -17,15 +17,48 @@
           }
         },
         {
-          "type": "named",
+          "type": "deadline",
           "data": {
-            "name": "StartFiringCommand"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 4.0
+            "commands": [
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 6.5
+                }
+              },
+              {
+                "type": "parallel",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "StartFiringCommand"
+                      }
+                    },
+                    {
+                      "type": "sequential",
+                      "data": {
+                        "commands": [
+                          {
+                            "type": "wait",
+                            "data": {
+                              "waitTime": 1.5
+                            }
+                          },
+                          {
+                            "type": "named",
+                            "data": {
+                              "name": "OscillateIntakeCommand"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
           }
         },
         {
