@@ -411,4 +411,8 @@ public class TurretIOMotors implements TurretIO {
         final double realTarget = ((turretRealTarget / 360) * TURRET_GEAR_RATIO);
         return (Math.abs(turretPIDTarget - realTarget) < 1)  && (error < ALLOWED_TURRET_ERROR_ROTATIONS);
     }
+
+    public void resetAnglePosition() {
+        seedTurretPosition();
+    }
 }

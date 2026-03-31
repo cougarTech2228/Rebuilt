@@ -328,7 +328,7 @@ public class Turret extends SubsystemBase{
             // angle = (0.1933 * distance) - 0.1842;
             angle = hoodAngleMap.get(distance);
         } else {
-            angle = 1.3;
+            angle = TurretConstants.HOOD_MAX_ANGLE;
         }
 
         // sanity check the values
@@ -430,5 +430,9 @@ public class Turret extends SubsystemBase{
 
     public void climbMode(boolean enable) {
         this.climbModeEnabled = enable;
+    }
+
+    public void resetAnglePosition() {
+        turretIO.resetAnglePosition();
     }
 }

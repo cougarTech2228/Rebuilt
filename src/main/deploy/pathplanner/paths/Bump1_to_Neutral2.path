@@ -16,15 +16,15 @@
     },
     {
       "anchor": {
-        "x": 7.75,
+        "x": 7.5,
         "y": 2.5
       },
       "prevControl": {
-        "x": 7.75,
+        "x": 7.5,
         "y": 3.0625000000000018
       },
       "nextControl": {
-        "x": 7.75,
+        "x": 7.5,
         "y": 1.9706166925481337
       },
       "isLocked": false,
@@ -52,8 +52,8 @@
         "y": 1.75
       },
       "prevControl": {
-        "x": 2.0,
-        "y": 1.75
+        "x": 1.8779956896551728,
+        "y": 2.3050538793103454
       },
       "nextControl": null,
       "isLocked": false,
@@ -87,6 +87,19 @@
         "nominalVoltage": 12.0,
         "unlimited": false
       }
+    },
+    {
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 2.6714542190305206,
+      "maxWaypointRelativePos": 3.0,
+      "constraints": {
+        "maxVelocity": 1.0,
+        "maxAcceleration": 10.0,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 700.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
     }
   ],
   "pointTowardsZones": [],
@@ -101,7 +114,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -90.0
+    "rotation": -55.0
   },
   "reversed": false,
   "folder": "BumpPaths",

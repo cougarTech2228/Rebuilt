@@ -125,6 +125,7 @@ public class RobotContainer {
   private static final String UNCLIMB_KEY = "Unclimb";
   private static final String HOME_CLIMBER_KEY = "HomeClimber";
   private static final String CANCEL_AUTO_CLIMB_KEY = "Cancel Auto Climb";
+  private static final String RESET_TURRET_POSITION_KEY = "Reset Turret Position";
 
   private final ExtendClimberCommand extendClimberL1Command;
   private final ExtendClimberCommand extendClimberL3Command;
@@ -364,6 +365,7 @@ public class RobotContainer {
     SmartDashboard.putBoolean(CLIMB_L3_KEY, false);
     SmartDashboard.putBoolean(UNCLIMB_KEY, false);
     SmartDashboard.putBoolean(CANCEL_AUTO_CLIMB_KEY, false);
+    SmartDashboard.putBoolean(RESET_TURRET_POSITION_KEY, false);
 
     new Trigger(() -> SmartDashboard.getBoolean(EXTEND_CLIMBER_L1_KEY, false))
         .whileTrue( extendClimberL1Command
@@ -411,6 +413,13 @@ public class RobotContainer {
         .whileTrue( cancelAutoClimbCommand
             .andThen(new InstantCommand(() -> {
                 SmartDashboard.putBoolean(CANCEL_AUTO_CLIMB_KEY, false);
+            }))
+        );
+    
+    new Trigger(() -> SmartDashboard.getBoolean(RESET_TURRET_POSITION_KEY, false))
+        .whileTrue( new InstantCommand(() -> {turret.resetAnglePosition();})
+            .andThen(new InstantCommand(() -> {
+                SmartDashboard.putBoolean(RESET_TURRET_POSITION_KEY, false);
             }))
         );
 

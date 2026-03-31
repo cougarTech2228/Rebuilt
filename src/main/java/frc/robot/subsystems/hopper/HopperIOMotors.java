@@ -6,6 +6,11 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+
+import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.Alert.AlertType;
+
 import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.FeedbackSensor;
 import com.revrobotics.spark.SparkClosedLoopController;
@@ -14,22 +19,26 @@ import com.revrobotics.spark.SparkBase.ControlType;
 import frc.robot.Constants;
 
 public class HopperIOMotors implements HopperIO {
+
+    private double indexerOverCurrentStart = 0;
     
     protected final SparkMax indexerMotor;
-    private final SparkClosedLoopController indexerPID;
+    // private final SparkClosedLoopController indexerPID;
 
     protected final SparkFlex kickerMotor;
     private final SparkClosedLoopController kickerPID;
 
+    private Alert indexerOverCurrentAlert = new Alert("Indexer motor over current", AlertType.kError);
+
     public HopperIOMotors() {
         this.indexerMotor = new SparkMax(Constants.CAN_ID_INDEXER_MOTOR, MotorType.kBrushless);
-        this.indexerPID = indexerMotor.getClosedLoopController();
+        // this.indexerPID = indexerMotor.getClosedLoopController();
 
         this.kickerMotor = new SparkFlex(Constants.CAN_ID_KICKER_MOTOR, MotorType.kBrushless);
         this.kickerPID = kickerMotor.getClosedLoopController();
 
         SparkMaxConfig indexerConfig = new SparkMaxConfig();
-        indexerConfig.idleMode(IdleMode.kBrake).smartCurrentLimit(40);
+        indexerConfig.idleMode(IdleMode.kBrake).smartCurrentLimit(60);
         indexerConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder)
             .p(1)
             .i(0)
@@ -57,19 +66,36 @@ public class HopperIOMotors implements HopperIO {
         inputs.kickVelocity = kickerMotor.getEncoder().getVelocity();
         inputs.kickCurrent = kickerMotor.getOutputCurrent();
 
+        if (inputs.indexerCurrent > 40) {
+            double now = Timer.getFPGATimestamp();
+            if (indexerOverCurrentStart == 0) {
+                indexerOverCurrentStart = now;
+            }
+            if ( now - indexerOverCurrentStart > 2) {
+                indexerOverCurrentAlert.set(true);
+                indexerMotor.setVoltage(0);
+            } 
+        }
     }
 
     public void indexerOn(boolean test) {
         if (test) {
-            indexerPID.setSetpoint(HopperConstants.testIndexerVoltage, ControlType.kVoltage);
+            // indexerPID.setSetpoint(HopperConstants.testIndexerVoltage, ControlType.kVoltage);
+            indexerMotor.setVoltage(HopperConstants.testIndexerVoltage);
         } else {
-            indexerPID.setSetpoint(HopperConstants.indexerVoltage, ControlType.kVoltage);
+            if(!indexerOverCurrentAlert.get()){
+                indexerMotor.setVoltage(HopperConstants.indexerVoltage);
+            }
+            // indexerPID.setSetpoint(HopperConstants.indexerVoltage, ControlType.kVoltage);
         }
 
     }
 
     public void indexerOff() {
-        indexerPID.setSetpoint(0, ControlType.kVoltage);
+        indexerMotor.setVoltage(0);
+        indexerOverCurrentAlert.set(false);
+        indexerOverCurrentStart = 0;
+        // indexerPID.setSetpoint(0, ControlType.kVoltage);
     }
 
     public void kickerOn(boolean test) {

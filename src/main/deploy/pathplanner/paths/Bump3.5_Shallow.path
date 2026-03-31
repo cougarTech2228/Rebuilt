@@ -52,12 +52,12 @@
         "y": 4.8698522727272735
       },
       "prevControl": {
-        "x": 6.858893801407377,
-        "y": 4.659382487986311
+        "x": 7.012706508680248,
+        "y": 4.734750177441972
       },
       "nextControl": {
-        "x": 6.208636363636364,
-        "y": 5.673784090909091
+        "x": 4.643954741379311,
+        "y": 5.84313577586207
       },
       "isLocked": false,
       "linkedName": null
@@ -68,32 +68,36 @@
         "y": 5.6
       },
       "prevControl": {
-        "x": 3.1,
-        "y": 5.1
+        "x": 4.008663793103449,
+        "y": 5.637887931034483
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Bump3.5"
+      "linkedName": null
     }
   ],
   "rotationTargets": [
     {
       "waypointRelativePos": 1,
-      "rotationDegrees": -59.99999999999999
+      "rotationDegrees": 24.261316613265905
     },
     {
-      "waypointRelativePos": 2,
-      "rotationDegrees": -90.0
+      "waypointRelativePos": 1.5911949685534592,
+      "rotationDegrees": 7.215608293397492
     },
     {
-      "waypointRelativePos": 3,
-      "rotationDegrees": -90.0
+      "waypointRelativePos": 2.427672955974844,
+      "rotationDegrees": -106.7014641323901
+    },
+    {
+      "waypointRelativePos": 3.1886792452830264,
+      "rotationDegrees": 162.29833349486955
     }
   ],
   "constraintZones": [
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 1.795332136445242,
+      "minWaypointRelativePos": 1.40754039497307,
       "maxWaypointRelativePos": 3.080789946140036,
       "constraints": {
         "maxVelocity": 1.2,
@@ -117,7 +121,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 180.0
   },
   "reversed": false,
   "folder": "BumpPaths",
