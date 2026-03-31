@@ -243,16 +243,20 @@ public class RobotContainer {
     // so that only autos we want to be able to choose are shown.
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", new SendableChooser<>());
 
-    autoChooser.addOption("New Left Bump Double No Climb", AutoBuilder.buildAuto("New Comp Bump 4 Double"));
+    autoChooser.addOption("Left Bump Double No Climb", AutoBuilder.buildAuto("New Comp Bump 4 Double"));
 
     autoChooser.addOption("Left Bump Climb", new SequentialCommandGroup(
         AutoBuilder.buildAuto("Comp Bump 4 Climb"),
         new AutoClimbL1Command(drive, climber, turret, intake)));
 
-    autoChooser.addOption("Right Bump No Climb", AutoBuilder.buildAuto("Comp Bump 1 No Climb"));
+    autoChooser.addOption("Left Bump Middle + Depot", AutoBuilder.buildAuto("Comp Bump 4 Outpost"));
 
-    autoChooser.addOption("Right Bump Climb", new SequentialCommandGroup(
-        AutoBuilder.buildAuto("Comp Bump 1 Climb"),
+    autoChooser.addOption("Left Bump Depot Climb", new SequentialCommandGroup(
+        AutoBuilder.buildAuto("Bump Depot Climb"),
+        new AutoClimbL1Command(drive, climber, turret, intake)));
+
+    autoChooser.addOption("Left Trench Depot Climb", new SequentialCommandGroup(
+        AutoBuilder.buildAuto("Trench Depot Climb"),
         new AutoClimbL1Command(drive, climber, turret, intake)));
 
     autoChooser.addOption("Center Climb Left", new SequentialCommandGroup(
@@ -263,19 +267,7 @@ public class RobotContainer {
         AutoBuilder.buildAuto("Comp Center Climb Right"),
         new AutoClimbL1Command(drive, climber, turret, intake)));
 
-    autoChooser.addOption("Left Bump Middle + Depot", AutoBuilder.buildAuto("Comp Bump 4 Outpost"));
-    
-    autoChooser.addOption("Bump Depot Climb", new SequentialCommandGroup(
-        AutoBuilder.buildAuto("Bump Depot Climb"),
-        new AutoClimbL1Command(drive, climber, turret, intake)));
-    
-    autoChooser.addOption("Trench Depot Climb", new SequentialCommandGroup(
-        AutoBuilder.buildAuto("Trench Depot Climb"),
-        new AutoClimbL1Command(drive, climber, turret, intake)));
-
-    autoChooser.addOption("Right Bump Climb", new SequentialCommandGroup(
-        AutoBuilder.buildAuto("Comp Bump 1 Climb"),
-        new AutoClimbL1Command(drive, climber, turret, intake)));
+    autoChooser.addOption("Right Bump No Climb", AutoBuilder.buildAuto("Comp Bump 1 No Climb"));
 
     autoChooser.addOption("Right Straight Climb", new SequentialCommandGroup(
         AutoBuilder.buildAuto("Bump 1 Straight Climb"),
