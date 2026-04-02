@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.spi.CurrencyNameProvider;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.ConstraintsZone;
@@ -65,29 +66,78 @@ public class AlignL1ClimbCommand extends Command {
 
         // Define the path in "Blue Terms" 
         // If we are Red North, we use Blue South geometry as our base.
-        if (Zone.HOME_ALLIANCE_ZONE_NORTH.inZone(currentPose, alliance)) {
-            // This is Blue North or Red North (via symmetry)
-            Pose2d base = (alliance == Alliance.Blue) ? BLUE_TOWER_NORTH : BLUE_TOWER_SOUTH;
-            targetPose = base;
-            finalRotation = (alliance == Alliance.Blue) ? BLUE_NORTH_ROTATION : BLUE_SOUTH_ROTATION;
+        // if (Zone.HOME_ALLIANCE_ZONE_NORTH.inZone(currentPose, alliance)) {
+        //     // This is Blue North or Red North (via symmetry)
+        //     Pose2d base = (alliance == Alliance.Blue) ? BLUE_TOWER_NORTH : BLUE_TOWER_SOUTH;
+        //     targetPose = base;
+        //     finalRotation = (alliance == Alliance.Blue) ? BLUE_NORTH_ROTATION : BLUE_SOUTH_ROTATION;
             
-            // Offset math: North tower on Blue side needs +X, 
-            // but remember: Red North is actually Blue South flipped, so it needs -X.
-            double xOff = (alliance == Alliance.Blue) ? 1.0 : -0.35;
-            approachPose = new Pose2d(base.getX() + xOff, base.getY(), base.getRotation());
+        //     // Offset math: North tower on Blue side needs +X, 
+        //     // but remember: Red North is actually Blue South flipped, so it needs -X.
+        //     // double xOff = (alliance == Alliance.Blue) ? 1.0 : -0.35;
+        //     double xOff = 1.0;
+        //     approachPose = new Pose2d(base.getX() + xOff, base.getY(), base.getRotation());
 
-        } else if (Zone.HOME_ALLIANCE_ZONE_SOUTH.inZone(currentPose, alliance)) {
-            // This is Blue South or Red South (via symmetry)
-            Pose2d base = (alliance == Alliance.Blue) ? BLUE_TOWER_SOUTH : BLUE_TOWER_NORTH;
-            targetPose = base;
-            finalRotation = (alliance == Alliance.Blue) ? BLUE_SOUTH_ROTATION : BLUE_NORTH_ROTATION;
+        // } else if (Zone.HOME_ALLIANCE_ZONE_SOUTH.inZone(currentPose, alliance)) {
+        //     // This is Blue South or Red South (via symmetry)
+        //     Pose2d base = (alliance == Alliance.Blue) ? BLUE_TOWER_SOUTH : BLUE_TOWER_NORTH;
+        //     targetPose = base;
+        //     finalRotation = (alliance == Alliance.Blue) ? BLUE_SOUTH_ROTATION : BLUE_NORTH_ROTATION;
             
-            double xOff = (alliance == Alliance.Blue) ? -0.20 : 1.0;
-            double yOff = (alliance == Alliance.Blue) ? -0.50 : 1.0;
+        //     // double xOff = (alliance == Alliance.Blue) ? -0.20 : 1.0;
+        //     double xOff = -0.20;
+        //     double yOff = (alliance == Alliance.Blue) ? -0.50 : 1.0;
 
-            approachPose = new Pose2d(base.getX() + xOff, base.getY(), base.getRotation());
-            southApproachPose = new Pose2d(base.getX() + xOff, base.getY() + yOff, base.getRotation());
-            isSouthZone = true;
+        //     approachPose = new Pose2d(base.getX() + xOff, base.getY(), base.getRotation());
+        //     southApproachPose = new Pose2d(base.getX() + xOff, base.getY() + yOff, base.getRotation());
+        //     isSouthZone = true;
+        // } else {
+        //     this.cancel();
+        //     return;
+        // }
+
+        if (alliance == Alliance.Blue) {
+            if (Zone.HOME_ALLIANCE_ZONE_NORTH.inZone(currentPose, alliance)) {
+                Pose2d base = BLUE_TOWER_NORTH;
+                targetPose = base;
+                finalRotation = BLUE_NORTH_ROTATION;
+
+                double xOff = 1.0;
+                approachPose = new Pose2d(base.getX() + xOff, base.getY(), base.getRotation());
+            } else if (Zone.HOME_ALLIANCE_ZONE_SOUTH.inZone(currentPose, alliance)) {
+                Pose2d base = BLUE_TOWER_SOUTH;
+                targetPose = base;
+                finalRotation = BLUE_SOUTH_ROTATION;
+                
+                // double xOff = (alliance == Alliance.Blue) ? -0.20 : 1.0;
+                double xOff = -0.20;
+                double yOff = -0.50;
+
+                approachPose = new Pose2d(base.getX() + xOff, base.getY(), base.getRotation());
+                southApproachPose = new Pose2d(base.getX() + xOff, base.getY() + yOff, base.getRotation());
+                isSouthZone = true;
+            }
+        } else if (alliance == Alliance.Red) {
+            if (Zone.HOME_ALLIANCE_ZONE_NORTH.inZone(currentPose, alliance)) {
+                Pose2d base = BLUE_TOWER_SOUTH;
+                targetPose = base;
+                finalRotation = BLUE_SOUTH_ROTATION;
+                
+                // double xOff = (alliance == Alliance.Blue) ? -0.20 : 1.0;
+                double xOff = -0.20;
+                double yOff = -0.50;
+
+                approachPose = new Pose2d(base.getX() + xOff, base.getY(), base.getRotation());
+                southApproachPose = new Pose2d(base.getX() + xOff, base.getY() + yOff, base.getRotation());
+                isSouthZone = true;
+            } else {
+                Pose2d base = BLUE_TOWER_NORTH;
+                targetPose = base;
+                finalRotation = BLUE_NORTH_ROTATION;
+
+                double xOff = 1.0;
+                approachPose = new Pose2d(base.getX() + xOff, base.getY(), base.getRotation());
+            }
         } else {
             this.cancel();
             return;

@@ -75,6 +75,7 @@ public class AlignL3ClimbCommand extends Command {
             // Offset math: North tower on Blue side needs +X, 
             // but remember: Red North is actually Blue South flipped, so it needs -X.
             double xOff = (alliance == Alliance.Blue) ? 1.0 : -0.35;
+            // double xOff = 1.0;
             approachPose = new Pose2d(base.getX() + xOff, base.getY(), base.getRotation());
 
         } else if (Zone.HOME_ALLIANCE_ZONE_SOUTH.inZone(currentPose, alliance)) {
@@ -83,8 +84,9 @@ public class AlignL3ClimbCommand extends Command {
             targetPose = base;
             finalRotation = (alliance == Alliance.Blue) ? BLUE_SOUTH_ROTATION : BLUE_NORTH_ROTATION;
             
-            double xOff = (alliance == Alliance.Blue) ? -0.20 : 1.0;
-            double yOff = (alliance == Alliance.Blue) ? -0.50 : 1.0;
+            double xOff = (alliance == Alliance.Blue) ? -0.20 : 1.0; // -0.2, 1
+            // double xOff = -0.2;
+            double yOff = (alliance == Alliance.Blue) ? -0.50 : 1.0; // -0.5, 1
 
             approachPose = new Pose2d(base.getX() + xOff, base.getY(), base.getRotation());
             southApproachPose = new Pose2d(base.getX() + xOff, base.getY() + yOff, base.getRotation());
