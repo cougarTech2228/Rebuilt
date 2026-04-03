@@ -63,11 +63,11 @@ public class Turret extends SubsystemBase{
 
         SmartDashboard.putNumber("TurretAngle", 0.0);
         SmartDashboard.putNumber("TurretTestX", 4.6129);
-        SmartDashboard.putNumber("TurretTestIntercept", TurretConstants.turretTestIntercept);
+        SmartDashboard.putNumber("TurretVelocityAdjust", 0);
         SmartDashboard.putNumber("TurretTestAngleIntercept", 0.7);
 
         SmartDashboard.setPersistent("TurretTestX");
-        SmartDashboard.setPersistent("TurretTestIntercept");
+        SmartDashboard.setPersistent("TurretVelocityAdjust");
         SmartDashboard.setPersistent("TurretTestAngleIntercept");
 
         // Shoot-on-the-move tuning parameter. Represents the average horizontal m/s of the fuel.
@@ -353,6 +353,10 @@ public class Turret extends SubsystemBase{
             //     - (5.4995 * distance)
             //     + 38;
             velocity = flywheelVelocityMap.get(distance);
+
+            double adjustVal = SmartDashboard.getNumber("TurretVelocityAdjust", 0);
+            velocity += adjustVal;
+
         } else {
             //y = 5.2631x + 18.264
             velocity = (5.2631 * distance) + 18.264;
