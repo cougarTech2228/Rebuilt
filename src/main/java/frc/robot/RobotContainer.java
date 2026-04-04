@@ -277,6 +277,10 @@ public class RobotContainer {
         AutoBuilder.buildAuto("Comp Bump 1 Double"),
         new AutoClimbL1Command(drive, climber, turret, intake)));
 
+    autoChooser.addOption("Bump Depot Straight Climb", new SequentialCommandGroup(
+        AutoBuilder.buildAuto("Bump Straight Depot Climb"),
+        new AutoClimbL1Command(drive, climber, turret, intake)));
+
     extendClimberL1Command = new ExtendClimberCommand(climber, intake, ClimberLevel.L1, turret);
     extendClimberL3Command = new ExtendClimberCommand(climber, intake, ClimberLevel.L3, turret);
     climbL1Command = new ClimbCommand(climber, ClimberLevel.L1);

@@ -23,17 +23,17 @@ public class AutoClimbL1Command extends SequentialCommandGroup {
             // PathPlanner to localized position near the ladder
             new AlignL1ClimbCommand(drive, turret)
                 .alongWith(new ExtendClimberCommand(climber, intake, ClimberLevel.L1, turret)),
-
+            
             // Slow drive until flush with ladder and latched
             drive.run(() -> drive.runVelocity(new ChassisSpeeds(-0.2, 0, 0)))
-                 .withTimeout(1),
+                 .withTimeout(1).onlyIf(() -> !climber.isReadyToClimb()),
                  
             drive.run(() -> drive.runVelocity(new ChassisSpeeds(-0.05, 0.2, Math.toRadians(-10))))
-                 .until(climber::isReadyToClimb),
+                 .until(climber::isReadyToClimb).onlyIf(() -> !climber.isReadyToClimb()),
 
             // Little oomph just incase the switch is early activated
             drive.run(() -> drive.runVelocity(new ChassisSpeeds(0, 0.05, 0)))
-                 .withTimeout(0.1),
+                 .withTimeout(0.1).onlyIf(() -> !climber.isReadyToClimb()),
                  
             // Stop the drivebase once we are latched
             Commands.runOnce(() -> drive.runVelocity(new ChassisSpeeds(0, 0, 0))),

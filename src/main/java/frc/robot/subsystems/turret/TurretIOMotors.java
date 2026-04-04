@@ -260,6 +260,10 @@ public class TurretIOMotors implements TurretIO {
         hoodMotor.getEncoder().setPosition(val);
     }
 
+    private void forceZeroHood() {
+        // hoodMotor.setpO
+    }
+
     /**
      * Solves for Absolute Position using CRT.
      */

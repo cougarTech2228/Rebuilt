@@ -352,7 +352,7 @@ public class Turret extends SubsystemBase{
             //     + (3.5657 * distance * distance)
             //     - (5.4995 * distance)
             //     + 38;
-            velocity = flywheelVelocityMap.get(distance);
+            velocity = flywheelVelocityMap.get(distance) - 3;
 
             double adjustVal = SmartDashboard.getNumber("TurretVelocityAdjust", 0);
             velocity += adjustVal;
