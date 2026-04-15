@@ -46,6 +46,12 @@ public class Turret extends SubsystemBase{
     private LinearFilter distanceFilter = LinearFilter.singlePoleIIR(0.1, 0.02);
     private SlewRateLimiter slewDistanceFilter = new SlewRateLimiter(2);
 
+    // Low-pass filters for SOTM velocity inputs. With ToF ~1 s, a 0.1 m/s velocity
+    // error causes 0.1 m of aim error, so smoothing raw kinematics matters.
+    // 60 ms time constant rejects encoder noise while tracking real acceleration.
+    private LinearFilter vxSOTMFilter = LinearFilter.singlePoleIIR(0.06, 0.02);
+    private LinearFilter vySOTMFilter = LinearFilter.singlePoleIIR(0.06, 0.02);
+
     private boolean turretEnabled = false;
 
     private final InterpolatingDoubleTreeMap hoodAngleMap = new InterpolatingDoubleTreeMap();
@@ -157,8 +163,19 @@ public class Turret extends SubsystemBase{
         );
         Translation2d totalTurretVelocityRR = robotVelocityRR.plus(spinVelocityRR);
 
-        // 3. Convert the true physical turret velocity to Field Relative
-        Translation2d fieldRelativeVelocity = totalTurretVelocityRR.rotateBy(robotPose.getRotation());
+        // 3. Convert the true physical turret velocity to Field Relative, then smooth it.
+        // With ToF ~1 s, a 0.1 m/s noise spike causes 0.1 m of aim error, so filtering matters.
+        Translation2d rawFieldVelocity = totalTurretVelocityRR.rotateBy(robotPose.getRotation());
+        Translation2d fieldRelativeVelocity = new Translation2d(
+            vxSOTMFilter.calculate(rawFieldVelocity.getX()),
+            vySOTMFilter.calculate(rawFieldVelocity.getY())
+        );
+
+        Logger.recordOutput("Turret/SOTM/RawVelocityX", rawFieldVelocity.getX());
+        Logger.recordOutput("Turret/SOTM/RawVelocityY", rawFieldVelocity.getY());
+        Logger.recordOutput("Turret/SOTM/SmoothedVelocityX", fieldRelativeVelocity.getX());
+        Logger.recordOutput("Turret/SOTM/SmoothedVelocityY", fieldRelativeVelocity.getY());
+        Logger.recordOutput("Turret/SOTM/RobotSpeedMpS", fieldRelativeVelocity.getNorm());
 
         // // 4. Iterative Solver for Time of Flight (ToF)
         // Translation2d virtualTargetTrans = realTargetPose.getTranslation();
@@ -212,6 +229,20 @@ public class Turret extends SubsystemBase{
 
         virtualTargetPose = new Pose2d(virtualTargetTrans, realTargetPose.getRotation());
 
+        // Log SOTM solver diagnostics
+        Translation2d sotmOffset = realTargetPose.getTranslation().minus(virtualTargetTrans);
+        Logger.recordOutput("Turret/SOTM/OffsetMeters", sotmOffset.getNorm());
+        Logger.recordOutput("Turret/SOTM/OffsetX", sotmOffset.getX());
+        Logger.recordOutput("Turret/SOTM/OffsetY", sotmOffset.getY());
+        Logger.recordOutput("Turret/SOTM/ToFEstimateSec", tofCurrent);
+        Logger.recordOutput("Turret/SOTM/ShotStability", shotStability);
+
+        // Recalculate distance NOW so flywheel/hood use the same-cycle SOTM-compensated
+        // distance, not the previous cycle's value.
+        turretInputs.targetDistance = getTargetDistance();
+        turretInputs.filteredTargetDistance = distanceFilter.calculate(turretInputs.targetDistance);
+        turretInputs.slewFilteredTargetDistance = slewDistanceFilter.calculate(turretInputs.filteredTargetDistance);
+
         if (turretEnabled) {
             if (SmartDashboard.getBoolean("TestMode", false)) {
                 setHoodElevation(SmartDashboard.getNumber("TurretHoodElevation", 0.0));
@@ -236,14 +267,18 @@ public class Turret extends SubsystemBase{
             // no need to move the hood on disable
         }
 
-        turretInputs.targetDistance = getTargetDistance();
-        turretInputs.filteredTargetDistance = distanceFilter.calculate(turretInputs.targetDistance);
-        turretInputs.slewFilteredTargetDistance = slewDistanceFilter.calculate(turretInputs.filteredTargetDistance);
-
         // Log the real target vs the virtual aim target
         Logger.recordOutput("Turret/RealTargetPose", realTargetPose);
         Logger.recordOutput("Turret/VirtualTargetPose", virtualTargetPose);
-        Logger.recordOutput("Turret/ShotStability", shotStability); 
+        Logger.recordOutput("Turret/ShotStability", shotStability);
+
+        // Log each canShoot condition separately so you can see which one is blocking
+        Logger.recordOutput("Turret/CanShoot/FlywheelReady", turretInputs.areFlywheelsAtVelocity);
+        Logger.recordOutput("Turret/CanShoot/TurretAtTarget", turretInputs.isTurretAtTarget);
+        Logger.recordOutput("Turret/CanShoot/NotInKeepOut", !turretInputs.isTargetInKeepOut);
+        Logger.recordOutput("Turret/CanShoot/StabilityOK", shotStability < MAX_SHOT_STABILITY);
+        Logger.recordOutput("Turret/CanShoot/Overall", canShoot());
+
         Logger.processInputs("Turret", turretInputs);
 
         RobotContainer.turretPose = new Pose3d(
@@ -384,8 +419,8 @@ public class Turret extends SubsystemBase{
     public boolean canShoot() {
         return turretInputs.areFlywheelsAtVelocity
             && turretInputs.isTurretAtTarget
-            && !turretInputs.isTargetInKeepOut;
-            // && shotStability < MAX_SHOT_STABILITY;
+            && !turretInputs.isTargetInKeepOut
+            && shotStability < MAX_SHOT_STABILITY;
     }
 
     private Pose2d getTargetPoint(TurretAimTarget target) {

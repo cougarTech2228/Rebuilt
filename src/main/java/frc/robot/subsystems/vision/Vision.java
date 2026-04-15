@@ -31,11 +31,13 @@ import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
 public class Vision extends SubsystemBase {
   private final VisionConsumer consumer;
   private final Function<Double, Rotation2d> gyroRotationSupplier;
+  private final Supplier<Pose2d> currentPoseSupplier;
   private final VisionIO[] io;
   private final VisionIOInputsAutoLogged[] inputs;
   private final Alert[] disconnectedAlerts;
@@ -47,9 +49,14 @@ public class Vision extends SubsystemBase {
       int cameraIndex
   ) {}
 
-  public Vision(VisionConsumer consumer, Function<Double, Rotation2d> gyroRotationSupplier, VisionIO... io) {
+  public Vision(
+      VisionConsumer consumer,
+      Function<Double, Rotation2d> gyroRotationSupplier,
+      Supplier<Pose2d> currentPoseSupplier,
+      VisionIO... io) {
     this.consumer = consumer;
     this.gyroRotationSupplier = gyroRotationSupplier;
+    this.currentPoseSupplier = currentPoseSupplier;
     this.io = io;
 
     // Initialize inputs
@@ -171,6 +178,16 @@ public class Vision extends SubsystemBase {
           angularStdDev *= cameraStdDevFactors[cameraIndex];
         }
 
+        // Pose-deviation scaling: reduce trust in measurements that are far from
+        // the current estimate. This prevents visible "jumping" while still allowing
+        // gradual drift correction over many frames.
+        double poseDeviation = bestPose.toPose2d().getTranslation()
+            .getDistance(currentPoseSupplier.get().getTranslation());
+        double deviationScale = 1.0 + poseDeviationScaleFactor
+            * Math.max(0.0, poseDeviation - poseDeviationSoftThreshold);
+        linearStdDev *= deviationScale;
+        angularStdDev *= deviationScale;
+
         // Queue vision observation to be sorted and dispatched
         validUpdates.add(
             new ProcessedVisionUpdate(
@@ -206,9 +223,17 @@ public class Vision extends SubsystemBase {
             .thenComparingDouble(
                 update -> update.stdDevs().get(0, 0) + update.stdDevs().get(1, 0) + update.stdDevs().get(2, 0)));
 
-    // Send sorted vision observations to drive subsystem
-    for (var update : validUpdates) {
+    // Send sorted vision observations to drive subsystem and log diagnostics
+    for (int updateIdx = 0; updateIdx < validUpdates.size(); updateIdx++) {
+      var update = validUpdates.get(updateIdx);
       consumer.accept(update.pose().toPose2d(), update.timestamp(), update.stdDevs());
+    }
+    // Log aggregate vision diagnostics for tuning in AdvantageScope
+    Logger.recordOutput("Vision/Summary/AcceptedCount", validUpdates.size());
+    if (!validUpdates.isEmpty()) {
+      var best = validUpdates.get(0);
+      Logger.recordOutput("Vision/Summary/BestLinearStdDev", best.stdDevs().get(0, 0));
+      Logger.recordOutput("Vision/Summary/BestAngularStdDev", best.stdDevs().get(2, 0));
     }
 
     // Log summary data

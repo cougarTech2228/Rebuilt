@@ -288,10 +288,16 @@ public class Drive extends SubsystemBase {
     return states;
   }
 
-  /** Returns the measured chassis speeds of the robot. */
+  /** Returns the measured chassis speeds of the robot (robot-relative). */
   @AutoLogOutput(key = "SwerveChassisSpeeds/Measured")
   public ChassisSpeeds getChassisSpeeds() {
     return kinematics.toChassisSpeeds(getModuleStates());
+  }
+
+  /** Returns chassis speeds in the field frame. Useful for SOTM diagnostics. */
+  @AutoLogOutput(key = "SwerveChassisSpeeds/FieldRelative")
+  public ChassisSpeeds getFieldRelativeChassisSpeeds() {
+    return ChassisSpeeds.fromRobotRelativeSpeeds(getChassisSpeeds(), getRotation());
   }
 
   /** Returns the position of each module in radians. */
