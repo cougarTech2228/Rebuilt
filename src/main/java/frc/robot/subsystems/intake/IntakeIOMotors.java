@@ -78,7 +78,7 @@ public class IntakeIOMotors implements IntakeIO {
         intakeEncoder = new CANcoder(Constants.CAN_ID_INTAKE_ENCODER, frc.robot.RobotContainer.kCanivore);
         CANcoderConfiguration encoderConfig = new CANcoderConfiguration();
         encoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.5;
-        encoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
+        encoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
         encoderConfig.MagnetSensor.MagnetOffset = IntakeConstants.INTAKE_ENCODER_OFFSET; // zero out to the retracted position
         intakeEncoder.getConfigurator().apply(encoderConfig);
         encoderPositionSignal = intakeEncoder.getAbsolutePosition();

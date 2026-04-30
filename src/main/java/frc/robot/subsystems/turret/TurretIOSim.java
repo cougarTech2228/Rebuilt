@@ -130,7 +130,7 @@ public class TurretIOSim implements TurretIO {
         hoodSim.setInput(hoodVolts);
 
         // inputs.hoodTargetElevationPercent = hoodElevationTarget;
-        // inputs.hoodPIDTargetAngle = hoodElevationTarget;
+        inputs.hoodMotorPIDTarget = hoodElevationTarget; // causes weird feedback loop (incorrectly implemented)
         inputs.hoodEncoderPosition = currentHoodEncoderRotations;
         inputs.hoodMotorPosition = currentHoodEncoderRotations * HOOD_GEAR_RATIO;
         inputs.hoodMotorCurrent = hoodSim.getCurrentDrawAmps();

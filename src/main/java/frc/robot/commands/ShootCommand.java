@@ -17,7 +17,7 @@ public class ShootCommand extends Command {
 
     @Override
     public void initialize() {
-        AutoAimCommand.autoAim = true;
+        AutoAimCommand.autoAim = !RobotContainer.isDemoMode();
         turret.enableShooter(true);
         RobotContainer.driverOverridePercentage = 0.5;
     }

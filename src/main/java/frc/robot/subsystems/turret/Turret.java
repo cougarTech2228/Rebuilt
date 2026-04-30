@@ -35,6 +35,9 @@ public class Turret extends SubsystemBase{
 
     private TurretAimTarget aimTarget = TurretAimTarget.Hub;
     private boolean climbModeEnabled = false;
+    private boolean demoPositionSeeded = false;
+    private double demoModeHoodTarget = 0.0;
+    private double demoModeFlywheelVelocityTarget = 30.0;
 
     // Store the compensated target each loop
     private Pose2d virtualTargetPose = new Pose2d();
@@ -222,7 +225,7 @@ public class Turret extends SubsystemBase{
                 setAimTarget(SmartDashboard.getNumber("TurretAngle", 0.0));
             } else {
                 double dist = turretInputs.filteredTargetDistance;
-                double vel = getVelocityForTarget(dist, false);
+                double vel = RobotContainer.isDemoMode() ? demoModeFlywheelVelocityTarget : getVelocityForTarget(dist, false);
                 setFlywheelVelocity(vel, vel * 1.2);
 
                 double angle = getAngleForTarget(dist);
@@ -254,6 +257,10 @@ public class Turret extends SubsystemBase{
         
         if (climbModeEnabled) {
             turretIO.setTurretAngle(90);
+        }
+        if(RobotContainer.isDemoMode() && !demoPositionSeeded) {
+            turretIO.setTurretAngle(turretInputs.turretAngleDegrees);
+            demoPositionSeeded = true;
         }
     }
 
@@ -382,7 +389,7 @@ public class Turret extends SubsystemBase{
     }
 
     public boolean canShoot() {
-        return turretInputs.areFlywheelsAtVelocity
+        return (turretInputs.areFlywheelsAtVelocity || RobotContainer.isDemoMode())
             && turretInputs.isTurretAtTarget
             && !turretInputs.isTargetInKeepOut;
             // && shotStability < MAX_SHOT_STABILITY;
@@ -438,5 +445,18 @@ public class Turret extends SubsystemBase{
 
     public void resetAnglePosition() {
         turretIO.resetAnglePosition();
+    }
+
+    public void updateDemoPosition(double aimX, double aimY, double velocityControl) {
+        if(Math.abs(aimX) > 0.1) setAimTarget(turretInputs.turretAngleDegrees - (aimX * 8.0));
+        if(Math.abs(aimY) > 0.1) {
+            demoModeHoodTarget = demoModeHoodTarget - (aimY * 0.1);
+        }
+        if(Math.abs(turretInputs.hoodMotorPIDTarget - demoModeHoodTarget) > 0.3 || Math.abs(aimY) < 0.1) {
+            setHoodElevation(demoModeHoodTarget / TurretConstants.HOOD_GEAR_RATIO);
+        }
+
+        double flywheelVelocity = Math.min(Math.max(demoModeFlywheelVelocityTarget - (velocityControl * 0.25), 20), 50);
+        if(Math.abs(velocityControl) > 0.1) demoModeFlywheelVelocityTarget = flywheelVelocity;
     }
 }

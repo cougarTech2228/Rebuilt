@@ -36,6 +36,7 @@ public class AutoClimbL1Command extends SequentialCommandGroup {
                  .withTimeout(0.1).onlyIf(() -> !climber.isReadyToClimb()),
                  
             // Stop the drivebase once we are latched
+            
             Commands.runOnce(() -> drive.runVelocity(new ChassisSpeeds(0, 0, 0))),
 
             // Climb

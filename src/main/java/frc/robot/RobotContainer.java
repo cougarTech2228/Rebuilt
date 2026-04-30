@@ -102,6 +102,7 @@ public class RobotContainer {
 
   // Controller
   private final CommandXboxController controller = new CommandXboxController(0);
+  private final CommandXboxController turretController = new CommandXboxController(1);
 
   public static double driverOverridePercentage = 1.0;
 
@@ -298,6 +299,7 @@ public class RobotContainer {
     configureButtonBindings();
 
     SmartDashboard.putBoolean("TestMode", false);
+    SmartDashboard.putBoolean("DemoMode", false);
   }
 
   /**
@@ -315,6 +317,8 @@ public class RobotContainer {
             () -> -controller.getLeftY() * driverOverridePercentage,
             () -> -controller.getLeftX() * driverOverridePercentage,
             () -> -controller.getRightX() * driverOverridePercentage));
+
+    
 
     // Switch to X pattern when X button is pressed
     controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
@@ -443,11 +447,18 @@ public class RobotContainer {
 
   public void teleopPeriodic() {
     if (SmartDashboard.getBoolean("TestMode", false)) {
-          intake.setIntakeAngle(SmartDashboard.getNumber("IntakePosition", 1.0));
+        intake.setIntakeAngle(SmartDashboard.getNumber("IntakePosition", 1.0));
+    }
+    if (RobotContainer.isDemoMode()) {
+        // intake.setIntakeAngle(SmartDashboard.getNumber("IntakePosition", 1.0));
+        turret.updateDemoPosition(turretController.getRightX(), turretController.getRightY(), turretController.getLeftY());
     }
   }
 
   public void autonomousPeriodic() {
   }
 
+  public static boolean isDemoMode() {
+    return SmartDashboard.getBoolean("DemoMode", false);
+  }
 }
