@@ -452,6 +452,7 @@ public class RobotContainer {
     if (RobotContainer.isDemoMode()) {
         // intake.setIntakeAngle(SmartDashboard.getNumber("IntakePosition", 1.0));
         turret.updateDemoPosition(turretController.getRightX(), turretController.getRightY(), turretController.getLeftY());
+        driverOverridePercentage = 0.5;
     }
   }
 

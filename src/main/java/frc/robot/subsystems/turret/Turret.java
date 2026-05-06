@@ -105,6 +105,7 @@ public class Turret extends SubsystemBase{
         flightMap.put(3.500, 1.341);
         flightMap.put(4.000, 1.518);
 
+        SmartDashboard.putNumber("Demo Mode Flywheel velocity", demoModeFlywheelVelocityTarget);
     }
 
     private double getTargetDistance() {
@@ -458,5 +459,6 @@ public class Turret extends SubsystemBase{
 
         double flywheelVelocity = Math.min(Math.max(demoModeFlywheelVelocityTarget - (velocityControl * 0.25), 20), 50);
         if(Math.abs(velocityControl) > 0.1) demoModeFlywheelVelocityTarget = flywheelVelocity;
+        SmartDashboard.putNumber("Demo Mode Flywheel velocity", demoModeFlywheelVelocityTarget);
     }
 }
