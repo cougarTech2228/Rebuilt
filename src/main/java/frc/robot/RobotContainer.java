@@ -102,7 +102,7 @@ public class RobotContainer {
 
   // Controller
   private final CommandXboxController controller = new CommandXboxController(0);
-  private final CommandXboxController turretController = new CommandXboxController(1);
+//   private final CommandXboxController turretController = new CommandXboxController(1);
 
   public static double driverOverridePercentage = 1.0;
 
@@ -339,9 +339,11 @@ public class RobotContainer {
     controller.y().whileTrue(intakeSpitCommand);
 
     controller.rightBumper().onTrue(toggleIntakeCommand);
+    // turretController.rightBumper().onTrue(toggleIntakeCommand);
 
     controller.rightTrigger(0.5).whileTrue(shootCommand);
     controller.leftTrigger(0.5).whileTrue(oscillateIntakeCommand.repeatedly());
+    // turretController.rightTrigger(0.5).whileTrue(shootCommand);
     
     controller.leftBumper()
         .onTrue(new InstantCommand(() -> {
@@ -449,11 +451,11 @@ public class RobotContainer {
     if (SmartDashboard.getBoolean("TestMode", false)) {
         intake.setIntakeAngle(SmartDashboard.getNumber("IntakePosition", 1.0));
     }
-    if (RobotContainer.isDemoMode()) {
-        // intake.setIntakeAngle(SmartDashboard.getNumber("IntakePosition", 1.0));
-        turret.updateDemoPosition(turretController.getRightX(), turretController.getRightY(), turretController.getLeftY());
-        driverOverridePercentage = 0.5;
-    }
+    // if (RobotContainer.isDemoMode()) {
+        // // intake.setIntakeAngle(SmartDashboard.getNumber("IntakePosition", 1.0));
+        // turret.updateDemoPosition(turretController.getRightX(), turretController.getRightY(), turretController.getLeftY());
+    //     driverOverridePercentage = 0.5;
+    // }
   }
 
   public void autonomousPeriodic() {

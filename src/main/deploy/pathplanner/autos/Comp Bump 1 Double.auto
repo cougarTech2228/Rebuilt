@@ -5,15 +5,15 @@
     "data": {
       "commands": [
         {
-          "type": "path",
-          "data": {
-            "pathName": "Bump1_to_Neutral1"
-          }
-        },
-        {
           "type": "named",
           "data": {
             "name": "ToggleIntakeCommand"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Bump1_to_Neutral1"
           }
         },
         {

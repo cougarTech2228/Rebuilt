@@ -115,10 +115,12 @@ public class ClimberIOMotor implements ClimberIO {
     }
 
     private boolean isExtensionHome() {
+        // return true;
         return extensionMotor.getReverseLimitSwitch().isPressed();
     }
 
     private boolean isClimberHome() {
+        // return true;
         return climberMotor.getReverseLimit().getValue() == ReverseLimitValue.Open;
     }
 
