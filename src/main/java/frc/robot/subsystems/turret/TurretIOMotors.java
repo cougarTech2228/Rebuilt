@@ -57,6 +57,8 @@ public class TurretIOMotors implements TurretIO {
     private double targetFlywheelVelocity = 0;
     private double targetUpperFlywheelVelocity = 0;
 
+    private double lastCrtErrorPrintTime = 0;
+
     // Gear Constants
     private static final double MAIN_TEETH_ENCODER = 160.0; 
     private static final double MAIN_TEETH_BELT = 125.0; 
@@ -232,6 +234,8 @@ public class TurretIOMotors implements TurretIO {
             turretMotorPositionSignal,
             hoodEncoderPositionSignal,
             flywheelMotorVelocitySignal,
+            flywheelMotorVoltageSignal,
+            flywheelMotorCurrentSignal,
             upperFlywheelMotorVelocitySignal,
             upperFlywheelMotorVoltageSignal,
             upperFlywheelMotorCurrentSignal
@@ -242,6 +246,8 @@ public class TurretIOMotors implements TurretIO {
      * Seeds the internal NEO encoder using the 31T and 37T encoders.
      */
     public void seedTurretPosition() {
+        // Ensure fresh encoder values (also covers calls from resetAnglePosition)
+        BaseStatusSignal.refreshAll(pos31Signal, pos37Signal);
         double absoluteTurretDegrees = calculateAbsolutePositionCRT();
 
         // Convert degrees to mechanism rotations (0.5 = 180 deg)
@@ -268,9 +274,10 @@ public class TurretIOMotors implements TurretIO {
      * Solves for Absolute Position using CRT.
      */
     private double calculateAbsolutePositionCRT() {
-        // Refresh signals to get latest data
-        pos31Signal.refresh();
-        pos37Signal.refresh();
+        // NOTE: callers are responsible for refreshing pos31Signal/pos37Signal first.
+        // updateInputs() refreshes them via refreshAll(allSignals) and
+        // seedTurretPosition() refreshes them directly, so refreshing again here
+        // would just add redundant blocking CAN reads to every loop.
 
         // Normalize to 0..360 natively right away to prevent ANY negative modulo weirdness
         double deg1 = normalizeDegrees(pos31Signal.getValueAsDouble() * 360.0);
@@ -305,7 +312,13 @@ public class TurretIOMotors implements TurretIO {
         // likely a wiring fault or encoder failure. Return NaN so the caller can react safely.
         double thresholdDegrees = MATCH_THRESHOLD * 360.0;
         if (minError > thresholdDegrees) {
-            System.err.println("CRITICAL TURRET ERROR: CRT Solver mismatch. Error: " + minError);
+            // Rate-limit the print: this runs every loop, and console I/O every
+            // 20ms would itself cause scheduler overruns.
+            double now = edu.wpi.first.wpilibj.Timer.getFPGATimestamp();
+            if (now - lastCrtErrorPrintTime > 1.0) {
+                lastCrtErrorPrintTime = now;
+                System.err.println("CRITICAL TURRET ERROR: CRT Solver mismatch. Error: " + minError);
+            }
             return Double.NaN;
         }
 

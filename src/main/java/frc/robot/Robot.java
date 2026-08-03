@@ -95,9 +95,10 @@ public class Robot extends LoggedRobot {
   /** This function is called periodically during all modes. */
   @Override
   public void robotPeriodic() {
-    // Optionally switch the thread to high priority to improve loop
-    // timing (see the template project documentation for details)
-    // Threads.setCurrentThreadPriority(true, 99);
+    // NOTE: RT thread priority (Threads.setCurrentThreadPriority(true, 99))
+    // intentionally NOT enabled here - it was tried previously and hurt
+    // overall robot performance. With blocking CAN calls in the loop, an
+    // RT-priority main thread can starve the NI/CAN kernel threads.
 
     // Runs the Scheduler. This is responsible for polling buttons, adding
     // newly-scheduled commands, running already-scheduled commands, removing
@@ -105,9 +106,6 @@ public class Robot extends LoggedRobot {
     // This must be called from the robot's periodic block in order for anything in
     // the Command-based framework to work.
     CommandScheduler.getInstance().run();
-
-    // Return to non-RT thread priority (do not modify the first argument)
-    // Threads.setCurrentThreadPriority(false, 10);
 
     calculateShiftTime();
   }

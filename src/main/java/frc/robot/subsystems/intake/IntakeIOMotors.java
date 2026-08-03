@@ -36,6 +36,10 @@ public class IntakeIOMotors implements IntakeIO {
     private MAXMotionConfig angleConfigOscilliate;
     private SparkMaxConfig angleConfig;
 
+    // Tracks which closed-loop config is currently applied to the motor so we
+    // don't repeat the blocking configure() call (tens of ms) when nothing changed.
+    private boolean oscillateConfigApplied = false;
+
     public IntakeIOMotors() {
         angleMotor = new SparkMax(Constants.CAN_ID_INTAKE_ANGLE_MOTOR, MotorType.kBrushless);
         anglePID = angleMotor.getClosedLoopController();
@@ -100,7 +104,7 @@ public class IntakeIOMotors implements IntakeIO {
         inputs.angleMotorVoltage = angleMotor.getAppliedOutput() * angleMotor.getBusVoltage();
         inputs.angleMotorVelocity = angleMotor.getEncoder().getVelocity();
         inputs.angleMotorCurrent = angleMotor.getOutputCurrent();
-        inputs.angleMotorPIDSetpoint = angleMotor.getClosedLoopController().getSetpoint();
+        inputs.angleMotorPIDSetpoint = anglePID.getSetpoint();
 
         inputs.intakeEncoder = encoderPositionSignal.getValueAsDouble();
 
@@ -166,7 +170,16 @@ public class IntakeIOMotors implements IntakeIO {
     }
 
     public void setOscillate(OscillateType type) {
-        if (type == OscillateType.STOP) {
+        boolean wantOscillate = (type != OscillateType.STOP);
+
+        // configure() is a blocking CAN transaction; skip it if the requested
+        // config is already active.
+        if (wantOscillate == oscillateConfigApplied) {
+            return;
+        }
+        oscillateConfigApplied = wantOscillate;
+
+        if (!wantOscillate) {
             angleConfig.closedLoop.apply(angleConfigNormal);
             angleMotor.configure(angleConfig, com.revrobotics.ResetMode.kNoResetSafeParameters, com.revrobotics.PersistMode.kNoPersistParameters);
         } else {

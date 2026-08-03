@@ -60,7 +60,6 @@ public class HopperIOMotors implements HopperIO {
         inputs.indexerVoltage = indexerMotor.getAppliedOutput() * indexerMotor.getBusVoltage();
         inputs.indexerVelocity = indexerMotor.getEncoder().getVelocity();
         inputs.indexerCurrent = indexerMotor.getOutputCurrent();
-        inputs.indexerCurrent = indexerMotor.getOutputCurrent();
 
         inputs.kickVoltage = kickerMotor.getAppliedOutput() * kickerMotor.getBusVoltage();
         inputs.kickVelocity = kickerMotor.getEncoder().getVelocity();
