@@ -20,7 +20,6 @@ import com.revrobotics.spark.SparkBase.ControlType;
 import frc.robot.Constants;
 import frc.robot.subsystems.intake.Intake.IntakeMode;
 import frc.robot.subsystems.intake.Intake.OscillateType;
-import frc.robot.subsystems.intake.Intake.IntakeAngle;
 
 public class IntakeIOMotors implements IntakeIO {
 

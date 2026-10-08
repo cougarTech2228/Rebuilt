@@ -11,17 +11,11 @@ import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.hardware.TalonFXS;
+import com.ctre.phoenix6.signals.ExternalFeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MotorArrangementValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
-import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.FeedbackSensor;
-import com.revrobotics.spark.SparkClosedLoopController;
-import com.revrobotics.spark.config.MAXMotionConfig.MAXMotionPositionMode;
-import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-import com.revrobotics.spark.config.SparkMaxConfig;
-import com.revrobotics.spark.SparkBase.ControlType;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
@@ -42,11 +36,11 @@ public class TurretIOMotors implements TurretIO {
     private final CANcoder enc37; // The encoder on the 37T gear
     private final CANcoder encHood;
 
+    /** Motor controlling pivot angle of the turret */
     private final TalonFXS turretMotor;
     private final MotionMagicVoltage turretControl;
 
-    private final SparkMax hoodMotor;
-    private final SparkClosedLoopController hoodPID;
+    private final TalonFXS hoodMotor;
 
     private final TalonFX flywheelMotor;
     private final MotionMagicVelocityVoltage flywheelControl;
@@ -130,26 +124,28 @@ public class TurretIOMotors implements TurretIO {
         turretMotorCurrentSignal = turretMotor.getTorqueCurrent();
         turretMotorPositionSignal = turretMotor.getPosition();
 
-        hoodMotor = new SparkMax(Constants.CAN_ID_TURRET_HOOD_MOTOR, MotorType.kBrushless);
-        hoodPID = hoodMotor.getClosedLoopController();
+        hoodMotor = new TalonFXS(Constants.CAN_ID_TURRET_HOOD_MOTOR);
 
-        SparkMaxConfig hoodConfig = new SparkMaxConfig();
-        hoodConfig.idleMode(IdleMode.kBrake).smartCurrentLimit(20);
-        hoodConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-            .p(0.5)
-            .i(0)
-            .d(0)
-            .feedForward.kV(0.000);
-        hoodConfig.closedLoop.maxMotion.maxAcceleration(3000);
-        hoodConfig.closedLoop.maxMotion.cruiseVelocity(2000);
-        hoodConfig.closedLoop.maxMotion.positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal);
-        hoodConfig.closedLoop.maxMotion.allowedProfileError(1);
-        hoodConfig.softLimit.forwardSoftLimit(TurretConstants.HOOD_GEAR_RATIO * TurretConstants.HOOD_MAX_ANGLE);
-        hoodConfig.softLimit.reverseSoftLimit(0);
-        hoodConfig.softLimit.forwardSoftLimitEnabled(true);
-        hoodConfig.softLimit.reverseSoftLimitEnabled(true);
-        hoodMotor.configure(hoodConfig, com.revrobotics.ResetMode.kResetSafeParameters, com.revrobotics.PersistMode.kPersistParameters);
-
+        TalonFXSConfiguration hoodConfig = new TalonFXSConfiguration();
+        hoodConfig.Commutation.MotorArrangement = MotorArrangementValue.Minion_JST;
+        hoodConfig.ExternalFeedback.ExternalFeedbackSensorSource = ExternalFeedbackSensorSourceValue.RemoteCANcoder;
+        hoodConfig.ExternalFeedback.FeedbackRemoteSensorID = Constants.CAN_ID_TURRET_HOOD_ENCODER;
+        hoodConfig.ExternalFeedback.SensorToMechanismRatio = 0.0055;
+        hoodConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        hoodConfig.CurrentLimits.SupplyCurrentLimit = 20;
+        hoodConfig.Slot0.kP = 0.5;
+        hoodConfig.Slot0.kI = 0.0;
+        hoodConfig.Slot0.kD = 0.0;
+        // .feedForward.kV(hood0.000);
+        hoodConfig.MotionMagic.MotionMagicAcceleration = 3000;
+        hoodConfig.MotionMagic.MotionMagicCruiseVelocity = 2000;
+        // hoodConfig.closedLoop.maxMotion.positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal);
+        // hoodConfig.closedLoop.maxMotion.allowedProfileError(1);
+        hoodConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = TurretConstants.HOOD_GEAR_RATIO * TurretConstants.HOOD_MAX_ANGLE;
+        hoodConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+        hoodConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0.0;
+        hoodConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
+        hoodMotor.getConfigurator().apply(hoodConfig);
 
         flywheelMotor = new TalonFX(frc.robot.Constants.CAN_ID_TURRET_MOTOR_FLYWHEEL, frc.robot.RobotContainer.kRio);
         flywheelControl = new MotionMagicVelocityVoltage(0);
@@ -256,12 +252,8 @@ public class TurretIOMotors implements TurretIO {
 
     private void seedHoodAngle() {
         double angle = hoodEncoderPositionSignal.waitForUpdate(0.5).getValueAsDouble();
-        double val = angle * TurretConstants.HOOD_GEAR_RATIO;
-        hoodMotor.getEncoder().setPosition(val);
-    }
-
-    private void forceZeroHood() {
-        // hoodMotor.setpO
+        double val = angle * TurretConstants.HOOD_GEAR_RATIO; // is this 0.0055 now?
+        hoodMotor.setPosition(val);
     }
 
     /**
@@ -343,7 +335,7 @@ public class TurretIOMotors implements TurretIO {
         }
 
         hoodElevationTarget = hoodElevation * TurretConstants.HOOD_GEAR_RATIO;
-        hoodPID.setSetpoint(hoodElevationTarget, ControlType.kMAXMotionPositionControl);
+        hoodMotor.setPosition(hoodElevationTarget);
     }
 
     @Override
@@ -369,10 +361,10 @@ public class TurretIOMotors implements TurretIO {
         inputs.turretMotorPosition = turretMotorPositionSignal.getValueAsDouble();
         inputs.turretMotorCurrent = turretMotorCurrentSignal.getValueAsDouble();
 
-        inputs.hoodMotorCurrent = hoodMotor.getOutputCurrent();
+        inputs.hoodMotorCurrent = hoodMotor.getSupplyCurrent().getValueAsDouble();
         inputs.hoodEncoderPosition = hoodEncoderPositionSignal.getValueAsDouble();
         inputs.hoodMotorPIDTarget = hoodElevationTarget;
-        inputs.hoodMotorPosition = hoodMotor.getEncoder().getPosition();
+        inputs.hoodMotorPosition = hoodMotor.getPosition().getValueAsDouble();
 
         inputs.enc31t = pos31Signal.getValueAsDouble(); 
         inputs.enc37t = pos37Signal.getValueAsDouble();

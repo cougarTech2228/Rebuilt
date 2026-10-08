@@ -30,7 +30,7 @@ public class Intake extends SubsystemBase{
         IDLE
     }
 
-     public enum OscillateType {
+    public enum OscillateType {
         STOP,
         ONCE,
         WAVE
