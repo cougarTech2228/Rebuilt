@@ -12,14 +12,18 @@ import static frc.robot.subsystems.vision.VisionConstants.*;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
+import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import org.photonvision.PhotonCamera;
 
 /** IO implementation for real PhotonVision hardware. */
 public class VisionIOPhotonVision implements VisionIO {
+  // Shared immutable "no target" observation to avoid allocating one per empty frame
+  private static final TargetObservation kEmptyTargetObservation =
+      new TargetObservation(new Rotation2d(), new Rotation2d());
+
   protected final PhotonCamera camera;
   protected final Transform3d robotToCamera;
 
@@ -40,16 +44,17 @@ public class VisionIOPhotonVision implements VisionIO {
 
     // Read new camera observations
     Set<Short> tagIds = new HashSet<>();
-    List<PoseObservation> poseObservations = new LinkedList<>();
+    List<PoseObservation> poseObservations = new ArrayList<>();
     for (var result : camera.getAllUnreadResults()) {
       // Update latest target observation
       if (result.hasTargets()) {
+        var bestTarget = result.getBestTarget();
         inputs.latestTargetObservation =
             new TargetObservation(
-                Rotation2d.fromDegrees(result.getBestTarget().getYaw()),
-                Rotation2d.fromDegrees(result.getBestTarget().getPitch()));
+                Rotation2d.fromDegrees(bestTarget.getYaw()),
+                Rotation2d.fromDegrees(bestTarget.getPitch()));
       } else {
-        inputs.latestTargetObservation = new TargetObservation(new Rotation2d(), new Rotation2d());
+        inputs.latestTargetObservation = kEmptyTargetObservation;
       }
 
       // Add pose observation

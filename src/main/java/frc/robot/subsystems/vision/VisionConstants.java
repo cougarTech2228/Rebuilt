@@ -34,6 +34,12 @@ public class VisionConstants {
     public static Transform3d robotToRightCamera = new Transform3d(-0.203, -0.326, 0.188,
             new Rotation3d(0.0, Units.degreesToRadians(-25), Units.degreesToRadians(-90.0)));
             
+    // When true, log TagPoses/RobotPoses/Accepted/Rejected per camera in addition
+    // to the combined summary. The summary alone is usually enough; per-camera
+    // detail doubles the vision logging/NT volume every loop, so leave this off
+    // unless debugging an individual camera.
+    public static boolean logPerCameraDetail = false;
+
     // Basic filtering thresholds
     public static double maxAmbiguity = 0.2;
     public static double maxZError = 0.75;

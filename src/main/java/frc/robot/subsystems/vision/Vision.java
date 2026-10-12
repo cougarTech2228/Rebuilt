@@ -28,7 +28,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.vision.VisionIO.PoseObservationType;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Function;
 import org.littletonrobotics.junction.Logger;
@@ -39,13 +38,21 @@ public class Vision extends SubsystemBase {
   private final VisionIO[] io;
   private final VisionIOInputsAutoLogged[] inputs;
   private final Alert[] disconnectedAlerts;
+  // Precomputed log keys to avoid string concatenation every loop
+  private final String[] cameraLogKeys;
 
   private static record ProcessedVisionUpdate(
       Pose3d pose,
       double timestamp,
-      Matrix<N3, N1> stdDevs,
+      double linearStdDev,
+      double angularStdDev,
       int cameraIndex
-  ) {}
+  ) {
+    /** Combined metric used to tiebreak observations with equal timestamps. */
+    double totalStdDev() {
+      return linearStdDev + linearStdDev + angularStdDev;
+    }
+  }
 
   public Vision(VisionConsumer consumer, Function<Double, Rotation2d> gyroRotationSupplier, VisionIO... io) {
     this.consumer = consumer;
@@ -65,6 +72,12 @@ public class Vision extends SubsystemBase {
           new Alert(
               "Vision camera " + Integer.toString(i) + " is disconnected.", AlertType.kWarning);
     }
+
+    // Precompute log keys
+    this.cameraLogKeys = new String[io.length];
+    for (int i = 0; i < io.length; i++) {
+      cameraLogKeys[i] = "Vision/Camera" + Integer.toString(i);
+    }
   }
 
   /**
@@ -80,17 +93,24 @@ public class Vision extends SubsystemBase {
   public void periodic() {
     for (int i = 0; i < io.length; i++) {
       io[i].updateInputs(inputs[i]);
-      Logger.processInputs("Vision/Camera" + Integer.toString(i), inputs[i]);
+      Logger.processInputs(cameraLogKeys[i], inputs[i]);
     }
 
     // Initialize logging values
-    List<Pose3d> allTagPoses = new LinkedList<>();
-    List<Pose3d> allRobotPoses = new LinkedList<>();
-    List<Pose3d> allRobotPosesAccepted = new LinkedList<>();
-    List<Pose3d> allRobotPosesRejected = new LinkedList<>();
+    List<Pose3d> allTagPoses = new ArrayList<>();
+    List<Pose3d> allRobotPoses = new ArrayList<>();
+    List<Pose3d> allRobotPosesAccepted = new ArrayList<>();
+    List<Pose3d> allRobotPosesRejected = new ArrayList<>();
 
-    // Collect valid updates from all cameras
-    List<ProcessedVisionUpdate> validUpdates = new ArrayList<>();
+    // Best accepted update per camera. Each addVisionMeasurement call forces the
+    // pose estimator to rewind and replay buffered odometry from the measurement
+    // timestamp to the present, so dispatching every unread frame from every
+    // camera (potentially 8+ replays per loop) is expensive. Consecutive frames
+    // from the same camera are highly correlated, so keeping only the newest
+    // accepted observation per camera loses almost no information while capping
+    // the cost at one replay per camera per loop.
+    ProcessedVisionUpdate[] bestUpdates = new ProcessedVisionUpdate[io.length];
+    int acceptedCount = 0;
 
     // Loop over cameras
     for (int cameraIndex = 0; cameraIndex < io.length; cameraIndex++) {
@@ -98,10 +118,10 @@ public class Vision extends SubsystemBase {
       disconnectedAlerts[cameraIndex].set(!inputs[cameraIndex].connected);
 
       // Initialize logging values
-      List<Pose3d> tagPoses = new LinkedList<>();
-      List<Pose3d> robotPoses = new LinkedList<>();
-      List<Pose3d> robotPosesAccepted = new LinkedList<>();
-      List<Pose3d> robotPosesRejected = new LinkedList<>();
+      List<Pose3d> tagPoses = new ArrayList<>();
+      List<Pose3d> robotPoses = new ArrayList<>();
+      List<Pose3d> robotPosesAccepted = new ArrayList<>();
+      List<Pose3d> robotPosesRejected = new ArrayList<>();
 
       // Add tag poses
       for (int tagId : inputs[cameraIndex].tagIds) {
@@ -171,45 +191,67 @@ public class Vision extends SubsystemBase {
           angularStdDev *= cameraStdDevFactors[cameraIndex];
         }
 
-        // Queue vision observation to be sorted and dispatched
-        validUpdates.add(
+        // Keep only the newest accepted observation for this camera
+        // (tiebreak on equal timestamps: lowest total standard deviation)
+        acceptedCount++;
+        var candidate =
             new ProcessedVisionUpdate(
-                bestPose,
-                observation.timestamp(),
-                VecBuilder.fill(linearStdDev, linearStdDev, angularStdDev),
-                cameraIndex));
+                bestPose, observation.timestamp(), linearStdDev, angularStdDev, cameraIndex);
+        var current = bestUpdates[cameraIndex];
+        if (current == null
+            || candidate.timestamp() > current.timestamp()
+            || (candidate.timestamp() == current.timestamp()
+                && candidate.totalStdDev() < current.totalStdDev())) {
+          bestUpdates[cameraIndex] = candidate;
+        }
       }
 
-      // Log camera datadata
-      Logger.recordOutput(
-          "Vision/Camera" + Integer.toString(cameraIndex) + "/TagPoses",
-          tagPoses.toArray(new Pose3d[tagPoses.size()]));
-      Logger.recordOutput(
-          "Vision/Camera" + Integer.toString(cameraIndex) + "/RobotPoses",
-          robotPoses.toArray(new Pose3d[robotPoses.size()]));
-      Logger.recordOutput(
-          "Vision/Camera" + Integer.toString(cameraIndex) + "/RobotPosesAccepted",
-          robotPosesAccepted.toArray(new Pose3d[robotPosesAccepted.size()]));
-      Logger.recordOutput(
-          "Vision/Camera" + Integer.toString(cameraIndex) + "/RobotPosesRejected",
-          robotPosesRejected.toArray(new Pose3d[robotPosesRejected.size()]));
+      // Log per-camera detail only when enabled - this data is duplicated in the
+      // summary logs below, and 16 extra Pose3d[] outputs per loop is significant
+      // serialization + NT bandwidth.
+      if (logPerCameraDetail) {
+        Logger.recordOutput(
+            cameraLogKeys[cameraIndex] + "/TagPoses",
+            tagPoses.toArray(new Pose3d[tagPoses.size()]));
+        Logger.recordOutput(
+            cameraLogKeys[cameraIndex] + "/RobotPoses",
+            robotPoses.toArray(new Pose3d[robotPoses.size()]));
+        Logger.recordOutput(
+            cameraLogKeys[cameraIndex] + "/RobotPosesAccepted",
+            robotPosesAccepted.toArray(new Pose3d[robotPosesAccepted.size()]));
+        Logger.recordOutput(
+            cameraLogKeys[cameraIndex] + "/RobotPosesRejected",
+            robotPosesRejected.toArray(new Pose3d[robotPosesRejected.size()]));
+      }
       allTagPoses.addAll(tagPoses);
       allRobotPoses.addAll(robotPoses);
       allRobotPosesAccepted.addAll(robotPosesAccepted);
       allRobotPosesRejected.addAll(robotPosesRejected);
     }
 
-    // 4. CHRONOLOGICAL & QUALITY SORTING
-    // Sort updates by timestamp (oldest first). If timestamps match, tiebreak by lowest standard deviation.
-    validUpdates.sort(
-        Comparator.comparingDouble(ProcessedVisionUpdate::timestamp)
-            .thenComparingDouble(
-                update -> update.stdDevs().get(0, 0) + update.stdDevs().get(1, 0) + update.stdDevs().get(2, 0)));
-
-    // Send sorted vision observations to drive subsystem
-    for (var update : validUpdates) {
-      consumer.accept(update.pose().toPose2d(), update.timestamp(), update.stdDevs());
+    // 4. CHRONOLOGICAL SORTING & DISPATCH
+    // Dispatch the (at most one per camera) updates oldest-first so each
+    // subsequent addVisionMeasurement replays as little odometry as possible.
+    List<ProcessedVisionUpdate> dispatchUpdates = new ArrayList<>(io.length);
+    for (var update : bestUpdates) {
+      if (update != null) {
+        dispatchUpdates.add(update);
+      }
     }
+    dispatchUpdates.sort(Comparator.comparingDouble(ProcessedVisionUpdate::timestamp));
+
+    // Send vision observations to the drive subsystem, building the stddev
+    // matrix only for the updates actually dispatched
+    for (var update : dispatchUpdates) {
+      consumer.accept(
+          update.pose().toPose2d(),
+          update.timestamp(),
+          VecBuilder.fill(update.linearStdDev(), update.linearStdDev(), update.angularStdDev()));
+    }
+
+    // Log how many observations passed filtering vs how many were dispatched
+    Logger.recordOutput("Vision/Summary/AcceptedObservations", acceptedCount);
+    Logger.recordOutput("Vision/Summary/DispatchedUpdates", dispatchUpdates.size());
 
     // Log summary data
     Logger.recordOutput(

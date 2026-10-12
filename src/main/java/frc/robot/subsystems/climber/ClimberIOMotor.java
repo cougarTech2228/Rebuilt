@@ -49,6 +49,7 @@ public class ClimberIOMotor implements ClimberIO {
 
     private boolean hasClimberHomed = false;
     private boolean hasExtensionHomed = false;
+    private boolean wasExtensionHome = false;
 
     public ClimberIOMotor() {
         climberReadyDIO = new DigitalInput(Constants.DIO_CLIMBER_READY);
@@ -138,9 +139,13 @@ public class ClimberIOMotor implements ClimberIO {
         inputs.extendMotorCurrent = extensionMotor.getOutputCurrent();
         inputs.extendMotorTemp = extensionMotor.getMotorTemperature();
 
-        if (inputs.isExtensionHome) {
+        // Only zero the encoder on the rising edge of the limit switch.
+        // setPosition is a blocking CAN parameter set (several ms) and must
+        // not be called every loop while the switch is held.
+        if (inputs.isExtensionHome && !wasExtensionHome) {
             extensionMotor.getEncoder().setPosition(0);
         }
+        wasExtensionHome = inputs.isExtensionHome;
         
         inputs.isClimberExtended = isExtended(extensionSetpoint);
         inputs.climberMotorPIDTarget = climberSetpoint;
