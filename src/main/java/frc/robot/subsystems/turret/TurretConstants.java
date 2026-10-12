@@ -12,7 +12,7 @@ public class TurretConstants {
     public static final double MIN_FLYWHEEL_SPEED = 10;
 
     public static final double HOOD_MIN_ANGLE = 0;
-    public static final double HOOD_MAX_ANGLE = 1.23;
+    public static final double HOOD_MAX_ANGLE = 40; //90 is mechanical max
 
     public static final double turretTestIntercept = 34.298;
 
@@ -21,9 +21,9 @@ public class TurretConstants {
     public static final double TURRET_MIN_ROTATION = -37;
     public static final double TURRET_MAX_ROTATION = 203;
 
-    public static final double ENCODER_31T_OFFSET = 0.139404;
-    public static final double ENCODER_37T_OFFSET = -0.163574;
-    public static final double ENCODER_HOOD_MAGNET_OFFSET = 0.020020;
+    public static final double ENCODER_31T_OFFSET = -0.0634765625;
+    public static final double ENCODER_37T_OFFSET = -0.049805;
+    public static final double ENCODER_HOOD_MAGNET_OFFSET = 0.339102;
 
     public static final double HOOD_GEAR_RATIO = (85/12);
 }

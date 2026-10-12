@@ -77,25 +77,25 @@ public class Turret extends SubsystemBase{
         SmartDashboard.putNumber("TurretShotSpeedMpS", 15.0);
 
         // map references, (distance away from hub, hood angle)
-        hoodAngleMap.put(1.000, 0.0);
-        hoodAngleMap.put(1.500, 0.1);
-        hoodAngleMap.put(2.000, 0.2);
-        hoodAngleMap.put(2.500, 0.3);
-        hoodAngleMap.put(3.000, 0.4);
-        hoodAngleMap.put(3.500, 0.5);
-        hoodAngleMap.put(4.000, 0.6);
-        hoodAngleMap.put(4.500, 0.7);
+        hoodAngleMap.put(1.180, 00.0);
+        hoodAngleMap.put(1.820, 00.0);
+        hoodAngleMap.put(2.580, 05.0);
+        hoodAngleMap.put(3.000, 15.0);
+        hoodAngleMap.put(4.210, 20.0);
+        // hoodAngleMap.put(5.000, 40.0);
+        hoodAngleMap.put(5.560, 40.0);
+        hoodAngleMap.put(7.750, 40.0);
 
         // map references, (distance away from the hub, flywheel velocity)
-        flywheelVelocityMap.put(1.000, 35.678);
-        flywheelVelocityMap.put(1.500, 36.463);
-        flywheelVelocityMap.put(2.000, 38.157);
-        flywheelVelocityMap.put(2.500, 40.468);
-        flywheelVelocityMap.put(3.000, 43.106);
-        flywheelVelocityMap.put(3.500, 45.779);
-        flywheelVelocityMap.put(4.000, 48.196);
-        flywheelVelocityMap.put(4.500, 50.065);
-        flywheelVelocityMap.put(5.000, 51.095);
+        flywheelVelocityMap.put(1.200, 35.500);
+        flywheelVelocityMap.put(1.820, 37.000);
+        flywheelVelocityMap.put(2.580, 41.000);
+        flywheelVelocityMap.put(3.000, 43.000);
+        flywheelVelocityMap.put(4.210, 45.910);
+        flywheelVelocityMap.put(5.560, 49.500);
+        flywheelVelocityMap.put(7.750, 51.00);
+        flywheelVelocityMap.put(11.390, 40.00);
+        flywheelVelocityMap.put(11.400, 40.00);
 
         // map references, (distance away from hub, seconds airtime)
         flightMap.put(1.500, 0.939);
@@ -216,8 +216,9 @@ public class Turret extends SubsystemBase{
 
         virtualTargetPose = new Pose2d(virtualTargetTrans, realTargetPose.getRotation());
 
-        if (turretEnabled) {
-            if (SmartDashboard.getBoolean("TestMode", false)) {
+        boolean test_mode = SmartDashboard.getBoolean("TestMode", false);
+        if (test_mode || turretEnabled) {
+            if (test_mode) {
                 setHoodElevation(SmartDashboard.getNumber("TurretHoodElevation", 0.0));
                 double ratio = SmartDashboard.getNumber("TurretTestFlywheelRatio", 1.0);
                 double velocity = SmartDashboard.getNumber("TurretFlywheelVelocity", 0.0);

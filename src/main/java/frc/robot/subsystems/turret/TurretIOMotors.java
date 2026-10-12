@@ -39,8 +39,9 @@ public class TurretIOMotors implements TurretIO {
     /** Motor controlling pivot angle of the turret */
     private final TalonFXS turretMotor;
     private final MotionMagicVoltage turretControl;
-
+    
     private final TalonFXS hoodMotor;
+    private final MotionMagicVoltage hoodControl;
 
     private final TalonFX flywheelMotor;
     private final MotionMagicVelocityVoltage flywheelControl;
@@ -99,52 +100,53 @@ public class TurretIOMotors implements TurretIO {
     public TurretIOMotors() {
         turretMotor = new TalonFXS(CAN_ID_TURRET_MOTOR, RobotContainer.kRio);
         turretControl = new MotionMagicVoltage(0);
-
+        
         TalonFXSConfiguration turretConfig = new TalonFXSConfiguration();
         turretConfig.Commutation.MotorArrangement = MotorArrangementValue.NEO550_JST;
         turretConfig.Slot0.kP = 2;
         turretConfig.Slot0.kI = 0.0;
         turretConfig.Slot0.kD = 0.0;
         turretConfig.Slot0.kV = 0.0005;
-
+        
         turretConfig.MotionMagic.MotionMagicCruiseVelocity = 1000; // rotations/sec
         turretConfig.MotionMagic.MotionMagicAcceleration = 100 * 4;  // rotations/sec/sec
         turretConfig.MotionMagic.MotionMagicJerk = 0.0;
-
+        
         turretConfig.ClosedLoopGeneral.ContinuousWrap = false;
-
+        
         // Set limits to safe values
         turretConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = (float)((TurretConstants.TURRET_MAX_ROTATION / 360.0) * TURRET_GEAR_RATIO);
         turretConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
         turretConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = (float)((TurretConstants.TURRET_MIN_ROTATION / 360.0) * TURRET_GEAR_RATIO);
         turretConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-
+        
         turretMotor.getConfigurator().apply(turretConfig);
-
+        
         turretMotorCurrentSignal = turretMotor.getTorqueCurrent();
         turretMotorPositionSignal = turretMotor.getPosition();
-
-        hoodMotor = new TalonFXS(Constants.CAN_ID_TURRET_HOOD_MOTOR);
+        
+        hoodMotor = new TalonFXS(Constants.CAN_ID_TURRET_HOOD_MOTOR, RobotContainer.kRio);
+        hoodControl = new MotionMagicVoltage(0);
 
         TalonFXSConfiguration hoodConfig = new TalonFXSConfiguration();
-        hoodConfig.Commutation.MotorArrangement = MotorArrangementValue.Minion_JST;
+        hoodConfig.Commutation.MotorArrangement = MotorArrangementValue.NEO550_JST;
         hoodConfig.ExternalFeedback.ExternalFeedbackSensorSource = ExternalFeedbackSensorSourceValue.RemoteCANcoder;
         hoodConfig.ExternalFeedback.FeedbackRemoteSensorID = Constants.CAN_ID_TURRET_HOOD_ENCODER;
         hoodConfig.ExternalFeedback.SensorToMechanismRatio = 0.0055;
         hoodConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         hoodConfig.CurrentLimits.SupplyCurrentLimit = 20;
-        hoodConfig.Slot0.kP = 0.5;
+        hoodConfig.Slot0.kP = 0.1;
         hoodConfig.Slot0.kI = 0.0;
-        hoodConfig.Slot0.kD = 0.0;
+        hoodConfig.Slot0.kD = 0.002;
         // .feedForward.kV(hood0.000);
-        hoodConfig.MotionMagic.MotionMagicAcceleration = 3000;
-        hoodConfig.MotionMagic.MotionMagicCruiseVelocity = 2000;
+        hoodConfig.MotionMagic.MotionMagicAcceleration = 1200;
+        hoodConfig.MotionMagic.MotionMagicCruiseVelocity = 1800;
         // hoodConfig.closedLoop.maxMotion.positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal);
         // hoodConfig.closedLoop.maxMotion.allowedProfileError(1);
-        hoodConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = TurretConstants.HOOD_GEAR_RATIO * TurretConstants.HOOD_MAX_ANGLE;
-        hoodConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-        hoodConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0.0;
-        hoodConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
+        // hoodConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = TurretConstants.HOOD_GEAR_RATIO * TurretConstants.HOOD_MAX_ANGLE;
+        // hoodConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+        // hoodConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0.0;
+        // hoodConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
         hoodMotor.getConfigurator().apply(hoodConfig);
 
         flywheelMotor = new TalonFX(frc.robot.Constants.CAN_ID_TURRET_MOTOR_FLYWHEEL, frc.robot.RobotContainer.kRio);
@@ -183,8 +185,6 @@ public class TurretIOMotors implements TurretIO {
         encHood.getConfigurator().apply(configHood);
 
         hoodEncoderPositionSignal = encHood.getPosition();
-
-        seedHoodAngle();
 
         TalonFXConfiguration flywheelConfig = new TalonFXConfiguration();
         TalonFXConfiguration upperFlywheelConfig = new TalonFXConfiguration();
@@ -248,12 +248,6 @@ public class TurretIOMotors implements TurretIO {
         turretMotor.setPosition(motorRotations);
         
         System.out.println("Turret Seeded at: " + absoluteTurretDegrees + " degrees == " + motorRotations);
-    }
-
-    private void seedHoodAngle() {
-        double angle = hoodEncoderPositionSignal.waitForUpdate(0.5).getValueAsDouble();
-        double val = angle * TurretConstants.HOOD_GEAR_RATIO; // is this 0.0055 now?
-        hoodMotor.setPosition(val);
     }
 
     /**
@@ -324,18 +318,18 @@ public class TurretIOMotors implements TurretIO {
         turretPIDTarget = targetMechanismRotations * TURRET_GEAR_RATIO;
         turretMotor.setControl(turretControl.withPosition(turretPIDTarget));
     }
-
+    
     @Override
     // 0-1.4 from minimum elevation to maximum elevation
     public void setHoodAngle(double hoodElevation) {
-        if ( hoodElevation <  TurretConstants.HOOD_MIN_ANGLE) {
+        if (hoodElevation <  TurretConstants.HOOD_MIN_ANGLE) {
             hoodElevation = TurretConstants.HOOD_MIN_ANGLE;
-        } else if ( hoodElevation > TurretConstants.HOOD_MAX_ANGLE) {
+        } else if (hoodElevation > TurretConstants.HOOD_MAX_ANGLE) {
             hoodElevation = TurretConstants.HOOD_MAX_ANGLE;
         }
-
-        hoodElevationTarget = hoodElevation * TurretConstants.HOOD_GEAR_RATIO;
-        hoodMotor.setPosition(hoodElevationTarget);
+        
+        hoodElevationTarget = hoodElevation;
+        hoodMotor.setControl(hoodControl.withPosition(hoodElevationTarget));
     }
 
     @Override
