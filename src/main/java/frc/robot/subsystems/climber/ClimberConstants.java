@@ -9,9 +9,9 @@ public class ClimberConstants {
     public static final double EXTENSION_PID_THRESHOLD = 2;
 
     public static final double CLIMBER_HOME_POSITION = 0;
-    public static final double CLIMBER_L1_POSITION = 250;
-    public static final double CLIMBER_L3_POSITION = 815;
-    public static final double CLIMBER_ROATATION_DEG_PER_MOTOR_ROTATION = 0.33;
+    public static final double CLIMBER_L1_POSITION = 215;
+    public static final double CLIMBER_L3_POSITION = 780;
+    public static final double CLIMBER_ROTATION_DEG_PER_MOTOR_ROTATION = 0.33;
 
     // threshold in motor rotations to consider climb done
     public static final double CLIMBER_PID_THRESHOLD = 2;
