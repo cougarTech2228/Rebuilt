@@ -21,6 +21,7 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.LimitSwitchConfig.Behavior;
 import com.revrobotics.spark.config.LimitSwitchConfig.Type;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import frc.robot.Constants;
 import frc.robot.subsystems.climber.Climber.ClimberLevel;
@@ -84,6 +85,7 @@ public class ClimberIOMotor implements ClimberIO {
                 .allowedProfileError(1);
         extensionConfig.closedLoop.feedForward.kA(0.00004);
         extensionConfig.closedLoop.feedForward.kV(Constants.NEO_550_KV * 10);
+        extensionConfig.idleMode(IdleMode.kBrake);
         
         // extensionConfig.closedLoop.feedForward.kV(Constants.NEO_550_KV); // 1 / 11000 (free RPM)
         extensionMotor.configure(extensionConfig,

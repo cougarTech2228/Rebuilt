@@ -18,6 +18,6 @@ public class IntakeConstants {
 
     public static final double ANGLE_MOTOR_STALL_CURRENT_THRESHOLD = 15;
     public static final double ANGLE_MOTOR_STALL_VELOCITY_THRESHOLD = 100;
-    public static final double INTAKE_ENCODER_OFFSET = 0.447998;
+    public static final double INTAKE_ENCODER_OFFSET = 0.788330;
     public static final double INTAKE_START_WHEELS_POSITION = 28;
 }
