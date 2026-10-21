@@ -30,9 +30,11 @@ public class ExtendClimberCommand extends Command {
 
     @Override
     public void execute() {
-        // we MUST prevent the climber extension from being deployed while the intake is out
+        // we "MUST" prevent the climber extension from being deployed while the intake is out
         // or we will get a penality for extending on 2 sides of the bot
-        if (!intake.isRetracted()){
+
+        // (override)
+        if (false && !intake.isRetracted()){
             intake.setIntakeAngle(IntakeAngle.HOME);
         } else if (!extendCommandSent){
             climber.extend(level);

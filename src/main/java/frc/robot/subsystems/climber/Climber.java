@@ -58,6 +58,7 @@ public class Climber extends SubsystemBase {
     }
 
     public boolean isExtensionHome() {
+        // return true;
         return climberInputs.isExtensionHome;
     }
 

@@ -47,7 +47,7 @@ public class ToggleIntakeCommand extends Command {
         // toggeled = true;
 
         // if the climber is extended, just ignore this request, and finish the command
-        if (climber.isExtensionHome()) {
+        if (true || climber.isExtensionHome()) { // override
             if (intake.isDeployed()) {
                 // Intake is deployed out
                 if (intake.isSpitting()) {

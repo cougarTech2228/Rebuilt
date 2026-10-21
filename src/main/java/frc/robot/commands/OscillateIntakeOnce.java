@@ -25,21 +25,21 @@ public class OscillateIntakeOnce extends Command {
 
     @Override
     public void execute() {
-        if (climber.isExtensionHome()) {
+        if (true || climber.isExtensionHome()) { // override
             // if (!intake.isRetracted()) {
             //     intake.setIntakeAngle(IntakeAngle.DEPLOYED);
             // } else {
             //     intake.setIntakeAngle(IntakeAngle.BUMPED);
             // }
-            if (climber.isExtensionHome()) {
-            // Check the current target angle, and swap it to the other one
-            if (intake.isDeployed()) {
-                intake.setIntakeAngle(IntakeAngle.BUMPED);
-            } else {
-                // If it's BUMPED, RETRACTED, or anything else, push it to DEPLOYED
-                intake.setIntakeAngle(IntakeAngle.DEPLOYED);
+            if (true || climber.isExtensionHome()) { // override
+                // Check the current target angle, and swap it to the other one
+                if (intake.isDeployed()) {
+                    intake.setIntakeAngle(IntakeAngle.BUMPED);
+                } else {
+                    // If it's BUMPED, RETRACTED, or anything else, push it to DEPLOYED
+                    intake.setIntakeAngle(IntakeAngle.DEPLOYED);
+                }
             }
-        }
         }
     }
 
