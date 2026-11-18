@@ -335,7 +335,7 @@ public class Turret extends SubsystemBase{
         if (aimTarget == TurretAimTarget.Hub) {
             // y = 0.1933x - 0.1842 
             // angle = (0.1933 * distance) - 0.1842;
-            angle = hoodAngleMap.get(distance);
+            angle = hoodAngleMap.get(distance) + 50.0;
         } else {
             angle = TurretConstants.HOOD_MAX_ANGLE;
         }
@@ -361,7 +361,7 @@ public class Turret extends SubsystemBase{
             //     + (3.5657 * distance * distance)
             //     - (5.4995 * distance)
             //     + 38;
-            velocity = flywheelVelocityMap.get(distance);
+            velocity = flywheelVelocityMap.get(distance) - 4.0;
 
             double adjustVal = SmartDashboard.getNumber("TurretVelocityAdjust", 0);
             velocity += adjustVal;
@@ -408,8 +408,12 @@ public class Turret extends SubsystemBase{
 
         switch (target) {
             case Hub: {
-                double x = 4.626;
-                double y = 4.031;
+                // Aim at tag 26:
+                double x = 4.021836;
+                double y = 4.034536;
+                // Normal Targets:
+                // double x = 4.626;
+                // double y = 4.031;
                 if (currentAlliance == Alliance.Blue) {
                     pose = new Pose2d(x, y, new Rotation2d());
                 } else {
